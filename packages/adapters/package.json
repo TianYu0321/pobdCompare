@@ -1,0 +1,19 @@
+{
+  "name": "@pobd/adapters",
+  "version": "0.1.0",
+  "description": "数据适配器：build-xml、wegame、poe.ninja",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@pobd/schemas": "0.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0",
+    "@types/node": "^20.12.0"
+  }
+}

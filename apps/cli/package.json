@@ -1,0 +1,23 @@
+{
+  "name": "@pobd/cli",
+  "version": "0.1.0",
+  "description": "CLI 入口：pobd-compare",
+  "bin": {
+    "pobd-compare": "./bin/pobd-compare"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@pobd/schemas": "0.1.0",
+    "@pobd/core": "0.1.0",
+    "@pobd/adapters": "0.1.0",
+    "commander": "^12.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0",
+    "@types/node": "^20.12.0"
+  }
+}

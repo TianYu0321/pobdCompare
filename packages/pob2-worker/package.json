@@ -1,0 +1,19 @@
+{
+  "name": "@pobd/pob2-worker",
+  "version": "0.1.0",
+  "description": "PoB2 Lua 无头运行 Worker 桥接层",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@pobd/schemas": "0.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0",
+    "@types/node": "^20.12.0"
+  }
+}

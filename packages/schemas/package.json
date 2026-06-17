@@ -1,0 +1,18 @@
+{
+  "name": "@pobd/schemas",
+  "version": "0.1.0",
+  "description": "PoB2 BD 分析器的类型定义与 Zod 验证 schemas",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}
