@@ -1,2 +1,1 @@
-// Placeholder
-export const placeholder = true;
+export { VariantGenerator, type VariantWorkerClient, type VariantApplyResult } from './variant-generator';
