@@ -1,2 +1,1 @@
-// Placeholder
-export const placeholder = true;
+export { MutationFactory, type PassiveTreeProvider, type PassiveTreeNode } from './mutation-applier';
