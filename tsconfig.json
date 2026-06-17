@@ -14,7 +14,17 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "composite": true,
-    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "paths": {
+      "@pobd/schemas": ["./packages/schemas/src"],
+      "@pobd/schemas/*": ["./packages/schemas/src/*"],
+      "@pobd/pob2-worker": ["./packages/pob2-worker/src"],
+      "@pobd/pob2-worker/*": ["./packages/pob2-worker/src/*"],
+      "@pobd/core": ["./packages/core/src"],
+      "@pobd/core/*": ["./packages/core/src/*"],
+      "@pobd/adapters": ["./packages/adapters/src"],
+      "@pobd/adapters/*": ["./packages/adapters/src/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "tests"]
