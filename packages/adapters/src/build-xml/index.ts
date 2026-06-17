@@ -1,2 +1,1 @@
-// Placeholder
-export const placeholder = true;
+export { BuildXmlAdapter } from "./build-xml-adapter";
