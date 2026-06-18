@@ -1,7 +1,8 @@
 # PoE2 BD 差异比较工具 — 项目完成状态
 
-> 最后更新：2026-06-18 上午
+> 最后更新：2026-06-18 上午（CLI 已完成）
 > 位置：`D:\pobdCompare`
+> Git 最新提交：`d713269 feat(cli): implement analyze and p1-5a-test commands with adapters`
 
 ## 总体完成度
 
@@ -26,7 +27,7 @@
 - **验证**：`tsc --build` 编译通过
 
 ### 2. PoB2 Worker (`packages/pob2-worker`)
-- ✅ `protocol.ts` — Pob2WorkerRequest、Pob2WorkerResponse、WorkerPoolConfig、WorkerState
+- ✅ `protocol.ts` — Pob2WorkerRequest、Pob2WorkerResponse、WorkerPoolConfig、JobInfo
 - ✅ `bridge.ts` — Pob2Bridge 类：spawn Python 子进程、stdin/stdout JSON 通信、超时控制、错误处理
 - ✅ `worker-pool.ts` — Pob2WorkerPool 类：管理多 Worker（默认 4 个）、工作分配、崩溃恢复、队列调度
 - ✅ `python/driver.py` — Python 入口：读取 stdin JSON、加载 lua51.dll、动态生成 Lua 脚本、执行并输出 JSON
@@ -52,13 +53,13 @@
 - ✅ `wegame/conversion-report.ts` — ConversionReport 构建工具
 - **验证**：`tsc --build` 编译通过
 
-### 5. CLI (`apps/cli`)
-- ⏳ `index.ts` — 占位代码，需替换为完整 Commander.js CLI
-- ⏳ `commands/analyze.ts` — 待创建：analyze 命令实现
-- ⏳ `commands/p1-5a-test.ts` — 待创建：P1.5a 回归测试命令
-- ⏳ `utils/logger.ts` — 待创建：彩色日志
-- ⏳ `utils/file-utils.ts` — 待创建：文件读写工具
-- **验证**：尚未完成
+### 5. CLI (`apps/cli`) ✅ 完成
+- ✅ `index.ts` — Commander.js CLI 入口：注册 `analyze` 和 `p1-5a-test` 命令
+- ✅ `commands/analyze.ts` — analyze 命令实现：读取 build → 创建 baseline → 生成候选 → 并行模拟 → 输出 JSON
+- ✅ `commands/p1-5a-test.ts` — p1-5a-test 命令实现：扫描目录 → 批量回归测试 → 统计成功率
+- ✅ `utils/logger.ts` — 彩色日志工具（info/warn/error/success/title/result/divider）
+- ✅ `utils/file-utils.ts` — 文件读写工具（ensureDir/writeJson/readFile/fileExists/listFiles）
+- **验证**：`tsc --build` 编译通过
 
 ### 6. 测试
 - ⏳ `tests/p0/p0-verify.test.ts` — 待创建：P0 验证（基础 Lua 调用）
@@ -71,14 +72,15 @@
 | 问题 | 影响 | 优先级 |
 |---|---|---|
 | `tsconfig.json` 中 `paths` 映射未生效于 `tsc --noEmit`（需 `--build`） | 开发体验 | 低 |
-| 部分测试文件使用 `any` 类型（ gear-swap-analyzer.test.ts 第 316 行） | 类型安全 | 低 |
-| CLI 包未包含 `commander` 依赖 | 编译/运行 | 中（正在处理） |
+| 部分测试文件使用 `any` 类型（gear-swap-analyzer.test.ts 第 316 行） | 类型安全 | 低 |
+| `SimplePassiveTreeProvider` 的 `linked` 为空数组 | `passive_add` 候选生成退化 | 中（需真实 passive tree 数据） |
+| CLI 适配器中的 `mainOutput` 硬编码为 `undefined` | 功能完整度 | 低（后续迭代） |
 
 ## 下一步行动
 
 1. ✅ 完成 CLI 入口和命令实现
 2. ✅ 安装 `commander` 依赖
-3. ✅ 运行集成测试（合成 build mock）
+3. ⏳ 运行集成测试（合成 build mock）
 4. ⏳ 用户放入真实 `.build` 文件 → 运行 P1.5a 回归测试
 
 ## 定版决策（已确认）
@@ -90,3 +92,10 @@
 - Breakdown：阶段1保留 raw，阶段4归一化
 - 技术栈：TS strict + Vitest + Zod + Commander.js
 - 总体范围：先做阶段1+2，3~6后续排
+
+## 文件统计
+
+- 总 TypeScript 文件数：~50+
+- 总行数：~3000+
+- Git 提交数：7
+- 模块数：5 个包 + 1 个 CLI 应用
