@@ -213,37 +213,44 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def handle_request(request):
     try:
-        mutation = request.get("mutation")
-        if mutation:
-            mutation_type = mutation.get("type")
-            if mutation_type == "passive_add":
-                template_name = "mutation_passive_add.lua"
-            elif mutation_type == "passive_remove":
-                template_name = "mutation_passive_remove.lua"
-            elif mutation_type == "item_swap":
-                template_name = "mutation_gear_swap.lua"
-            else:
-                return {
-                    "success": False,
-                    "error": f"Unsupported mutation type: {mutation_type}",
-                }
+        operation = request.get("operation")
+        if operation == "convert_wegame":
+            template_name = "convert_wegame.lua"
+            set_global_table(L, "_character", request["character"])
+            set_global_string(L, "_catalog_hash", request["catalogHash"])
         else:
-            template_name = "baseline.lua"
+            mutation = request.get("mutation")
+            if mutation:
+                mutation_type = mutation.get("type")
+                if mutation_type == "passive_add":
+                    template_name = "mutation_passive_add.lua"
+                elif mutation_type == "passive_remove":
+                    template_name = "mutation_passive_remove.lua"
+                elif mutation_type == "item_swap":
+                    template_name = "mutation_gear_swap.lua"
+                else:
+                    return {
+                        "success": False,
+                        "error": f"Unsupported mutation type: {mutation_type}",
+                    }
+            else:
+                template_name = "baseline.lua"
 
         template_path = os.path.join(SCRIPT_DIR, "scripts", template_name)
         with open(template_path, "r", encoding="utf-8") as f:
             template = f.read()
 
-        # Set globals
-        set_global_string(L, "_build_xml", request["buildXml"])
-        set_global_number(L, "_skill_number", request["skillNumber"])
-        set_global_number(L, "_weapon_set", request["weaponSet"])
-        set_global_table(L, "_config", request.get("config", {}))
+        if operation != "convert_wegame":
+            # Set globals for baseline/mutation requests.
+            set_global_string(L, "_build_xml", request["buildXml"])
+            set_global_number(L, "_skill_number", request["skillNumber"])
+            set_global_number(L, "_weapon_set", request["weaponSet"])
+            set_global_table(L, "_config", request.get("config", {}))
 
-        if mutation:
-            set_global_table(L, "_mutation", mutation)
-            payload = mutation.get("payload", {})
-            set_global_table(L, "_mutation_payload", payload)
+            if mutation:
+                set_global_table(L, "_mutation", mutation)
+                payload = mutation.get("payload", {})
+                set_global_table(L, "_mutation_payload", payload)
 
         # Load and run template
         ret = lua.luaL_loadstring(L, template.encode("utf-8"))

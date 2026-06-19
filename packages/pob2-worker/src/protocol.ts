@@ -14,13 +14,41 @@ export interface ItemSlotInfo {
   baseType: string;
 }
 
-export interface Pob2WorkerRequest {
+export interface CanonicalWeGameCharacter {
+  name: string;
+  level: number;
+  class: string;
+  league: string;
+  equipment: Record<string, unknown>[];
+  skills: Record<string, unknown>[];
+  jewels: Record<string, unknown>[];
+  passives: {
+    hashes: number[];
+    specialisations: Record<string, number[]>;
+    skill_overrides: Record<string, Record<string, unknown>>;
+    jewel_data: Record<string, Record<string, unknown>>;
+    quest_stats: string[];
+    alternate_ascendancy?: number;
+  };
+  mainSkillHint?: string;
+}
+
+export interface BaselineWorkerRequest {
+  operation?: 'baseline' | 'mutation';
   buildXml: string;
   skillNumber: number;
   weaponSet: number;
   config: Record<string, unknown>;
   mutation?: BuildMutation;
 }
+
+export interface ConvertWeGameWorkerRequest {
+  operation: 'convert_wegame';
+  character: CanonicalWeGameCharacter;
+  catalogHash: string;
+}
+
+export type Pob2WorkerRequest = BaselineWorkerRequest | ConvertWeGameWorkerRequest;
 
 export interface Pob2WorkerResponse {
   success: boolean;
@@ -29,11 +57,31 @@ export interface Pob2WorkerResponse {
   skillDpsList?: SkillDpsInfo[];
   itemSlots?: ItemSlotInfo[];
   passiveNodes?: number[];
+  selectedSkillNumber?: number;
+  selectedSkillName?: string;
   actuallyAddedNodeIds?: number[];
   actuallyRemovedNodeIds?: number[];
   pointCost?: number;
   pathAutoFilled?: boolean;
   cascadeRemoved?: boolean;
+  catalogHash?: string;
+  pobValidation?: {
+    roundTripValid: boolean;
+    baselineValid: boolean;
+    mainSkillValid: boolean;
+  };
+  roundTrip?: {
+    expectedItems: number;
+    expectedEquipment?: number;
+    expectedJewels?: number;
+    importedItems: number;
+    selectedItems?: number;
+    expectedSkills: number;
+    importedSkills: number;
+    expectedPassives: number;
+    importedPassives: number;
+    missingPassiveIds?: number[];
+  };
   error?: string;
   variantXml?: string;
 }

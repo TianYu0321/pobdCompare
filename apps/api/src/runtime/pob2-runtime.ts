@@ -2,6 +2,11 @@ import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
 
 import {
+  MappingCatalogProvider,
+  type CanonicalWeGameCharacter,
+  type MappingCatalog,
+} from '@pobd/adapters';
+import {
   BaselineManager,
   ResultComparator,
   type BaselineComputeResult,
@@ -55,12 +60,73 @@ export interface BaselineInput {
   source: BaselineSnapshot['source'];
   character?: BaselineSnapshot['character'];
   league?: string;
+  preferredSkillNumber?: number;
+  preferredSkillName?: string;
 }
 
 export class Pob2Runtime {
   private pool?: Pob2WorkerPool;
   private manager?: BaselineManager;
   private version = 'unknown';
+  private catalogProvider?: MappingCatalogProvider;
+
+  async getWeGameCatalog(): Promise<MappingCatalog> {
+    await this.ensureStarted();
+    return this.catalogProvider!.getCatalog();
+  }
+
+  async convertWeGame(input: {
+    character: CanonicalWeGameCharacter;
+    catalogHash: string;
+  }): Promise<{
+    buildXml: string;
+    baseline: BaselineSnapshot;
+    validation: {
+      roundTripValid: boolean;
+      baselineValid: boolean;
+      mainSkillValid: boolean;
+    };
+  }> {
+    await this.ensureStarted();
+    const response = await this.pool!.submit({
+      operation: 'convert_wegame',
+      character: input.character,
+      catalogHash: input.catalogHash,
+    });
+    if (!response.success) {
+      if (response.pobValidation && !response.pobValidation.roundTripValid) {
+        const missing = response.roundTrip?.missingPassiveIds ?? [];
+        throw new Error(
+          `round_trip_mismatch: items ${response.roundTrip?.importedItems ?? 0}/`
+          + `${response.roundTrip?.expectedItems ?? 0}, skills `
+          + `${response.roundTrip?.importedSkills ?? 0}/`
+          + `${response.roundTrip?.expectedSkills ?? 0}, missing passives `
+          + `${missing.join(',') || 'none'}`,
+        );
+      }
+      throw new Error(response.error ?? 'PoB2 native WeGame import failed');
+    }
+    if (response.catalogHash !== input.catalogHash) {
+      throw new Error('catalog_version_mismatch: PoB2 worker returned a different catalog hash');
+    }
+    const buildXml = response.variantXml;
+    if (!buildXml) throw new Error('pob_import_failed: PoB2 did not return Build XML');
+    const validation = response.pobValidation;
+    if (!validation) throw new Error('round_trip_mismatch: PoB2 returned no validation snapshot');
+    const baseline = await this.computeBaseline({
+      buildXml,
+      source: 'wegame',
+      league: input.character.league,
+      preferredSkillNumber: response.selectedSkillNumber,
+      preferredSkillName: response.selectedSkillName ?? input.character.mainSkillHint,
+      character: {
+        name: input.character.name,
+        level: input.character.level,
+        className: input.character.class,
+      },
+    });
+    return { buildXml, baseline, validation };
+  }
 
   async computeBaseline(input: BaselineInput): Promise<BaselineSnapshot> {
     await this.ensureStarted();
@@ -72,12 +138,12 @@ export class Pob2Runtime {
       gameVersion: 'poe2',
       league: input.league,
       character: input.character,
-      skillNumber: 1,
+      skillNumber: input.preferredSkillNumber ?? 1,
       weaponSet: 1,
       mainSkillSelection: {
-        selectedSkillNumber: 1,
+        selectedSkillNumber: input.preferredSkillNumber ?? 1,
         selectedSkillName: '待识别',
-        selectionMode: 'auto_single',
+        selectionMode: input.preferredSkillNumber ? 'user_confirmed' : 'auto_single',
         candidates: [],
         warnings: [],
       },
@@ -92,6 +158,22 @@ export class Pob2Runtime {
       }))
       .sort((a, b) => b.dps - a.dps);
     const selected = candidates[0];
+    if (input.preferredSkillNumber) {
+      const preferred = candidates.find(
+        (candidate) => candidate.skillNumber === input.preferredSkillNumber,
+      );
+      provisional.mainSkillSelection = {
+        selectedSkillNumber: input.preferredSkillNumber,
+        selectedSkillName:
+          input.preferredSkillName
+          ?? preferred?.name
+          ?? `Skill ${input.preferredSkillNumber}`,
+        selectionMode: 'user_confirmed',
+        candidates,
+        warnings: preferred ? [] : ['PoB2 did not return the validated main skill in its skill list.'],
+      };
+      return provisional;
+    }
     if (!selected || selected.skillNumber === 1) {
       provisional.mainSkillSelection = {
         selectedSkillNumber: selected?.skillNumber ?? 1,
@@ -249,6 +331,7 @@ export class Pob2Runtime {
     this.pool?.shutdown();
     this.pool = undefined;
     this.manager = undefined;
+    this.catalogProvider = undefined;
   }
 
   private async ensureStarted(): Promise<void> {
@@ -261,6 +344,10 @@ export class Pob2Runtime {
       pobRoot: installation.root,
       maxWorkers: Number(process.env.POB2_WORKERS ?? 2),
       requestTimeoutMs: Number(process.env.POB2_TIMEOUT_MS ?? 60_000),
+    });
+    this.catalogProvider = new MappingCatalogProvider({
+      pobRoot: installation.root,
+      cacheDir: path.resolve(process.cwd(), '.cache', 'wegame-mapping'),
     });
     this.manager = new BaselineManager(new PoolBaselineClient(this.pool), {
       enableFileCache: true,

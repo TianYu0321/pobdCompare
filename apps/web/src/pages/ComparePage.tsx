@@ -88,9 +88,16 @@ export default function ComparePage() {
     });
     try {
       const jobId = source instanceof File ? await importFile(source) : await importUrl(source);
-      const result = await waitForJob<ImportResult>(jobId, () => setStage(`正在导入 Build ${side.toUpperCase()}`));
+      const result = await waitForJob<ImportResult>(
+        jobId,
+        (job) => setStage(job.message ?? `正在导入 Build ${side.toUpperCase()}`),
+      );
       setSide(side, { result, loading: false });
-      setStage(result.status === 'calculable' ? 'PoB2 baseline 已验证' : '数据已接入，等待可计算映射');
+      setStage(
+        result.status === 'calculable'
+          ? 'PoB2 baseline 已验证'
+          : result.conversionReport.blockers[0]?.reason ?? '数据已接入，但存在精确映射阻断',
+      );
     } catch (caught) {
       setSide(side, { loading: false });
       setError(caught instanceof Error ? caught.message : String(caught));
@@ -103,7 +110,13 @@ export default function ComparePage() {
       return;
     }
     if (sides.a.result.status !== 'calculable' || (sides.b.result && sides.b.result.status !== 'calculable')) {
-      setError('当前构筑尚未通过 PoB2 可计算验证，不能启动模拟。');
+      const blocked = sides.a.result.status !== 'calculable'
+        ? sides.a.result
+        : sides.b.result;
+      const reason = blocked?.conversionReport.blockers[0]?.reason;
+      setError(reason
+        ? `当前构筑未通过 PoB2 可计算验证：${reason}`
+        : '当前构筑尚未通过 PoB2 可计算验证，不能启动模拟。');
       return;
     }
     setError('');
@@ -356,7 +369,18 @@ function BuildPanel({
         {tab === 'skills' && <Skills build={build} selected={selectedSkill} />}
         {tab === 'passives' && <PassiveRanks calculable={result.status === 'calculable'} rankings={passives} />}
       </div>
-      {result.warnings.length > 0 && <div className="warning-line">{result.warnings[0]}</div>}
+      {result.conversionReport.blockers.length > 0 && (
+        <div className="warning-line">
+          {result.conversionReport.blockers.slice(0, 3).map((blocker) => (
+            <div key={`${blocker.code}:${blocker.source}`}>
+              {blocker.category} · {blocker.source}：{blocker.reason}
+            </div>
+          ))}
+        </div>
+      )}
+      {result.conversionReport.blockers.length === 0 && result.warnings.length > 0 && (
+        <div className="warning-line">{result.warnings[0]}</div>
+      )}
     </section>
   );
 }

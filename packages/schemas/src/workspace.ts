@@ -7,6 +7,9 @@ import { NormalizedBuildSchema } from './normalized-build';
 import { SimulationResultSchema } from './simulation';
 
 export const AnalysisStageSchema = z.enum([
+  'refresh_mapping_catalog',
+  'map_wegame_metadata',
+  'validate_pob2_import',
   'read_build_a',
   'read_build_b',
   'select_main_skill',

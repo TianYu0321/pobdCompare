@@ -41,7 +41,16 @@ export async function createApp(dependencies: AppDependencies): Promise<FastifyI
           result = await dependencies.imports.importBuildXml((await file.toBuffer()).toString('utf8'));
         } else {
           const body = request.body as { url?: string; buildXml?: string };
-          if (body?.url) result = await dependencies.imports.importUrl(body.url);
+          if (body?.url) {
+            result = await dependencies.imports.importUrl(body.url, (stage, message) => {
+              jobs.emit(job.id, {
+                type: 'stage',
+                stage,
+                message,
+                timestamp: Date.now(),
+              });
+            });
+          }
           else if (body?.buildXml) result = await dependencies.imports.importBuildXml(body.buildXml);
           else throw new Error('需要 url 或 buildXml');
         }

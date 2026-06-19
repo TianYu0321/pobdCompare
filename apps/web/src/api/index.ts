@@ -20,6 +20,21 @@ export interface ImportResult {
   normalizedBuild?: NormalizedBuild;
   baseline?: BaselineSummary;
   warnings: string[];
+  conversionReport: {
+    status: 'complete' | 'blocked' | 'validation_failed' | 'partial' | 'degraded' | 'failed';
+    catalogHash?: string;
+    blockers: Array<{
+      code: string;
+      category: string;
+      source: string;
+      reason: string;
+    }>;
+    pobValidation?: {
+      roundTripValid: boolean;
+      baselineValid: boolean;
+      mainSkillValid: boolean;
+    };
+  };
   error?: string;
 }
 
@@ -28,6 +43,8 @@ export interface ApiJob<T = unknown> {
   status: 'pending' | 'running' | 'completed' | 'failed';
   result?: T;
   error?: string;
+  stage?: string;
+  message?: string;
 }
 
 export interface GearCandidate {
@@ -119,7 +136,7 @@ export async function getJob<T>(jobId: string): Promise<ApiJob<T>> {
   );
 }
 
-export async function waitForJob<T>(
+async function waitForJobPolling<T>(
   jobId: string,
   onUpdate?: (job: ApiJob<T>) => void,
 ): Promise<T> {
@@ -130,6 +147,45 @@ export async function waitForJob<T>(
     if (job.status === 'failed') throw new Error(job.error ?? '作业失败');
     await new Promise((resolve) => window.setTimeout(resolve, 300));
   }
+}
+
+export async function waitForJob<T>(
+  jobId: string,
+  onUpdate?: (job: ApiJob<T>) => void,
+): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const events = new EventSource(`${API_BASE}/jobs/${encodeURIComponent(jobId)}/events`);
+    let result: T | undefined;
+    events.onmessage = (message) => {
+      const event = JSON.parse(message.data) as {
+        type: string;
+        stage?: string;
+        message?: string;
+        data?: T;
+      };
+      if (event.type === 'stage') {
+        onUpdate?.({
+          id: jobId,
+          status: 'running',
+          stage: event.stage,
+          message: event.message,
+        });
+      } else if (event.type === 'result' && event.data !== undefined) {
+        result = event.data;
+      } else if (event.type === 'complete') {
+        events.close();
+        if (result === undefined) reject(new Error('作业完成但没有返回结果'));
+        else resolve(result);
+      } else if (event.type === 'error') {
+        events.close();
+        reject(new Error(event.message ?? '作业失败'));
+      }
+    };
+    events.onerror = () => {
+      events.close();
+      void waitForJobPolling(jobId, onUpdate).then(resolve, reject);
+    };
+  });
 }
 
 export async function getGearCandidates(

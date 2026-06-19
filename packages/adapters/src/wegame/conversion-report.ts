@@ -3,6 +3,8 @@ import type { ConversionReport, UnknownMod, UnmappedItem, UnmappedNode, Unmapped
 export function createConversionReport(): ConversionReport {
   return {
     status: "complete",
+    mapped: [],
+    blockers: [],
     skillMapped: 0,
     skillTotal: 0,
     itemMapped: 0,

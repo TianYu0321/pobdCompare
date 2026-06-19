@@ -2,8 +2,11 @@ import { randomUUID } from 'node:crypto';
 
 import {
   BuildXmlAdapter,
+  MappingCatalog,
   PoeNinjaAdapter,
   WeGameAdapter,
+  convertWeGameToCanonical,
+  type CanonicalWeGameCharacter,
   createConversionReport,
   normalizeWeGame,
 } from '@pobd/adapters';
@@ -12,6 +15,7 @@ import type {
   ConversionReport,
   ImportResult,
   NormalizedBuild,
+  AnalysisStage,
 } from '@pobd/schemas';
 
 export interface BaselineComputer {
@@ -21,11 +25,26 @@ export interface BaselineComputer {
     character?: BaselineSnapshot['character'];
     league?: string;
   }): Promise<BaselineSnapshot>;
+  getWeGameCatalog?(): Promise<MappingCatalog>;
+  convertWeGame?(input: {
+    character: CanonicalWeGameCharacter;
+    catalogHash: string;
+  }): Promise<{
+    buildXml: string;
+    baseline: BaselineSnapshot;
+    validation: {
+      roundTripValid: boolean;
+      baselineValid: boolean;
+      mainSkillValid: boolean;
+    };
+  }>;
 }
 
 export interface StoredImport extends ImportResult {
   buildXml?: string;
 }
+
+export type ImportProgress = (stage: AnalysisStage, message: string) => void;
 
 export class ImportService {
   private readonly imports = new Map<string, StoredImport>();
@@ -72,9 +91,9 @@ export class ImportService {
     return this.publicResult(result);
   }
 
-  async importUrl(url: string): Promise<ImportResult> {
+  async importUrl(url: string, onProgress?: ImportProgress): Promise<ImportResult> {
     if (this.wegameAdapter.isWeGameLink(url)) {
-      return this.importWeGame(url);
+      return this.importWeGame(url, onProgress);
     }
     if (this.poeNinjaAdapter.isPoeNinjaLink(url)) {
       return this.importPoeNinja(url);
@@ -114,7 +133,123 @@ export class ImportService {
     return this.publicResult(result);
   }
 
-  private async importWeGame(url: string): Promise<ImportResult> {
+  private async importWeGame(url: string, onProgress?: ImportProgress): Promise<ImportResult> {
+    const id = randomUUID();
+    const fetched = await this.wegameAdapter.fetchWeGameBuild(url);
+    const displayBuild = normalizeWeGame(fetched);
+    if (!this.baselineComputer.getWeGameCatalog || !this.baselineComputer.convertWeGame) {
+      const report = createConversionReport();
+      report.status = 'blocked';
+      report.blockers.push({
+        code: 'catalog_refresh_failed',
+        category: 'catalog',
+        source: 'local-runtime',
+        reason: 'WeGame → PoB2 native bridge is unavailable',
+      });
+      return this.storeWeGameResult({
+        id,
+        status: 'normalized',
+        normalizedBuild: displayBuild,
+        conversionReport: report,
+        warnings: displayBuild.warnings,
+      });
+    }
+
+    onProgress?.('refresh_mapping_catalog', '刷新并校验 PoB2 映射目录');
+    let catalog: MappingCatalog;
+    try {
+      catalog = await this.baselineComputer.getWeGameCatalog();
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      const report = createConversionReport();
+      report.status = 'blocked';
+      report.blockers.push({
+        code: 'catalog_refresh_failed',
+        category: 'catalog',
+        source: 'mapping-catalog',
+        reason,
+      });
+      return this.storeWeGameResult({
+        id,
+        status: 'normalized',
+        normalizedBuild: displayBuild,
+        conversionReport: report,
+        warnings: [...displayBuild.warnings, reason],
+      });
+    }
+    onProgress?.('map_wegame_metadata', '精确映射 WeGame 装备、技能、词条与天赋');
+    const conversion = convertWeGameToCanonical({
+      roleInfo: fetched.roleInfo,
+      equipments: fetched.equipments as Record<string, unknown>[],
+      skills: fetched.skills as Record<string, unknown>[],
+      talentTree: fetched.talentTree as Record<string, unknown> & { hashes: number[] },
+      jewels: fetched.jewels,
+      roleKeyData: fetched.roleKeyData,
+    }, catalog);
+    if (conversion.report.status !== 'complete') {
+      return this.storeWeGameResult({
+        id,
+        status: 'normalized',
+        normalizedBuild: displayBuild,
+        conversionReport: conversion.report,
+        warnings: [
+          ...displayBuild.warnings,
+          ...conversion.report.blockers.map((blocker) => blocker.reason),
+        ],
+      });
+    }
+
+    try {
+      onProgress?.('validate_pob2_import', '通过 PoB2 原生导入并执行 SaveDB/reload 校验');
+      const native = await this.baselineComputer.convertWeGame({
+        character: conversion.character,
+        catalogHash: catalog.hash,
+      });
+      conversion.report.pobValidation = native.validation;
+      onProgress?.('compute_baselines', '读取 PoB2 重算 baseline');
+      conversion.report.status = Object.values(native.validation).every(Boolean)
+        ? 'complete'
+        : 'validation_failed';
+      if (conversion.report.status !== 'complete') {
+        conversion.report.blockers.push({
+          code: 'round_trip_mismatch',
+          category: 'validation',
+          source: conversion.character.name,
+          reason: 'PoB2 SaveDB/reload validation failed',
+        });
+      }
+      const normalizedBuild = this.normalizedFromBaseline(native.baseline, 'wegame');
+      return this.storeWeGameResult({
+        id,
+        status: conversion.report.status === 'complete' ? 'calculable' : 'normalized',
+        normalizedBuild,
+        baseline: conversion.report.status === 'complete' ? native.baseline : undefined,
+        buildXml: native.buildXml,
+        conversionReport: conversion.report,
+        warnings: normalizedBuild.warnings,
+      });
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      conversion.report.status = 'validation_failed';
+      conversion.report.blockers.push({
+        code: reason.startsWith('round_trip_mismatch')
+          ? 'round_trip_mismatch'
+          : 'pob_import_failed',
+        category: 'validation',
+        source: conversion.character.name,
+        reason,
+      });
+      return this.storeWeGameResult({
+        id,
+        status: 'normalized',
+        normalizedBuild: displayBuild,
+        conversionReport: conversion.report,
+        warnings: [...displayBuild.warnings, reason],
+      });
+    }
+  }
+
+  private async importWeGameLegacy(url: string): Promise<ImportResult> {
     const id = randomUUID();
     const fetched = await this.wegameAdapter.fetchWeGameBuild(url);
     const normalizedBuild = normalizeWeGame(fetched);
@@ -133,6 +268,14 @@ export class ImportService {
     };
     this.imports.set(id, result);
     return this.publicResult(result);
+  }
+
+  private storeWeGameResult(
+    result: Omit<StoredImport, 'source'> & { source?: 'wegame' },
+  ): ImportResult {
+    const stored: StoredImport = { ...result, source: 'wegame' };
+    this.imports.set(stored.id, stored);
+    return this.publicResult(stored);
   }
 
   private normalizedFromBaseline(

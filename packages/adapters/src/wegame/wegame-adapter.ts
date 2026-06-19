@@ -180,10 +180,14 @@ export class WeGameAdapter {
       equipments: equipmentsResp.equipments as unknown[] ?? [],
       skills: skillsResp.skills as unknown[] ?? [],
       skillsDps: skillsDpsResp.skills_dps as unknown[] ?? [],
-      talentTree: (talentTreeResp.talent_tree as { hashes: number[] }) ?? { hashes: [] },
+      talentTree: (talentTreeResp.talent_tree as { hashes: number[] })
+        ?? (this.withoutResult(talentTreeResp) as { hashes: number[] })
+        ?? { hashes: [] },
       panel: this.withoutResult(panelResp),
       jewels: this.withoutResult(jewelsResp),
-      roleKeyData: (roleKeyDataResp.key_data as Record<string, unknown>) ?? {},
+      roleKeyData: (roleKeyDataResp.key_data as Record<string, unknown>)
+        ?? (roleKeyDataResp.data as Record<string, unknown>)
+        ?? this.withoutResult(roleKeyDataResp),
       roleSummary: (roleSummaryResp.summary as Record<string, unknown>) ?? {},
       raw: {
         GetRoleInfo: roleInfoResp,
