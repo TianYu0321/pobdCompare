@@ -16,7 +16,7 @@ import {
   type WorkspaceResult,
 } from '@/api';
 import type { BuildDiffResult, EquipmentSlot, NormalizedBuild } from '@/types';
-import { extractHitLines, computeHitLinesDelta } from '@/lib/hit-lines';
+import { extractHitLines, computeHitLinesDelta, safePercentDelta } from '@/lib/hit-lines';
 
 type Side = 'a' | 'b';
 type Tab = 'equipment' | 'skills' | 'passives';
@@ -527,8 +527,8 @@ function DiffRail({
           {view === 'offence' ? (
             <>
               <CompareMetric label="DPS" a={dpsA} b={dpsB} delta={diff.dpsDiff?.diffPercent} />
-              <CompareMetric label="平均击中" a={typeof avgA === 'number' ? avgA : undefined} b={typeof avgB === 'number' ? avgB : undefined} delta={typeof avgA === 'number' && typeof avgB === 'number' ? avgA !== 0 ? ((avgB - avgA) / avgA) * 100 : 0 : undefined} />
-              <CompareMetric label="暴击率" a={typeof critA === 'number' ? critA : undefined} b={typeof critB === 'number' ? critB : undefined} delta={typeof critA === 'number' && typeof critB === 'number' ? critA !== 0 ? ((critB - critA) / critA) * 100 : 0 : undefined} />
+              <CompareMetric label="平均击中" a={avgA} b={avgB} delta={safePercentDelta(avgA, avgB)} />
+              <CompareMetric label="暴击率" a={critA} b={critB} delta={safePercentDelta(critA, critB)} />
             </>
           ) : (
             <>

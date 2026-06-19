@@ -342,6 +342,73 @@ describe('ResultComparator', () => {
     expect(result.hitLineDelta?.physicalHitLineDelta?.delta).toBe(100);
   });
 
+  it('should keep new PhysicalMaximumHitTaken and fill missing elemental from legacy ElementalHitDamage in calcsOutput', () => {
+    const baseline = createBaseline(1000);
+    (baseline.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 400;
+    (baseline.calcsOutput as Record<string, unknown>).ElementalHitDamage = 200;
+
+    const variant = createVariant(baseline, 1200);
+    (variant.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 500;
+    (variant.calcsOutput as Record<string, unknown>).ElementalHitDamage = 250;
+
+    const result = comparator.compare(baseline, variant);
+
+    expect(result.hitLineDelta?.physicalHitLineDelta?.delta).toBe(100);
+    expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(50);
+    expect(result.hitLineDelta?.source).toBe('pob2_output');
+  });
+
+  it('should keep new physical from calcsOutput and fill missing elemental from legacy in rawBreakdown', () => {
+    const baseline = createBaseline(1000);
+    (baseline.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 400;
+    (baseline.calcsOutput as Record<string, unknown>).ChaosMaximumHitTaken = 150;
+    baseline.rawBreakdown = { ElementalHitDamage: 200 };
+
+    const variant = createVariant(baseline, 1200);
+    (variant.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 500;
+    (variant.calcsOutput as Record<string, unknown>).ChaosMaximumHitTaken = 250;
+    variant.rawBreakdown = { ElementalHitDamage: 250 };
+
+    const result = comparator.compare(baseline, variant);
+
+    expect(result.hitLineDelta?.physicalHitLineDelta?.delta).toBe(100);
+    expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(50);
+    expect(result.hitLineDelta?.source).toBe('normalized_breakdown');
+  });
+
+  it('should keep new PhysicalMaximumHitTaken from calcsOutput and fill missing elemental from legacy in mainOutput when earlier sources lack it', () => {
+    // Neither calcsOutput nor rawBreakdown have elemental hits, only mainOutput
+    const baseline = createBaseline(1000);
+    (baseline.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 400;
+    baseline.mainOutput = { ElementalHitDamage: 200 };
+
+    const variant = createVariant(baseline, 1200);
+    (variant.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 500;
+    variant.mainOutput = { ElementalHitDamage: 250 };
+
+    const result = comparator.compare(baseline, variant);
+
+    // Physical fills from calcsOutput; elemental fills from legacy in mainOutput
+    // since neither calcsOutput nor rawBreakdown have it
+    expect(result.hitLineDelta?.physicalHitLineDelta?.delta).toBe(100);
+    expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(50);
+    expect(result.hitLineDelta?.source).toBe('panel_fallback');
+  });
+
+  it('should fall through to mainOutput when neither calcsOutput nor rawBreakdown have any new or legacy hit line keys', () => {
+    const baseline = createBaseline(1000);
+    baseline.mainOutput = { PhysicalMaximumHitTaken: 400, FireMaximumHitTaken: 300, ColdMaximumHitTaken: 250 };
+
+    const variant = createVariant(baseline, 1200);
+    variant.mainOutput = { PhysicalMaximumHitTaken: 500, FireMaximumHitTaken: 400, ColdMaximumHitTaken: 350 };
+
+    const result = comparator.compare(baseline, variant);
+
+    expect(result.hitLineDelta?.physicalHitLineDelta?.delta).toBe(100);
+    expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(100);
+    expect(result.hitLineDelta?.source).toBe('panel_fallback');
+  });
+
   it('should include warnings when calc output is missing', () => {
     const baseline = createBaseline(1000);
     const variant = createVariant(baseline, 1200, {

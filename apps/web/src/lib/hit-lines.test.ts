@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { extractHitLines, computeHitLinesDelta } from './hit-lines';
+import { extractHitLines, computeHitLinesDelta, safePercentDelta } from './hit-lines';
 import type { ImportResult } from '@/api';
 
 function mockResult(overrides: Partial<ImportResult> = {}): ImportResult {
@@ -109,6 +109,94 @@ describe('extractHitLines', () => {
     const h = extractHitLines(result);
     expect(h.physical).toBe(0);
     expect(h.elemental).toBeUndefined();
+  });
+});
+
+describe('safePercentDelta', () => {
+  it('should return undefined when A is zero', () => {
+    expect(safePercentDelta(0, 5)).toBeUndefined();
+  });
+  it('should return undefined when A is undefined', () => {
+    expect(safePercentDelta(undefined, 5)).toBeUndefined();
+  });
+  it('should return undefined when B is undefined', () => {
+    expect(safePercentDelta(10, undefined)).toBeUndefined();
+  });
+  it('should compute positive percentage', () => {
+    expect(safePercentDelta(100, 150)).toBe(50);
+  });
+  it('should compute negative percentage', () => {
+    expect(safePercentDelta(100, 80)).toBe(-20);
+  });
+  it('should return undefined when both undefined', () => {
+    expect(safePercentDelta(undefined, undefined)).toBeUndefined();
+  });
+});
+
+describe('extractHitLines', () => {
+  it('should fall back per-field to rawBreakdown numeric values when calcsOutput is missing', () => {
+    const result = mockResult({
+      baseline: {
+        baselineHash: 'h',
+        mainSkillSelection: { selectedSkillName: 's', selectedSkillNumber: 1, candidates: [] },
+        calcsOutput: { PhysicalMaximumHitTaken: 400, Life: 3000 },
+        rawBreakdown: { FireMaximumHitTaken: 300, ColdMaximumHitTaken: 250, LightningMaximumHitTaken: 200, ChaosMaximumHitTaken: 150 },
+      },
+    });
+    const h = extractHitLines(result);
+    expect(h.physical).toBe(400); // from calcsOutput
+    expect(h.fire).toBe(300); // from rawBreakdown
+    expect(h.cold).toBe(250);
+    expect(h.lightning).toBe(200);
+    expect(h.chaos).toBe(150);
+    expect(h.elemental).toBe(200); // min(300,250,200) = 200
+    expect(h.life).toBe(3000);
+  });
+
+  it('should ignore object-shaped rawBreakdown entries', () => {
+    const result = mockResult({
+      baseline: {
+        baselineHash: 'h',
+        mainSkillSelection: { selectedSkillName: 's', selectedSkillNumber: 1, candidates: [] },
+        calcsOutput: {},
+        rawBreakdown: {
+          PhysicalMaximumHitTaken: { some: 'object' },
+          FireMaximumHitTaken: { nested: true },
+        },
+      },
+    });
+    const h = extractHitLines(result);
+    expect(h.physical).toBeUndefined();
+    expect(h.fire).toBeUndefined();
+  });
+
+  it('should prefer calcsOutput over rawBreakdown per-field', () => {
+    const result = mockResult({
+      baseline: {
+        baselineHash: 'h',
+        mainSkillSelection: { selectedSkillName: 's', selectedSkillNumber: 1, candidates: [] },
+        calcsOutput: { PhysicalMaximumHitTaken: 500 },
+        rawBreakdown: { PhysicalMaximumHitTaken: 100 },
+      },
+    });
+    const h = extractHitLines(result);
+    expect(h.physical).toBe(500);
+  });
+
+  it('should derive elemental from per-field blended calcsOutput+breakdown values', () => {
+    const result = mockResult({
+      baseline: {
+        baselineHash: 'h',
+        mainSkillSelection: { selectedSkillName: 's', selectedSkillNumber: 1, candidates: [] },
+        calcsOutput: { FireMaximumHitTaken: 100 },
+        rawBreakdown: { ColdMaximumHitTaken: 200, LightningMaximumHitTaken: 300 },
+      },
+    });
+    const h = extractHitLines(result);
+    expect(h.fire).toBe(100);
+    expect(h.cold).toBe(200);
+    expect(h.lightning).toBe(300);
+    expect(h.elemental).toBe(100); // min(100,200,300) = 100
   });
 });
 
