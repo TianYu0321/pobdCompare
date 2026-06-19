@@ -1,0 +1,28 @@
+{
+  "name": "@pobd/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc --build",
+    "start": "node dist/index.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.2",
+    "@fastify/multipart": "^9.0.3",
+    "@pobd/adapters": "0.1.0",
+    "@pobd/core": "0.1.0",
+    "@pobd/pob2-worker": "0.1.0",
+    "@pobd/schemas": "0.1.0",
+    "fastify": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}

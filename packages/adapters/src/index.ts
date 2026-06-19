@@ -2,3 +2,5 @@
 
 export * from './build-xml';
 export * from './wegame';
+export * from './normalizers';
+export * from './poe-ninja';

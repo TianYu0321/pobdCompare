@@ -79,6 +79,35 @@ describe("BuildXmlAdapter", () => {
       });
     });
 
+    it("maps PoB2 ItemSet slots to raw Item blocks", async () => {
+      const xml = `
+        <PathOfBuilding2>
+          <Items activeItemSet="1">
+            <Item id="7">
+              Rarity: RARE
+              Fate Crown
+              Kamasan Tiara
+              +20 to maximum Life
+            </Item>
+            <ItemSet id="1">
+              <Slot name="Helmet" itemId="7"/>
+            </ItemSet>
+          </Items>
+        </PathOfBuilding2>`;
+
+      const parsed = await adapter.parseBuildXml(xml);
+
+      expect(parsed.items).toEqual([
+        expect.objectContaining({
+          slotName: "Helmet",
+          itemId: 7,
+          name: "Fate Crown",
+          baseType: "Kamasan Tiara",
+          rawText: expect.stringContaining("+20 to maximum Life"),
+        }),
+      ]);
+    });
+
     it("extracts skill groups", async () => {
       const result = await adapter.parseBuildXml(sampleBuildXml);
       expect(result.skillGroups).toHaveLength(2);

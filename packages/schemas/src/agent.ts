@@ -34,8 +34,82 @@ export const UnmappedItemSchema = z.object({
 });
 export type UnmappedItem = z.infer<typeof UnmappedItemSchema>;
 
+export const MappingStrategySchema = z.enum([
+  'exact_id',
+  'exact_asset',
+  'exact_template_hash',
+  'versioned_override',
+]);
+export type MappingStrategy = z.infer<typeof MappingStrategySchema>;
+
+export const MappingEvidenceSchema = z.object({
+  category: z.enum([
+    'character',
+    'item',
+    'skill',
+    'mod',
+    'passive',
+    'jewel',
+    'config',
+    'catalog',
+    'validation',
+  ]),
+  source: z.string(),
+  target: z.string(),
+  strategy: MappingStrategySchema,
+  sourceId: z.string().optional(),
+});
+export type MappingEvidence = z.infer<typeof MappingEvidenceSchema>;
+
+export const MappingBlockerSchema = z.object({
+  code: z.enum([
+    'catalog_refresh_failed',
+    'catalog_version_mismatch',
+    'unknown_character_class',
+    'unknown_item',
+    'unknown_skill',
+    'unknown_mod',
+    'unknown_passive',
+    'ambiguous_mapping',
+    'pob_import_failed',
+    'round_trip_mismatch',
+    'baseline_failed',
+    'main_skill_invalid',
+  ]),
+  category: z.enum([
+    'character',
+    'item',
+    'skill',
+    'mod',
+    'passive',
+    'jewel',
+    'config',
+    'catalog',
+    'validation',
+  ]),
+  source: z.string(),
+  reason: z.string(),
+  sourceId: z.string().optional(),
+});
+export type MappingBlocker = z.infer<typeof MappingBlockerSchema>;
+
 export const ConversionReportSchema = z.object({
-  status: z.enum(['complete', 'partial', 'degraded', 'failed']),
+  status: z.enum([
+    'complete',
+    'blocked',
+    'validation_failed',
+    'partial',
+    'degraded',
+    'failed',
+  ]),
+  catalogHash: z.string().optional(),
+  mapped: z.array(MappingEvidenceSchema).default([]),
+  blockers: z.array(MappingBlockerSchema).default([]),
+  pobValidation: z.object({
+    roundTripValid: z.boolean(),
+    baselineValid: z.boolean(),
+    mainSkillValid: z.boolean(),
+  }).optional(),
   skillMapped: z.number(),
   skillTotal: z.number(),
   itemMapped: z.number(),

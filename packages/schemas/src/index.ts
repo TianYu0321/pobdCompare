@@ -12,6 +12,9 @@ export * from './comparator';
 export * from './breakdown';
 export * from './agent';
 export * from './cache';
+export * from './normalized-build';
+export * from './diff';
+export * from './workspace';
 
 // ============================================
 // Composed schemas with forward references

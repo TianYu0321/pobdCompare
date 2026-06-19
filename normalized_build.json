@@ -1,0 +1,4493 @@
+{
+  "source": "wegame",
+  "meta": {
+    "fetchedAt": "2026-06-18T19:45:37.602Z",
+    "confidence": 0.8
+  },
+  "character": {
+    "name": "不逢时初生铁",
+    "level": 96,
+    "className": "Martial Artist",
+    "roleId": "3350807"
+  },
+  "skills": [
+    {
+      "id": "ed74c366ed898484ea6eab7dc4f804e662230b9670cad7f3361f15237a5f3822",
+      "name": "虚空钟灵",
+      "slot": "AscendancySkills",
+      "weaponSet": "unknown",
+      "supports": [
+        {
+          "name": "冷却回复 II",
+          "tags": []
+        },
+        {
+          "name": "能量球激增 II",
+          "tags": []
+        },
+        {
+          "name": "艾利丝钟琴",
+          "tags": []
+        },
+        {
+          "name": "活体闪电 II",
+          "tags": []
+        },
+        {
+          "name": "登峰造极 II",
+          "tags": []
+        }
+      ],
+      "tags": [],
+      "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvQmxhbmtHZW0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/250ec3ed08/BlankGem.png",
+      "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvTWFydGlhbEFydGlzdFNwZWN0cmFsQmVsbFNraWxsIiwicmVhbG0iOiJwb2UyIn1d/f7cbe7917d/MartialArtistSpectralBellSkill.png"
+    },
+    {
+      "name": "战矛飞掷",
+      "weaponSet": "unknown",
+      "supports": [],
+      "tags": [],
+      "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvQmxhbmtHZW0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/250ec3ed08/BlankGem.png",
+      "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvSHVudHJlc3NJY2VTcGVhciIsInJlYWxtIjoicG9lMiJ9XQ/da079143ea/HuntressIceSpear.png"
+    },
+    {
+      "name": "战矛飞掷",
+      "weaponSet": "unknown",
+      "supports": [],
+      "tags": [],
+      "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvQmxhbmtHZW0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/250ec3ed08/BlankGem.png",
+      "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvSHVudHJlc3NJY2VTcGVhciIsInJlYWxtIjoicG9lMiJ9XQ/da079143ea/HuntressIceSpear.png"
+    },
+    {
+      "name": "火焰净化",
+      "weaponSet": "unknown",
+      "supports": [
+        {
+          "name": "活力 II",
+          "tags": []
+        },
+        {
+          "name": "清晰 II",
+          "tags": []
+        },
+        {
+          "name": "精准 II",
+          "tags": []
+        },
+        {
+          "name": "她的宣言",
+          "tags": []
+        }
+      ],
+      "tags": [],
+      "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvQmxhbmtHZW0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/250ec3ed08/BlankGem.png",
+      "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvUHVyaXR5b2ZGaXJlV2VhcG9uU2tpbGwiLCJyZWFsbSI6InBvZTIifV0/402d027ff8/PurityofFireWeaponSkill.png"
+    },
+    {
+      "id": "66f00ed518ac77e175919ed9f80d41bfb313d84f9bd274278d3c44542b288d1e",
+      "name": "三位一体",
+      "slot": "SkillSlots",
+      "weaponSet": "unknown",
+      "supports": [
+        {
+          "name": "乌崔德的预兆",
+          "tags": []
+        },
+        {
+          "name": "冰霜专精",
+          "tags": []
+        }
+      ],
+      "tags": [],
+      "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvSHVudHJlc3NUcmluaXR5U2tpbGxHZW0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/e9b96952b9/HuntressTrinitySkillGem.png",
+      "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvSHVudHJlc3NUcmluaXR5U2tpbGxJY29uIiwicmVhbG0iOiJwb2UyIn1d/358a3504eb/HuntressTrinitySkillIcon.png"
+    },
+    {
+      "id": "467f53ea2a7d8245408911bfd6018179f551155ce018c3fffc0a53b457e8e6b0",
+      "name": "终结弱者",
+      "slot": "SkillSlots",
+      "weaponSet": "unknown",
+      "supports": [
+        {
+          "name": "杀戮快感II",
+          "tags": []
+        },
+        {
+          "name": "处决 II",
+          "tags": []
+        },
+        {
+          "name": "狂怒 III",
+          "tags": []
+        },
+        {
+          "name": "能量球激增 II",
+          "tags": []
+        },
+        {
+          "name": "伊恩哈尔的魔物仪式",
+          "tags": []
+        }
+      ],
+      "tags": [],
+      "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvRnJlbnppZWRMdW5nZVNraWxsR2VtIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/b7725e1ddb/FrenziedLungeSkillGem.png",
+      "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvRnJlbnppZWRMdW5nZVNraWxsSWNvbiIsInJlYWxtIjoicG9lMiJ9XQ/7c94e1ef55/FrenziedLungeSkillIcon.png"
+    },
+    {
+      "id": "57759cd020cab421327221e80e8baaf7ebae06fbc6983869ba1bbf1f733e277b",
+      "name": "冰尖箭矢",
+      "slot": "SkillSlots",
+      "weaponSet": "unknown",
+      "supports": [
+        {
+          "name": "闪电协调",
+          "tags": []
+        },
+        {
+          "name": "冰霜协调",
+          "tags": []
+        },
+        {
+          "name": "短暂引信 II",
+          "tags": []
+        },
+        {
+          "name": "冷却回复 II",
+          "tags": []
+        }
+      ],
+      "tags": [],
+      "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvUmFuZ2VyU2hlYXJpbmdCb2x0c1NraWxsR2VtIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/be08e968f0/RangerShearingBoltsSkillGem.png",
+      "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvUmFuZ2VyU2hlYXJpbmdCb2x0cyIsInJlYWxtIjoicG9lMiJ9XQ/69946bcefe/RangerShearingBolts.png"
+    },
+    {
+      "id": "4c841f6cac7d5b27b1244dd9638f9f8a26581604d43ecad4e3efe727a5971fd7",
+      "name": "诅咒光环",
+      "slot": "SkillSlots",
+      "weaponSet": "unknown",
+      "supports": [
+        {
+          "name": "魔蛊绽放",
+          "tags": []
+        },
+        {
+          "name": "范围扩大 II",
+          "tags": []
+        },
+        {
+          "name": "仪祭诅咒",
+          "tags": []
+        }
+      ],
+      "tags": [],
+      "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvV2l0Y2hCbGFzcGhlbXlTa2lsbEdlbSIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/47fe56538a/WitchBlasphemySkillGem.png",
+      "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvV2l0Y2hCbGFzcGhlbXkiLCJyZWFsbSI6InBvZTIifV0/6f28abce6e/WitchBlasphemy.png"
+    },
+    {
+      "id": "4d33a98ef2de42f0d1fc8f643b5f64e395a92bcbb149167e5c2aa91f67d766c9",
+      "name": "战斗狂怒",
+      "slot": "SkillSlots",
+      "weaponSet": "unknown",
+      "supports": [
+        {
+          "name": "能量球激增 II",
+          "tags": []
+        }
+      ],
+      "tags": [],
+      "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvUmFuZ2VyQ29tYmF0RnJlbnp5U2tpbGxHZW0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/4f307530ce/RangerCombatFrenzySkillGem.png",
+      "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvUmFuZ2VyQ29tYmF0RnJlbnp5U2tpbGwiLCJyZWFsbSI6InBvZTIifV0/0a27dda9c4/RangerCombatFrenzySkill.png"
+    },
+    {
+      "id": "43154ed5e669762d1168b013a048557e9b2e2937d867ab7195ed2b17fad1a1a6",
+      "name": "回旋挥斩",
+      "slot": "SkillSlots",
+      "weaponSet": "unknown",
+      "supports": [
+        {
+          "name": "快速攻击 III",
+          "tags": []
+        },
+        {
+          "name": "精准增强 II",
+          "tags": []
+        },
+        {
+          "name": "狂怒 III",
+          "tags": []
+        },
+        {
+          "name": "炽烈绝杀",
+          "tags": []
+        },
+        {
+          "name": "瑞佛的凶猛",
+          "tags": []
+        }
+      ],
+      "tags": [],
+      "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvV2hpcmxpbmdTbGFzaFNraWxsR2VtIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/4d216be9f2/WhirlingSlashSkillGem.png",
+      "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvSHVudHJlc3NXaGlybGluZ1NsYXNoIiwicmVhbG0iOiJwb2UyIn1d/c26c28c53a/HuntressWhirlingSlash.png"
+    },
+    {
+      "id": "3d649b872d2ba07bbc48903a87aaa8b312a998094c972347fffffd4daebaa47c",
+      "name": "能量球调节",
+      "slot": "SkillSlots",
+      "weaponSet": "unknown",
+      "supports": [],
+      "tags": [],
+      "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvQ2hhcmdlTWFzdGVyeVNraWxsR2VtIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/ced4834236/ChargeMasterySkillGem.png",
+      "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvQ2hhcmdlTWFzdGVyeURlYXRoIiwicmVhbG0iOiJwb2UyIn1d/7a22894a53/ChargeMasteryDeath.png"
+    },
+    {
+      "id": "8411c8639d95d03058eb54c8bafa6d1e3f9fa398a8ba50706ae879e8ba3d678a",
+      "name": "旋龙",
+      "slot": "SkillSlots",
+      "weaponSet": "unknown",
+      "supports": [
+        {
+          "name": "从容不迫",
+          "tags": []
+        },
+        {
+          "name": "元素军械 II",
+          "tags": []
+        },
+        {
+          "name": "齐射",
+          "tags": []
+        },
+        {
+          "name": "持续时间延长 II",
+          "tags": []
+        },
+        {
+          "name": "拉其塔之流",
+          "tags": []
+        }
+      ],
+      "tags": [],
+      "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvVHdpc3RlclNraWxsR2VtIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/2924129339/TwisterSkillGem.png",
+      "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvVHdpc3RlclNraWxsSWNvbiIsInJlYWxtIjoicG9lMiJ9XQ/2a70310fed/TwisterSkillIcon.png"
+    },
+    {
+      "id": "367b94da84f54521bb03178c0396575d127f89436707d60f9d3d6400a8eae612",
+      "name": "弹幕",
+      "slot": "SkillSlots",
+      "weaponSet": "unknown",
+      "supports": [
+        {
+          "name": "强化能量球",
+          "tags": []
+        },
+        {
+          "name": "欧罗什的信念",
+          "tags": []
+        },
+        {
+          "name": "永续充能",
+          "tags": []
+        },
+        {
+          "name": "助力之风 II",
+          "tags": []
+        },
+        {
+          "name": "效能 II",
+          "tags": []
+        }
+      ],
+      "tags": [],
+      "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvUmFuZ2VyQmFycmFnZVNraWxsR2VtIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/9fc9ce784a/RangerBarrageSkillGem.png",
+      "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvUmFuZ2VyQmFycmFnZVNraWxsIiwicmVhbG0iOiJwb2UyIn1d/fd3f16120f/RangerBarrageSkill.png"
+    }
+  ],
+  "skillDps": [
+    {
+      "skillId": "player_ranged_spear",
+      "skillName": "player_ranged_spear",
+      "dps": 1547503,
+      "source": "wegame"
+    },
+    {
+      "skillId": "player_melee_spear_no_offhand",
+      "skillName": "player_melee_spear_no_offhand",
+      "dps": 1537944,
+      "source": "wegame"
+    },
+    {
+      "skillId": "cull_the_weak",
+      "skillName": "cull_the_weak",
+      "dps": 945101,
+      "source": "wegame"
+    },
+    {
+      "skillId": "whirling_slash",
+      "skillName": "whirling_slash",
+      "dps": 127448,
+      "source": "wegame"
+    },
+    {
+      "skillId": "ice_tipped_arrows",
+      "skillName": "ice_tipped_arrows",
+      "dps": 0,
+      "source": "wegame"
+    },
+    {
+      "skillId": "temporal_chains",
+      "skillName": "temporal_chains",
+      "dps": 0,
+      "source": "wegame"
+    },
+    {
+      "skillId": "empower_barrage",
+      "skillName": "empower_barrage",
+      "dps": 0,
+      "source": "wegame"
+    }
+  ],
+  "equipments": [
+    {
+      "slotName": "Ring2",
+      "item": {
+        "id": "d4b8323ea9e40c613587ba9f2b3f9dd4f429d453440a6eb549c9034b50fb66ba",
+        "name": "元素之章",
+        "baseType": "三相戒指",
+        "rarity": "Unique",
+        "ilvl": 79,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvVW5pcXVlcy9UaGVUYW1pbmciLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/c266aa1e19/TheTaming.png",
+        "explicitMods": [
+          "所有[ElementalDamage|元素][Resistances|抗性] +14%",
+          "敌人每受到一种[ElementalAilments|元素异常状态]影响，伤害提高 24%",
+          "可被[ElementalGround|元素地面效果]加持的[Wind|风系技能]可被多种[ElementalGround|元素地面效果]加持",
+          "可被[ElementalGround|元素地面效果]加持的[Wind|风系技能]视作\n被[IgnitedGround|点燃地面]，[ShockedGround|感电地面]和[ChilledGround|冰缓地面]加持"
+        ],
+        "implicitMods": [
+          "所有[ElementalDamage|元素][Resistances|抗性] +12%"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "戒指",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 0,
+            "name": "品质（火焰词缀）",
+            "type": 6,
+            "values": [
+              [
+                "+20%",
+                1
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "42",
+                0
+              ]
+            ]
+          }
+        ],
+        "inventoryId": "Ring2"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Chakra",
+      "item": {
+        "id": "5508af8f22105c7fccac43e054023241f8460516d3c5dd69086a9d516d71a278",
+        "name": "",
+        "baseType": "高级冰川符文",
+        "rarity": "",
+        "ilvl": 0,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUnVuZXMvQ29sZFJ1bmVUaWVyMiIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/e407a6e36d/ColdRuneTier2.png",
+        "explicitMods": [
+          "[MartialWeapon|战斗武器]: 附加 9 - 15 [Cold|冰霜]伤害",
+          "法杖或长杖: [Gain|获得]相当于伤害 10% 的额外[Cold|冰霜]伤害",
+          "护甲: [Resistances|冰霜抗性] +18%"
+        ],
+        "bondedMods": [
+          "[ShamanOnlyMods|羁绊]：",
+          "[MartialWeapon|战斗武器]: [Freeze|冻结]积蓄值提高 30%",
+          "法杖或长杖: [Freeze|冻结]积蓄值提高 30%",
+          "护甲:",
+          "+20 生命上限",
+          "+20 魔力上限"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "堆叠数量",
+            "type": 32,
+            "values": [
+              [
+                "1/10",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[Rune|符文]",
+            "values": []
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "30",
+                0
+              ]
+            ]
+          }
+        ],
+        "inventoryId": "Chakra"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Chakra",
+      "item": {
+        "id": "7098f8e851691633b61372a4111a6ae45d8da5e1b5fc77b9aae3ac1e169b9837",
+        "name": "",
+        "baseType": "高级沙漠符文",
+        "rarity": "",
+        "ilvl": 0,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUnVuZXMvRmlyZVJ1bmVUaWVyMiIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/312239e491/FireRuneTier2.png",
+        "explicitMods": [
+          "[MartialWeapon|战斗武器]: 附加 13 - 16 [Fire|火焰]伤害",
+          "法杖或长杖: [Gain|获得]相当于伤害 10% 的额外[Fire|火焰]伤害",
+          "护甲: [Resistances|火焰抗性] +18%"
+        ],
+        "bondedMods": [
+          "[ShamanOnlyMods|羁绊]：",
+          "[MartialWeapon|战斗武器]: [Ignite|点燃][BuffMagnitude|强度]提高 30%",
+          "法杖或长杖: [Ignite|点燃][BuffMagnitude|强度]提高 30%",
+          "护甲:",
+          "+20 生命上限",
+          "+20 魔力上限"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "堆叠数量",
+            "type": 32,
+            "values": [
+              [
+                "1/10",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[Rune|符文]",
+            "values": []
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "30",
+                0
+              ]
+            ]
+          }
+        ],
+        "inventoryId": "Chakra"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Ring",
+      "item": {
+        "id": "798814a82e84ce02d8534b5da996fb9c07f1ae4446bc3614eb8783ef4578d9b8",
+        "name": "颅祭 闪耀之指",
+        "baseType": "紫晶戒指",
+        "rarity": "Rare",
+        "ilvl": 77,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvQmFzZXR5cGVzL0FtZXRoeXN0UmluZyIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/352427171d/AmethystRing.png",
+        "explicitMods": [
+          "[Attack|攻击]附加 9 - 17 [Physical|物理]伤害",
+          "[Attack|攻击]附加 1 - 32 基础[Lightning|闪电]伤害",
+          "[Cold|冰霜]伤害提高 22%",
+          "施法速度提高 23%",
+          "所有[ElementalDamage|元素][Resistances|抗性] +16%",
+          "[Resistances|闪电抗性] +40%"
+        ],
+        "implicitMods": [
+          "[Resistances|混沌抗性] +12%"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "戒指",
+            "type": 109,
+            "values": []
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "56",
+                0
+              ]
+            ]
+          }
+        ],
+        "inventoryId": "Ring"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Chakra",
+      "item": {
+        "id": "3dece035c6736705bf1aad7557602385b91e5e375aabd31affcaf11d413d2e7e",
+        "name": "",
+        "baseType": "高级坚毅符文",
+        "rarity": "",
+        "ilvl": 0,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUnVuZXMvSW50UnVuZVRpZXIzIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/d640ddc116/IntRuneTier3.png",
+        "explicitMods": [
+          "所有装备: +12 [Intelligence|智慧]"
+        ],
+        "bondedMods": [
+          "[ShamanOnlyMods|羁绊]：",
+          "[MartialWeapon|战斗武器]:",
+          "[Attack|攻击]附加 6 - 10 [Physical|物理]伤害",
+          "[Attack|攻击]附加 5 - 8 基础[Cold|冰霜]伤害",
+          "法杖或长杖: +50 [EnergyShield|能量护盾]上限",
+          "护甲:",
+          "+20 生命上限",
+          "+20 魔力上限"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "堆叠数量",
+            "type": 32,
+            "values": [
+              [
+                "1/10",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[Rune|符文]",
+            "values": []
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "30",
+                0
+              ]
+            ]
+          }
+        ],
+        "inventoryId": "Chakra"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Chakra",
+      "item": {
+        "id": "7f5a67ae7933ad814ae40df9f52f3b7d72cc1111c09a751401d3686de59e556a",
+        "name": "",
+        "baseType": "高级坚毅符文",
+        "rarity": "",
+        "ilvl": 0,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUnVuZXMvSW50UnVuZVRpZXIzIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/d640ddc116/IntRuneTier3.png",
+        "explicitMods": [
+          "所有装备: +12 [Intelligence|智慧]"
+        ],
+        "bondedMods": [
+          "[ShamanOnlyMods|羁绊]：",
+          "[MartialWeapon|战斗武器]:",
+          "[Attack|攻击]附加 6 - 10 [Physical|物理]伤害",
+          "[Attack|攻击]附加 5 - 8 基础[Cold|冰霜]伤害",
+          "法杖或长杖: +50 [EnergyShield|能量护盾]上限",
+          "护甲:",
+          "+20 生命上限",
+          "+20 魔力上限"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "堆叠数量",
+            "type": 32,
+            "values": [
+              [
+                "1/10",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[Rune|符文]",
+            "values": []
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "30",
+                0
+              ]
+            ]
+          }
+        ],
+        "inventoryId": "Chakra"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Gloves",
+      "item": {
+        "id": "77e83aab88dc067e6f1e12278cd962054edb9a0ca5a2bd00162e889c3ca337d1",
+        "name": "种裔暗影爪",
+        "baseType": "符文石拳",
+        "rarity": "Rare",
+        "ilvl": 81,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9HbG92ZXMvQmFzZXR5cGVzL0dsb3Zlc0RleDA1IiwidyI6MiwiaCI6Miwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/b6a93d2794/GlovesDex05.png",
+        "explicitMods": [
+          "每有一级玩家等级，+4 [Evasion|闪避]值",
+          "每有一级玩家等级，+1 [EnergyShield|能量护盾]上限",
+          "全局[Evasion|闪避]值与[EnergyShield|能量护盾]总增 19%",
+          "[Attack|攻击][Gain|获得]相当于伤害 14% 的额外[Fire|火焰]伤害",
+          "击中有 14% 的几率获得 4 秒[Onslaught|猛攻]",
+          "+7 全[Attributes|属性]",
+          "生命在击败敌人时恢复 2%"
+        ],
+        "implicitMods": [
+          "每有一级玩家等级，+2 [Evasion|闪避]值",
+          "每有一级玩家等级，+1 [EnergyShield|能量护盾]上限",
+          "每有一级玩家等级，+1 [Ward|符文结界]上限"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "手套",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 0,
+            "name": "[Quality|品质]",
+            "type": 6,
+            "values": [
+              [
+                "+20%",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[Evasion|闪避值]",
+            "type": 17,
+            "values": [
+              [
+                "816",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[EnergyShield|能量护盾]",
+            "type": 18,
+            "values": [
+              [
+                "272",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[Ward|符文结界]",
+            "type": 54,
+            "values": [
+              [
+                "115",
+                1
+              ]
+            ]
+          }
+        ],
+        "socketedItems": [
+          {
+            "baseType": "高级钢铁符文",
+            "bondedMods": [
+              "[ShamanOnlyMods|羁绊]：",
+              "[MartialWeapon|战斗武器]: [ArmourBreak|护甲完全破损]效果提高 20%",
+              "法杖或长杖: [Spell|法术][Critical|暴击]会[ArmourBreak|粉碎][Armour|护甲]，相当于造成[Physical|物理]伤害的 12%",
+              "护甲:",
+              "+20 生命上限",
+              "+20 魔力上限"
+            ],
+            "descrText": "放入武器或护甲的一个空的[Augment|增幅器]插槽中，即可将其效果应用于此物品。一旦放入插槽，无法再被移除，但可以被其他[Augment|增幅器]物品替换。",
+            "explicitMods": [
+              "[MartialWeapon|战斗武器]: [Physical|物理]伤害提高 18%",
+              "法杖或长杖: [Spell|法术]伤害提高 30%",
+              "护甲: [Armour|护甲]、[Evasion|闪避]和[EnergyShield|能量护盾]提高 18%"
+            ],
+            "frameType": 5,
+            "frameTypeId": "Currency",
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUnVuZXMvRW5oYW5jZVJ1bmVUaWVyMiIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/6b729ab5a0/EnhanceRuneTier2.png",
+            "id": "0951197b99c14e9b13da1d787bf9540303c7017d5368a2e8af0d3bef0946bf9f",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "maxStackSize": 10,
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "堆叠数量",
+                "type": 32,
+                "values": [
+                  [
+                    "1/10",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "[Rune|符文]",
+                "values": []
+              }
+            ],
+            "realm": "poe2",
+            "requirements": [
+              {
+                "displayMode": 0,
+                "name": "等级",
+                "type": 62,
+                "values": [
+                  [
+                    "30",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "socket": 0,
+            "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9SdW5lU29ja2V0RmlsbGVkIiwicmVhbG0iOiJwb2UyIn1d/d02d26cbf0/RuneSocketFilled.png",
+            "stackSize": 1,
+            "typeLine": "高级钢铁符文",
+            "verified": false,
+            "w": 1
+          }
+        ],
+        "inventoryId": "Gloves"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Flask",
+      "item": {
+        "id": "9af2f27fe961fd1108edfdd3b68fcb1325b395df6d14358d93e6e19fc0f77846",
+        "name": "",
+        "baseType": "融冰咒符",
+        "rarity": "Magic",
+        "ilvl": 80,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ2hhcm1zL0Jhc2V0eXBlcy9UaGF3aW5nQ2hhcm0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/d9184b853a/ThawingCharm.png",
+        "explicitMods": [
+          "每秒获得 0.20 次充能",
+          "持续时间提高 17%"
+        ],
+        "implicitMods": [
+          "陷入[Frozen|冻结]时自动使用"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "咒符",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 3,
+            "name": "持续 {0} 秒",
+            "values": [
+              [
+                "3.50",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 3,
+            "name": "每次使用会从 {1} 充能次数中消耗 {0} 次",
+            "values": [
+              [
+                "40",
+                0
+              ],
+              [
+                "40",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 3,
+            "name": "目前有 {0} 充能次数",
+            "values": [
+              [
+                "40",
+                0
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "20",
+                0
+              ]
+            ]
+          }
+        ],
+        "inventoryId": "Flask"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Flask",
+      "item": {
+        "id": "17991b6404f7cc628e81383d7dcb7ccf111fdb2df73d94aaa47e95f2bbd2d666",
+        "name": "",
+        "baseType": "真银咒符",
+        "rarity": "Magic",
+        "ilvl": 81,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ2hhcm1zL0Jhc2V0eXBlcy9TaWx2ZXJDaGFybSIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/be98ce2ba3/SilverCharm.png",
+        "explicitMods": [
+          "每秒获得 0.25 次充能",
+          "使用时回复 10 生命"
+        ],
+        "implicitMods": [
+          "当你受到[Slow|减速]影响时使用"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "咒符",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 0,
+            "name": "[Quality|品质]",
+            "type": 6,
+            "values": [
+              [
+                "+7%",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 3,
+            "name": "持续 {0} 秒",
+            "values": [
+              [
+                "3.20",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 3,
+            "name": "每次使用会从 {1} 充能次数中消耗 {0} 次",
+            "values": [
+              [
+                "20",
+                0
+              ],
+              [
+                "40",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 3,
+            "name": "目前有 {0} 充能次数",
+            "values": [
+              [
+                "24",
+                0
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "36",
+                0
+              ]
+            ]
+          }
+        ],
+        "inventoryId": "Flask"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Chakra",
+      "item": {
+        "id": "6f3921124becd065af75fd25f2e8feb440edada5c2b90d543615fa45a3737350",
+        "name": "",
+        "baseType": "新生本能",
+        "rarity": "",
+        "ilvl": 0,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRXhwZWRpdGlvbjIvRXhwZWRpdGlvbldhckFuY2llbnRBdWdtZW50IiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/53f9216efb/ExpeditionWarAncientAugment.png",
+        "explicitMods": [
+          "头盔: [Blind|致盲]，[Maim|瘫痪]和[Bleeding|流血]的目标无法[Evasion|闪避][HitDamage|击中]",
+          "手套: 若你[Recently|近期]使用过[Command|命令]技能，每秒回复生命上限的 5%",
+          "护甲: 对[ArmourBreak|护甲完全破损]的目标造成的[Thorns|荆棘]伤害为[Lucky|幸运]"
+        ],
+        "bondedMods": [
+          "[ShamanOnlyMods|羁绊]：",
+          "头盔: [Immobilised|不可移动]积蓄提高 30%",
+          "手套: 生命再生率提高 20%",
+          "护甲: [Thorns|荆棘]伤害提高 30%"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "[Rune|符文]",
+            "values": []
+          },
+          {
+            "displayMode": 0,
+            "name": "仅限",
+            "values": [
+              [
+                "1 个[Ancient|远古增幅器]",
+                0
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "60",
+                0
+              ]
+            ]
+          }
+        ],
+        "inventoryId": "Chakra"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Flask",
+      "item": {
+        "id": "95dfaad21028e44794d96c8592a6ea1780beb095ce9c6fc9051161b9e66a1405",
+        "name": "",
+        "baseType": "黄金咒符",
+        "rarity": "Magic",
+        "ilvl": 82,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ2hhcm1zL0Jhc2V0eXBlcy9Hb2xkZW5DaGFybSIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/3a4530590e/GoldenCharm.png",
+        "explicitMods": [
+          "使用时回复 107 魔力",
+          "获得的充能提高 60%"
+        ],
+        "implicitMods": [
+          "当你击败[Rarity|稀有]或[Rarity|传奇]敌人时使用"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "咒符",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 3,
+            "name": "持续 {0} 秒",
+            "values": [
+              [
+                "1",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 3,
+            "name": "每次使用会从 {1} 充能次数中消耗 {0} 次",
+            "values": [
+              [
+                "80",
+                0
+              ],
+              [
+                "80",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 3,
+            "name": "目前有 {0} 充能次数",
+            "values": [
+              [
+                "25",
+                0
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "50",
+                0
+              ]
+            ]
+          }
+        ],
+        "inventoryId": "Flask"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Belt",
+      "item": {
+        "id": "19cdaab340e320596c8affccdfc7c90ee1f1426a926d37a4b1cf9fc81722cf68",
+        "name": "薛朗的背包",
+        "baseType": "精致腰带",
+        "rarity": "Unique",
+        "ilvl": 78,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvVW5pcXVlcy9TaGF2cm9ubmVzU2F0Y2hlbCIsInciOjIsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/03b20ba6b9/ShavronnesSatchel.png",
+        "explicitMods": [
+          "[Flask|药剂]生命回复速度降低 20%",
+          "+22 [Intelligence|智慧]",
+          "获得的[Flask|药剂]充能提高 28%",
+          "[Flask|药剂]的生命回复效果也作用于[EnergyShield|能量护盾]"
+        ],
+        "implicitMods": [
+          "具有 3 个[Charm|咒符]位",
+          "[Flask|药剂]每秒获得 0.17 次充能"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "腰带",
+            "type": 109,
+            "values": []
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "62",
+                0
+              ]
+            ]
+          }
+        ],
+        "inventoryId": "Belt"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Offhand2",
+      "item": {
+        "id": "3717db423605c6140ad44cc0321014285fd7807621c3c0e0a0a00ecbda9c2c9e",
+        "name": "神圣之火",
+        "baseType": "圣地权杖",
+        "rarity": "Unique",
+        "ilvl": 84,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9TY2VwdGVycy9VbmlxdWVzL1NhY3JlZEZsYW1lIiwidyI6MiwiaCI6Mywic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/f6c6572ac6/SacredFlame.png",
+        "explicitMods": [
+          "[Gain|获得]相当于伤害 60% 的额外[Fire|火焰]伤害",
+          "[Presence|在场]的[Allies|友军]每秒再生生命上限 2.6% 的生命",
+          "[Presence|在场]的[Allies|友军][Gain|获得]相当于伤害 29% 的额外火焰伤害",
+          "[Presence|在场]的敌人根据最低的[Resistances|抗性]抵抗[ElementalDamage|元素伤害]"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "[Sceptre|权杖]",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 0,
+            "name": "[Quality|品质]",
+            "type": 6,
+            "values": [
+              [
+                "+20%",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[Spirit|精魂]",
+            "type": 25,
+            "values": [
+              [
+                "115",
+                1
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "78",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Strength|力量]",
+            "type": 63,
+            "values": [
+              [
+                "42",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Intelligence|智慧]",
+            "type": 65,
+            "values": [
+              [
+                "106",
+                0
+              ]
+            ]
+          }
+        ],
+        "socketedItems": [
+          {
+            "baseType": "狡兔雕像",
+            "bondedMods": [
+              "[ShamanOnlyMods|羁绊]：",
+              "护甲: 被击败的敌人掉落的金币数量提高 10%",
+              "权杖: [Minion|召唤生物]的[Command|命令]技能的[CooldownRecovery|冷却回复速度]提高 30%"
+            ],
+            "descrText": "放入胸甲或权杖的空置[Augment|增幅器]插槽中，对物品产生该效果。一旦放入插槽，无法再被移除，但可以被其他[Augment|增幅器]物品替换。",
+            "explicitMods": [
+              "护甲: [ItemRarity|物品稀有度]提高 12%",
+              "权杖: 该装备[Spirit|精魂]提高 15%"
+            ],
+            "frameType": 5,
+            "frameTypeId": "Currency",
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvVG9ybWVudGVkU3Bpcml0U29ja2V0YWJsZXMvQXptZXJpU29ja2V0YWJsZVJhYmJpdCIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/7bce11e67d/AzmeriSocketableRabbit.png",
+            "id": "18c829451924aa645ed0554138a789fabb30e5efbde475085a6bb9e94bb3bd63",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "maxStackSize": 10,
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "堆叠数量",
+                "type": 32,
+                "values": [
+                  [
+                    "1/10",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "[Idol|雕像]",
+                "values": []
+              },
+              {
+                "displayMode": 0,
+                "name": "仅限",
+                "values": [
+                  [
+                    "1",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "realm": "poe2",
+            "socket": 0,
+            "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9Bem1lcmlTb2NrZXRGaWxsZWRTYWNyZWQiLCJyZWFsbSI6InBvZTIifV0/a8f77dcc81/AzmeriSocketFilledSacred.png",
+            "stackSize": 1,
+            "typeLine": "狡兔雕像",
+            "verified": false,
+            "w": 1
+          },
+          {
+            "baseType": "火焰净化",
+            "descrText": "可在技能面板中管理技能。",
+            "frameType": 4,
+            "frameTypeId": "Gem",
+            "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvUHVyaXR5b2ZGaXJlV2VhcG9uU2tpbGwiLCJyZWFsbSI6InBvZTIifV0/402d027ff8/PurityofFireWeaponSkill.png",
+            "gemSockets": [
+              "W",
+              "W",
+              "W",
+              "W"
+            ],
+            "gemTabs": [
+              {
+                "name": "火焰净化",
+                "pages": [
+                  {
+                    "skillName": "火焰净化",
+                    "stats": [
+                      "[Aura|光环]给予 +39% [Fire|火焰]抗性"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvQmxhbmtHZW0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/250ec3ed08/BlankGem.png",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "[Buff|增益], [Persistent|永久性], [Aura|光环], [Fire|火焰]",
+                "values": []
+              },
+              {
+                "displayMode": 0,
+                "name": "等级",
+                "type": 5,
+                "values": [
+                  [
+                    "18",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "realm": "poe2",
+            "requirements": [
+              {
+                "displayMode": 0,
+                "name": "等级",
+                "type": 62,
+                "values": [
+                  [
+                    "78",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 1,
+                "name": "[Strength|力量]",
+                "type": 63,
+                "values": [
+                  [
+                    "42",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 1,
+                "name": "[Intelligence|智慧]",
+                "type": 65,
+                "values": [
+                  [
+                    "106",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "secDescrText": "释放一个[Aura|光环]，提高你和[Presence|在场]的[Allies|友军]的[Resistances|火焰抗性]。",
+            "socketedItems": [
+              {
+                "baseType": "活力 II",
+                "descrText": "在技能面板中放入一个技能的辅助宝石插槽，使技能获得该效果。无法在一个技能中镶嵌多个相同类别的辅助宝石。",
+                "frameType": 4,
+                "frameTypeId": "Gem",
+                "gemTabs": [
+                  {
+                    "name": "辅助",
+                    "pages": [
+                      {
+                        "skillName": "",
+                        "stats": [
+                          "被辅助技能激活时每秒再生 2% 的生命"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "h": 1,
+                "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvTmV3U3VwcG9ydC9WaXRhbGl0eVN1cHBvcnRHZW0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/4d0a173757/VitalitySupportGem.png",
+                "iconTierText": "II",
+                "identified": true,
+                "ilvl": 0,
+                "league": "奥杜尔秘符",
+                "name": "",
+                "properties": [
+                  {
+                    "displayMode": 0,
+                    "name": "[SupportGem|辅助], [Buff|增益], [Persistent|永久性]",
+                    "values": []
+                  },
+                  {
+                    "displayMode": 0,
+                    "name": "[SupportGemCategory|类别]",
+                    "values": [
+                      [
+                        "活力",
+                        0
+                      ]
+                    ]
+                  },
+                  {
+                    "displayMode": 0,
+                    "name": "额外保留",
+                    "type": 104,
+                    "values": [
+                      [
+                        "40 [Spirit|精魂]",
+                        0
+                      ]
+                    ]
+                  }
+                ],
+                "realm": "poe2",
+                "secDescrText": "辅助[Persistent|永久性][Buff|增益]技能，激活该技能时提高你的生命回复速度。",
+                "socket": 0,
+                "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9JdGVtc1N1cHBvcnRTb2NrZXRlZFdoaXRlIiwicmVhbG0iOiJwb2UyIn1d/7815336083/ItemsSupportSocketedWhite.png",
+                "support": true,
+                "supportGemRequirements": [
+                  {
+                    "displayMode": 0,
+                    "name": "+5 [Strength|力量]",
+                    "type": 63,
+                    "values": [
+                      [
+                        "(5)",
+                        0
+                      ]
+                    ]
+                  }
+                ],
+                "typeLine": "活力 II",
+                "verified": false,
+                "w": 1
+              },
+              {
+                "baseType": "清晰 II",
+                "descrText": "在技能面板中放入一个技能的辅助宝石插槽，使技能获得该效果。无法在一个技能中镶嵌多个相同类别的辅助宝石。",
+                "frameType": 4,
+                "frameTypeId": "Gem",
+                "gemTabs": [
+                  {
+                    "name": "辅助",
+                    "pages": [
+                      {
+                        "skillName": "",
+                        "stats": [
+                          "被辅助技能激活时，魔力再生速度提高 50%"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "h": 1,
+                "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvTmV3U3VwcG9ydC9DbGFyaXR5U3VwcG9ydEdlbSIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/b8cfb97d8c/ClaritySupportGem.png",
+                "iconTierText": "II",
+                "identified": true,
+                "ilvl": 0,
+                "league": "奥杜尔秘符",
+                "name": "",
+                "properties": [
+                  {
+                    "displayMode": 0,
+                    "name": "[SupportGem|辅助], [Buff|增益], [Persistent|永久性]",
+                    "values": []
+                  },
+                  {
+                    "displayMode": 0,
+                    "name": "[SupportGemCategory|类别]",
+                    "values": [
+                      [
+                        "清晰",
+                        0
+                      ]
+                    ]
+                  },
+                  {
+                    "displayMode": 0,
+                    "name": "额外保留",
+                    "type": 104,
+                    "values": [
+                      [
+                        "20 [Spirit|精魂]",
+                        0
+                      ]
+                    ]
+                  }
+                ],
+                "realm": "poe2",
+                "secDescrText": "辅助[Persistent|永久性][Buff|增益]技能，激活该技能时提高你的魔力回复速度。",
+                "socket": 1,
+                "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9JdGVtc1N1cHBvcnRTb2NrZXRlZFdoaXRlIiwicmVhbG0iOiJwb2UyIn1d/7815336083/ItemsSupportSocketedWhite.png",
+                "support": true,
+                "supportGemRequirements": [
+                  {
+                    "displayMode": 0,
+                    "name": "+5 [Intelligence|智慧]",
+                    "type": 65,
+                    "values": [
+                      [
+                        "(5)",
+                        0
+                      ]
+                    ]
+                  }
+                ],
+                "typeLine": "清晰 II",
+                "verified": false,
+                "w": 1
+              },
+              {
+                "baseType": "精准 II",
+                "descrText": "在技能面板中放入一个技能的辅助宝石插槽，使技能获得该效果。无法在一个技能中镶嵌多个相同类别的辅助宝石。",
+                "frameType": 4,
+                "frameTypeId": "Gem",
+                "gemTabs": [
+                  {
+                    "name": "辅助",
+                    "pages": [
+                      {
+                        "skillName": "",
+                        "stats": [
+                          "被辅助技能激活时，[Accuracy|命中]值提高 50%"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "h": 1,
+                "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvTmV3U3VwcG9ydC9QcmVjaXNpb25TdXBwb3J0R2VtIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/9739e056ca/PrecisionSupportGem.png",
+                "iconTierText": "II",
+                "identified": true,
+                "ilvl": 0,
+                "league": "奥杜尔秘符",
+                "name": "",
+                "properties": [
+                  {
+                    "displayMode": 0,
+                    "name": "[SupportGem|辅助], [Buff|增益], [Persistent|永久性]",
+                    "values": []
+                  },
+                  {
+                    "displayMode": 0,
+                    "name": "[SupportGemCategory|类别]",
+                    "values": [
+                      [
+                        "精准",
+                        0
+                      ]
+                    ]
+                  },
+                  {
+                    "displayMode": 0,
+                    "name": "额外保留",
+                    "type": 104,
+                    "values": [
+                      [
+                        "20 [Spirit|精魂]",
+                        0
+                      ]
+                    ]
+                  }
+                ],
+                "realm": "poe2",
+                "secDescrText": "辅助[Persistent|永久性][Buff|增益]技能，激活该技能时提高你的[Accuracy|命中]。",
+                "socket": 2,
+                "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9JdGVtc1N1cHBvcnRTb2NrZXRlZFdoaXRlIiwicmVhbG0iOiJwb2UyIn1d/7815336083/ItemsSupportSocketedWhite.png",
+                "support": true,
+                "supportGemRequirements": [
+                  {
+                    "displayMode": 0,
+                    "name": "+5 [Dexterity|敏捷]",
+                    "type": 64,
+                    "values": [
+                      [
+                        "(5)",
+                        0
+                      ]
+                    ]
+                  }
+                ],
+                "typeLine": "精准 II",
+                "verified": false,
+                "w": 1
+              },
+              {
+                "baseType": "她的宣言",
+                "descrText": "在技能面板中放入一个技能的辅助宝石插槽，使技能获得该效果。无法在一个技能中镶嵌多个相同类别的辅助宝石。",
+                "flavourText": [
+                  "“法律具有约束力，法律是绝对的。\r",
+                  "如果他们认为执行法律是出于自身的选择，那便再好不过。\r",
+                  "履行我们庄严的职责，刻不容缓。”"
+                ],
+                "frameType": 4,
+                "frameTypeId": "Gem",
+                "gemTabs": [
+                  {
+                    "name": "辅助",
+                    "pages": [
+                      {
+                        "skillName": "",
+                        "stats": [
+                          "被辅助技能激活时，敌人进入你的[Presence|在场]范围时[Intimidate|被威吓] 4 秒"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "h": 1,
+                "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvTmV3U3VwcG9ydC9MaW5lYWdlL01vdGhlcnNEZWNsYXJhdGlvbiIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/f6ea457e7b/MothersDeclaration.png",
+                "identified": true,
+                "ilvl": 0,
+                "league": "奥杜尔秘符",
+                "name": "",
+                "properties": [
+                  {
+                    "displayMode": 0,
+                    "name": "[SupportGem|辅助], [LineageSupports|血统], [Buff|增益], [Persistent|永久性]",
+                    "values": []
+                  },
+                  {
+                    "displayMode": 0,
+                    "name": "[SupportGemCategory|类别]",
+                    "values": [
+                      [
+                        "她的宣言",
+                        0
+                      ]
+                    ]
+                  },
+                  {
+                    "displayMode": 0,
+                    "name": "额外保留",
+                    "type": 104,
+                    "values": [
+                      [
+                        "30 [Spirit|精魂]",
+                        0
+                      ]
+                    ]
+                  }
+                ],
+                "realm": "poe2",
+                "secDescrText": "辅助[Persistent|持续性] [Buff|增益状态]技能。技能激活时，进入你[Presence|存在]范围内的敌人会[Intimidate|被威吓]。",
+                "socket": 3,
+                "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9JdGVtc1N1cHBvcnRTb2NrZXRlZFdoaXRlIiwicmVhbG0iOiJwb2UyIn1d/7815336083/ItemsSupportSocketedWhite.png",
+                "support": true,
+                "typeLine": "她的宣言",
+                "verified": false,
+                "w": 1
+              }
+            ],
+            "sockets": [
+              {
+                "group": 0,
+                "type": "gem"
+              },
+              {
+                "group": 1,
+                "type": "gem"
+              },
+              {
+                "group": 2,
+                "type": "gem"
+              },
+              {
+                "group": 3,
+                "type": "gem"
+              }
+            ],
+            "support": false,
+            "typeLine": "火焰净化",
+            "verified": false,
+            "w": 1
+          }
+        ],
+        "inventoryId": "Offhand2"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Amulet",
+      "item": {
+        "id": "5f3f470017436500f3c13ca86a633e0e0969a4bf2c71bf1f8276723e5aa155b5",
+        "name": "恶魔 花符",
+        "baseType": "翠玉项链",
+        "rarity": "Rare",
+        "ilvl": 82,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQW11bGV0cy9CYXNldHlwZXMvSmFkZUFtdWxldCIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/ac51014172/JadeAmulet.png",
+        "explicitMods": [
+          "+115 生命上限",
+          "所有[Projectile|投射物]技能等级 +3",
+          "[Critical|暴击]率提高 21%",
+          "[Resistances|闪电抗性] +32%"
+        ],
+        "implicitMods": [
+          "+10 [Dexterity|敏捷]"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "项链",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 0,
+            "name": "品质（防御词缀）",
+            "type": 6,
+            "values": [
+              [
+                "+20%",
+                1
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "60",
+                0
+              ]
+            ]
+          }
+        ],
+        "inventoryId": "Amulet"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Flask",
+      "item": {
+        "id": "0a6ca04fb22ace2fa587929ee2b06771ac1a3b3ae6cb57b3c76c8e2663316fec",
+        "name": "拉维安加之灵",
+        "baseType": "恢弘魔力药剂",
+        "rarity": "Unique",
+        "ilvl": 80,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzksMTQseyJmIjoiMkRJdGVtcy9GbGFza3MvVW5pcXVlcy9MYXZpYW5nYXNTcGlyaXQiLCJ3IjoxLCJoIjoyLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIiwibGV2ZWwiOjF9XQ/ef79cd6b0d/LaviangasSpirit.png",
+        "explicitMods": [
+          "此药剂无法使用，但效果持续生效",
+          "回复量降低 71%"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "[Flask|药剂]",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 0,
+            "name": "[Quality|品质]",
+            "type": 6,
+            "values": [
+              [
+                "+23%",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 3,
+            "name": "每 {1} 秒回复 {0} 魔力",
+            "values": [
+              [
+                "66",
+                1
+              ],
+              [
+                "2",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 3,
+            "name": "每次使用会从 {1} 充能次数中消耗 {0} 次",
+            "values": [
+              [
+                "10",
+                0
+              ],
+              [
+                "75",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 3,
+            "name": "目前有 {0} 充能次数",
+            "values": [
+              [
+                "75",
+                0
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "49",
+                0
+              ]
+            ]
+          }
+        ],
+        "inventoryId": "Flask"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Helm",
+      "item": {
+        "id": "a06bdfc2f075c0dcd87baaf6fdd781a37421638e54c9d5146cefbdf73d6d7ac6",
+        "name": "祸害 真视",
+        "baseType": "卡马萨冠冕",
+        "rarity": "Rare",
+        "ilvl": 81,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9IZWxtZXRzL0Jhc2V0eXBlcy9IZWxtZXRJbnQwNSIsInciOjIsImgiOjIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/e18c6eb9b7/HelmetInt05.png",
+        "explicitMods": [
+          "+67 [EnergyShield|能量护盾]上限",
+          "[EnergyShield|能量护盾]提高 99%",
+          "[Resistances|火焰抗性] +25%",
+          "[ESRechargeRate|能量护盾充能率]提高 17%",
+          "生命每秒再生 22.8"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "头盔",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 0,
+            "name": "[Quality|品质]",
+            "type": 6,
+            "values": [
+              [
+                "+20%",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[EnergyShield|能量护盾]",
+            "type": 18,
+            "values": [
+              [
+                "502",
+                1
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "75",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Intelligence|智慧]",
+            "type": 65,
+            "values": [
+              [
+                "107",
+                0
+              ]
+            ]
+          }
+        ],
+        "socketedItems": [
+          {
+            "baseType": "高级钢铁符文",
+            "bondedMods": [
+              "[ShamanOnlyMods|羁绊]：",
+              "[MartialWeapon|战斗武器]: [ArmourBreak|护甲完全破损]效果提高 20%",
+              "法杖或长杖: [Spell|法术][Critical|暴击]会[ArmourBreak|粉碎][Armour|护甲]，相当于造成[Physical|物理]伤害的 12%",
+              "护甲:",
+              "+20 生命上限",
+              "+20 魔力上限"
+            ],
+            "descrText": "放入武器或护甲的一个空的[Augment|增幅器]插槽中，即可将其效果应用于此物品。一旦放入插槽，无法再被移除，但可以被其他[Augment|增幅器]物品替换。",
+            "explicitMods": [
+              "[MartialWeapon|战斗武器]: [Physical|物理]伤害提高 18%",
+              "法杖或长杖: [Spell|法术]伤害提高 30%",
+              "护甲: [Armour|护甲]、[Evasion|闪避]和[EnergyShield|能量护盾]提高 18%"
+            ],
+            "frameType": 5,
+            "frameTypeId": "Currency",
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUnVuZXMvRW5oYW5jZVJ1bmVUaWVyMiIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/6b729ab5a0/EnhanceRuneTier2.png",
+            "id": "96bd05176ab72af140614fd544ff75074c03109f5db2ed99a2ce4dfc09dea17e",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "maxStackSize": 10,
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "堆叠数量",
+                "type": 32,
+                "values": [
+                  [
+                    "1/10",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "[Rune|符文]",
+                "values": []
+              }
+            ],
+            "realm": "poe2",
+            "requirements": [
+              {
+                "displayMode": 0,
+                "name": "等级",
+                "type": 62,
+                "values": [
+                  [
+                    "30",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "socket": 0,
+            "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9SdW5lU29ja2V0RmlsbGVkIiwicmVhbG0iOiJwb2UyIn1d/d02d26cbf0/RuneSocketFilled.png",
+            "stackSize": 1,
+            "typeLine": "高级钢铁符文",
+            "verified": false,
+            "w": 1
+          }
+        ],
+        "inventoryId": "Helm"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "BodyArmour",
+      "item": {
+        "id": "077953031d9500ed8971f84badab93bd26bd1e5d9ea24f646afc8be857346e7d",
+        "name": "刺荆 战服",
+        "baseType": "滑击背心",
+        "rarity": "Rare",
+        "ilvl": 80,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9CYXNldHlwZXMvQm9keURleDA2IiwidyI6MiwiaCI6Mywic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/dd53d7b8d1/BodyDex06.png",
+        "explicitMods": [
+          "+62 点[Evasion|闪避]值",
+          "[Evasion|闪避]值提高 139%",
+          "+33 [Dexterity|敏捷]",
+          "生命每秒再生 24.8",
+          "你被[Ignite|点燃]的持续时间降低 43%"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "护甲",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 0,
+            "name": "[Quality|品质]",
+            "type": 6,
+            "values": [
+              [
+                "+20%",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[Evasion|闪避值]",
+            "type": 17,
+            "values": [
+              [
+                "2897",
+                1
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "70",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Dexterity|敏捷]",
+            "type": 64,
+            "values": [
+              [
+                "121",
+                0
+              ]
+            ]
+          }
+        ],
+        "socketedItems": [
+          {
+            "baseType": "高级钢铁符文",
+            "bondedMods": [
+              "[ShamanOnlyMods|羁绊]：",
+              "[MartialWeapon|战斗武器]: [ArmourBreak|护甲完全破损]效果提高 20%",
+              "法杖或长杖: [Spell|法术][Critical|暴击]会[ArmourBreak|粉碎][Armour|护甲]，相当于造成[Physical|物理]伤害的 12%",
+              "护甲:",
+              "+20 生命上限",
+              "+20 魔力上限"
+            ],
+            "descrText": "放入武器或护甲的一个空的[Augment|增幅器]插槽中，即可将其效果应用于此物品。一旦放入插槽，无法再被移除，但可以被其他[Augment|增幅器]物品替换。",
+            "explicitMods": [
+              "[MartialWeapon|战斗武器]: [Physical|物理]伤害提高 18%",
+              "法杖或长杖: [Spell|法术]伤害提高 30%",
+              "护甲: [Armour|护甲]、[Evasion|闪避]和[EnergyShield|能量护盾]提高 18%"
+            ],
+            "frameType": 5,
+            "frameTypeId": "Currency",
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUnVuZXMvRW5oYW5jZVJ1bmVUaWVyMiIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/6b729ab5a0/EnhanceRuneTier2.png",
+            "id": "fa0932cafe6600e28878b0c0effcb5e003e067bd020b623e1b8ad9ecb87381cd",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "maxStackSize": 10,
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "堆叠数量",
+                "type": 32,
+                "values": [
+                  [
+                    "1/10",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "[Rune|符文]",
+                "values": []
+              }
+            ],
+            "realm": "poe2",
+            "requirements": [
+              {
+                "displayMode": 0,
+                "name": "等级",
+                "type": 62,
+                "values": [
+                  [
+                    "30",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "socket": 0,
+            "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9SdW5lU29ja2V0RmlsbGVkIiwicmVhbG0iOiJwb2UyIn1d/d02d26cbf0/RuneSocketFilled.png",
+            "stackSize": 1,
+            "typeLine": "高级钢铁符文",
+            "verified": false,
+            "w": 1
+          },
+          {
+            "baseType": "高级钢铁符文",
+            "bondedMods": [
+              "[ShamanOnlyMods|羁绊]：",
+              "[MartialWeapon|战斗武器]: [ArmourBreak|护甲完全破损]效果提高 20%",
+              "法杖或长杖: [Spell|法术][Critical|暴击]会[ArmourBreak|粉碎][Armour|护甲]，相当于造成[Physical|物理]伤害的 12%",
+              "护甲:",
+              "+20 生命上限",
+              "+20 魔力上限"
+            ],
+            "descrText": "放入武器或护甲的一个空的[Augment|增幅器]插槽中，即可将其效果应用于此物品。一旦放入插槽，无法再被移除，但可以被其他[Augment|增幅器]物品替换。",
+            "explicitMods": [
+              "[MartialWeapon|战斗武器]: [Physical|物理]伤害提高 18%",
+              "法杖或长杖: [Spell|法术]伤害提高 30%",
+              "护甲: [Armour|护甲]、[Evasion|闪避]和[EnergyShield|能量护盾]提高 18%"
+            ],
+            "frameType": 5,
+            "frameTypeId": "Currency",
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUnVuZXMvRW5oYW5jZVJ1bmVUaWVyMiIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/6b729ab5a0/EnhanceRuneTier2.png",
+            "id": "8714d36e1e14ae1d6b68440fa869bf7f7df22fdf6e1b65c706cc396569e80f8f",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "maxStackSize": 10,
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "堆叠数量",
+                "type": 32,
+                "values": [
+                  [
+                    "1/10",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "[Rune|符文]",
+                "values": []
+              }
+            ],
+            "realm": "poe2",
+            "requirements": [
+              {
+                "displayMode": 0,
+                "name": "等级",
+                "type": 62,
+                "values": [
+                  [
+                    "30",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "socket": 1,
+            "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9SdW5lU29ja2V0RmlsbGVkIiwicmVhbG0iOiJwb2UyIn1d/d02d26cbf0/RuneSocketFilled.png",
+            "stackSize": 1,
+            "typeLine": "高级钢铁符文",
+            "verified": false,
+            "w": 1
+          }
+        ],
+        "inventoryId": "BodyArmour"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Weapon2",
+      "item": {
+        "id": "d987107085842253ae2c9c91eeb1f2c66fc05d7a34b49586c7627ea9f7041cf9",
+        "name": "暴怒 刀锋",
+        "baseType": "阿科扬战矛",
+        "rarity": "Rare",
+        "ilvl": 81,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9PbmVIYW5kU3BlYXJzLzFIU3BlYXIxMCIsInciOjEsImgiOjQsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/114525ad0e/1HSpear10.png",
+        "explicitMods": [
+          "附加 26 - 46 [Physical|物理]伤害",
+          "附加 9 - 235 [Lightning|闪电]伤害"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "[Spear|战矛]",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 0,
+            "name": "[Quality|品质]",
+            "type": 6,
+            "values": [
+              [
+                "+20%",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[Physical|物理]伤害",
+            "type": 9,
+            "values": [
+              [
+                "78-142",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "闪电伤害",
+            "type": 10,
+            "values": [
+              [
+                "9-235",
+                6
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[Critical|暴击]率",
+            "type": 12,
+            "values": [
+              [
+                "11.22%",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "每秒攻击次数",
+            "type": 13,
+            "values": [
+              [
+                "1.60",
+                0
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "78",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Strength|力量]",
+            "type": 63,
+            "values": [
+              [
+                "50",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Dexterity|敏捷]",
+            "type": 64,
+            "values": [
+              [
+                "127",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Intelligence|智慧]",
+            "type": 65,
+            "values": [
+              [
+                "90",
+                0
+              ]
+            ]
+          }
+        ],
+        "socketedItems": [
+          {
+            "baseType": "提卡巴的灵核",
+            "descrText": "放入武器、胸甲或盾牌的空置[Augment|增幅器]插槽中，对物品产生该效果。一旦放入插槽，无法再被移除，但可以被其他[Augment|增幅器]物品替换。",
+            "explicitMods": [
+              "[MartialWeapon|战斗武器]: +5% [CriticalDamageBonus|暴击伤害加成]",
+              "护甲: 对你的击中的[CriticalDamageBonus|暴击伤害加成]降低 20%",
+              "盾牌和轻盾: 对你的击中的[CriticalDamageBonus|暴击伤害加成]降低 20%"
+            ],
+            "frameType": 5,
+            "frameTypeId": "Currency",
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvU291bENvcmVzL0dyZWF0ZXJTb3VsQ29yZUNyaXQiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/6d3a52eb08/GreaterSoulCoreCrit.png",
+            "id": "669a063cba3ca814e1558787ac0ba15f8cb5ab618e6bda9d711e6c2970e399cd",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "maxStackSize": 10,
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "堆叠数量",
+                "type": 32,
+                "values": [
+                  [
+                    "1/10",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "[SoulCore|灵核]",
+                "values": []
+              }
+            ],
+            "realm": "poe2",
+            "socket": 0,
+            "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9Tb3VsQ29yZXNTb2NrZXRGaWxsZWQiLCJyZWFsbSI6InBvZTIifV0/c66303ad53/SoulCoresSocketFilled.png",
+            "stackSize": 1,
+            "typeLine": "提卡巴的灵核",
+            "verified": false,
+            "w": 1
+          },
+          {
+            "baseType": "奥杜尔之忿怒",
+            "bondedMods": [
+              "[ShamanOnlyMods|羁绊]：",
+              "武器: [Lightning|闪电]伤害提高 25%"
+            ],
+            "descrText": "放入[Rarity|稀有]武器的空置[Augment|增幅器]插槽中，对物品产生该效果。镶嵌时转化词缀，后续添加的词缀不会被转化。一旦放入插槽，无法再被移除或替换。",
+            "explicitMods": [
+              "武器: 将物品上的所有[Fire|火焰]与[Cold|冰霜]词缀转化为等值的[Lightning|闪电]词缀"
+            ],
+            "flavourText": [
+              "“在山巅之上，奥杜尔发现了符文的秘密。\r",
+              "它们等待着意志与号令。\r",
+              "他高举宝剑，接受了苍穹之力。”"
+            ],
+            "frameType": 5,
+            "frameTypeId": "Currency",
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRXhwZWRpdGlvbjIvRWxlbWVudGFsQ29udmVyc2lvblJ1bmVMaWdodG5pbmciLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/c40f15995a/ElementalConversionRuneLightning.png",
+            "id": "a3627eb4b9a10d83ead8432c18dd56d7ed6e9a44a1d2b58e18f34a0f7de4a23d",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "maxStackSize": 10,
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "堆叠数量",
+                "type": 32,
+                "values": [
+                  [
+                    "1/10",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "[Rune|符文]",
+                "values": []
+              }
+            ],
+            "realm": "poe2",
+            "runeMods": [
+              "[SocketBound|插槽绑定]"
+            ],
+            "socket": 1,
+            "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9SdW5lU29ja2V0RmlsbGVkTGlnaHRuaW5nIiwicmVhbG0iOiJwb2UyIn1d/001593133c/RuneSocketFilledLightning.png",
+            "stackSize": 1,
+            "typeLine": "奥杜尔之忿怒",
+            "verified": false,
+            "w": 1
+          },
+          {
+            "baseType": "战矛飞掷",
+            "descrText": "可在技能面板中管理技能。",
+            "frameType": 4,
+            "frameTypeId": "Gem",
+            "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvSHVudHJlc3NJY2VTcGVhciIsInJlYWxtIjoicG9lMiJ9XQ/da079143ea/HuntressIceSpear.png",
+            "gemTabs": [
+              {
+                "name": "战矛飞掷",
+                "pages": [
+                  {
+                    "skillName": "战矛飞掷"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "displayMode": 0,
+                        "name": "攻击伤害",
+                        "values": [
+                          [
+                            "232%",
+                            0
+                          ]
+                        ]
+                      }
+                    ],
+                    "skillName": "爆炸",
+                    "stats": [
+                      "爆炸范围为 2 米"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvQmxhbmtHZW0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/250ec3ed08/BlankGem.png",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "[Attack|攻击], [AoESkill|效果区域], [Projectile|投射物], [Repeat|可重复]",
+                "values": []
+              },
+              {
+                "displayMode": 0,
+                "name": "等级",
+                "type": 5,
+                "values": [
+                  [
+                    "1",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "攻击速度",
+                "values": [
+                  [
+                    "70% 基础",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "攻击伤害",
+                "values": [
+                  [
+                    "125%",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "realm": "poe2",
+            "secDescrText": "大力掷出[Spear|战矛]。尽量消耗一个[Charges|狂怒球]，使[Spear|战矛]结束飞行时爆炸。",
+            "support": false,
+            "typeLine": "战矛飞掷",
+            "verified": false,
+            "w": 1,
+            "weaponRequirements": [
+              {
+                "displayMode": 0,
+                "name": "",
+                "type": 96,
+                "values": [
+                  [
+                    "[Spear|战矛]",
+                    0
+                  ]
+                ]
+              }
+            ]
+          }
+        ],
+        "inventoryId": "Weapon2"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Weapon",
+      "item": {
+        "id": "830b6487117434fa689d138c61cc12e99c08030c17c9fca942708435ca1c19bf",
+        "name": "",
+        "baseType": "翱翔战矛",
+        "rarity": "Magic",
+        "ilvl": 80,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9PbmVIYW5kU3BlYXJzLzFIU3BlYXIwNCIsInciOjEsImgiOjQsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/5f32a7f996/1HSpear04.png",
+        "explicitMods": [
+          "[Physical|物理]伤害提高 43%",
+          "+77 [Accuracy|命中]值",
+          "[Attack|攻击]速度提高 27%"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "[Spear|战矛]",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 0,
+            "name": "[Physical|物理]伤害",
+            "type": 9,
+            "values": [
+              [
+                "50-93",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[Critical|暴击]率",
+            "type": 12,
+            "values": [
+              [
+                "5.00%",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "每秒攻击次数",
+            "type": 13,
+            "values": [
+              [
+                "2.16",
+                1
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "70",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Strength|力量]",
+            "type": 63,
+            "values": [
+              [
+                "41",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Dexterity|敏捷]",
+            "type": 64,
+            "values": [
+              [
+                "115",
+                0
+              ]
+            ]
+          }
+        ],
+        "socketedItems": [
+          {
+            "baseType": "高级迅捷符文",
+            "bondedMods": [
+              "[ShamanOnlyMods|羁绊]：",
+              "[MartialWeapon|战斗武器]: [Herald|捷]技能的[Reservation|保留][Efficiency|效能]提高 15%",
+              "护甲: [AilmentThreshold|元素异常状态阈值]提高 15%"
+            ],
+            "descrText": "放入武器或护甲的一个空的[Augment|增幅器]插槽中，即可将其效果应用于此物品。一旦放入插槽，无法再被移除，但可以被其他[Augment|增幅器]物品替换。",
+            "explicitMods": [
+              "[MartialWeapon|战斗武器]: [SkillSpeed|技能速度]提高 8%",
+              "护甲: 你身上的[Debuff|减益]消失速度加快 8%"
+            ],
+            "frameType": 5,
+            "frameTypeId": "Currency",
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUnVuZXMvTGlnaHRuaW5nUnVuZVNwZWNpYWwzIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/ea23289554/LightningRuneSpecial3.png",
+            "id": "85506cf720f1971c7a1f2f7cb15c749e2f69ec44eb6558d06a21594ffd25e96a",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "maxStackSize": 10,
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "堆叠数量",
+                "type": 32,
+                "values": [
+                  [
+                    "1/10",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "[Rune|符文]",
+                "values": []
+              }
+            ],
+            "realm": "poe2",
+            "socket": 0,
+            "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9SdW5lU29ja2V0RmlsbGVkU3BlY2lhbCIsInJlYWxtIjoicG9lMiJ9XQ/4576081b73/RuneSocketFilledSpecial.png",
+            "stackSize": 1,
+            "typeLine": "高级迅捷符文",
+            "verified": false,
+            "w": 1
+          },
+          {
+            "baseType": "战矛飞掷",
+            "descrText": "可在技能面板中管理技能。",
+            "frameType": 4,
+            "frameTypeId": "Gem",
+            "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvSHVudHJlc3NJY2VTcGVhciIsInJlYWxtIjoicG9lMiJ9XQ/da079143ea/HuntressIceSpear.png",
+            "gemTabs": [
+              {
+                "name": "战矛飞掷",
+                "pages": [
+                  {
+                    "skillName": "战矛飞掷"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "displayMode": 0,
+                        "name": "攻击伤害",
+                        "values": [
+                          [
+                            "232%",
+                            0
+                          ]
+                        ]
+                      }
+                    ],
+                    "skillName": "爆炸",
+                    "stats": [
+                      "爆炸范围为 2 米"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvQmxhbmtHZW0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/250ec3ed08/BlankGem.png",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "[Attack|攻击], [AoESkill|效果区域], [Projectile|投射物], [Repeat|可重复]",
+                "values": []
+              },
+              {
+                "displayMode": 0,
+                "name": "等级",
+                "type": 5,
+                "values": [
+                  [
+                    "1",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "攻击速度",
+                "values": [
+                  [
+                    "70% 基础",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "攻击伤害",
+                "values": [
+                  [
+                    "125%",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "realm": "poe2",
+            "secDescrText": "大力掷出[Spear|战矛]。尽量消耗一个[Charges|狂怒球]，使[Spear|战矛]结束飞行时爆炸。",
+            "support": false,
+            "typeLine": "战矛飞掷",
+            "verified": false,
+            "w": 1,
+            "weaponRequirements": [
+              {
+                "displayMode": 0,
+                "name": "",
+                "type": 96,
+                "values": [
+                  [
+                    "[Spear|战矛]",
+                    0
+                  ]
+                ]
+              }
+            ]
+          }
+        ],
+        "inventoryId": "Weapon"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Flask",
+      "item": {
+        "id": "dd087abc1de6e8c3693123c35059c3683e484a8e614edd7f6023783443481227",
+        "name": "",
+        "baseType": "终极生命药剂",
+        "rarity": "Magic",
+        "ilvl": 64,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzksMTQseyJmIjoiMkRJdGVtcy9GbGFza3MvQmFzZXR5cGVzL0ZsYXNrTGlmZTA5IiwidyI6MSwiaCI6Miwic2NhbGUiOjEsInJlYWxtIjoicG9lMiIsImxldmVsIjoxfV0/8ed5f669f0/FlaskLife09.png",
+        "explicitMods": [
+          "立即回复23% 回复量",
+          "每次使用消耗的充能次数降低 22%"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "[Flask|药剂]",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 0,
+            "name": "[Quality|品质]",
+            "type": 6,
+            "values": [
+              [
+                "+20%",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 3,
+            "name": "{1} 秒内回复 {0} 生命",
+            "values": [
+              [
+                "1104",
+                1
+              ],
+              [
+                "3",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 3,
+            "name": "每次使用会从 {1} 充能次数中消耗 {0} 次",
+            "values": [
+              [
+                "7",
+                1
+              ],
+              [
+                "75",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 3,
+            "name": "目前有 {0} 充能次数",
+            "values": [
+              [
+                "75",
+                0
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "60",
+                0
+              ]
+            ]
+          }
+        ],
+        "inventoryId": "Flask"
+      },
+      "empty": false
+    },
+    {
+      "slotName": "Boots",
+      "item": {
+        "id": "d402e707c0e1638293477b48599bbcc101b192a9e25f4da9cb792c288e5753e1",
+        "name": "刺荆 行靴",
+        "baseType": "贵族战靴",
+        "rarity": "Rare",
+        "ilvl": 81,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb290cy9CYXNldHlwZXMvQm9vdHNTdHJEZXgwMiIsInciOjIsImgiOjIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/fea44e00c3/BootsStrDex02.png",
+        "explicitMods": [
+          "[Armour|护甲]与[Evasion|闪避]提高 77%",
+          "[Resistances|火焰抗性] +34%",
+          "[Resistances|冰霜抗性] +34%",
+          "[Resistances|闪电抗性] +40%"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "鞋子",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 0,
+            "name": "[Armour|护甲]",
+            "type": 16,
+            "values": [
+              [
+                "250",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[Evasion|闪避值]",
+            "type": 17,
+            "values": [
+              [
+                "227",
+                1
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "70",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Strength|力量]",
+            "type": 63,
+            "values": [
+              [
+                "51",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Dexterity|敏捷]",
+            "type": 64,
+            "values": [
+              [
+                "51",
+                0
+              ]
+            ]
+          }
+        ],
+        "socketedItems": [
+          {
+            "baseType": "高级冰川符文",
+            "bondedMods": [
+              "[ShamanOnlyMods|羁绊]：",
+              "[MartialWeapon|战斗武器]: [Freeze|冻结]积蓄值提高 30%",
+              "法杖或长杖: [Freeze|冻结]积蓄值提高 30%",
+              "护甲:",
+              "+20 生命上限",
+              "+20 魔力上限"
+            ],
+            "descrText": "放入武器或护甲的一个空的[Augment|增幅器]插槽中，即可将其效果应用于此物品。一旦放入插槽，无法再被移除，但可以被其他[Augment|增幅器]物品替换。",
+            "explicitMods": [
+              "[MartialWeapon|战斗武器]: 附加 9 - 15 [Cold|冰霜]伤害",
+              "法杖或长杖: [Gain|获得]相当于伤害 10% 的额外[Cold|冰霜]伤害",
+              "护甲: [Resistances|冰霜抗性] +18%"
+            ],
+            "frameType": 5,
+            "frameTypeId": "Currency",
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUnVuZXMvQ29sZFJ1bmVUaWVyMiIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/e407a6e36d/ColdRuneTier2.png",
+            "id": "0951197b99c14e9b13da1d787bf9540303c7017d5368a2e8af0d3bef0946bf9f",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "maxStackSize": 10,
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "堆叠数量",
+                "type": 32,
+                "values": [
+                  [
+                    "1/10",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "[Rune|符文]",
+                "values": []
+              }
+            ],
+            "realm": "poe2",
+            "requirements": [
+              {
+                "displayMode": 0,
+                "name": "等级",
+                "type": 62,
+                "values": [
+                  [
+                    "30",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "socket": 0,
+            "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9SdW5lU29ja2V0RmlsbGVkIiwicmVhbG0iOiJwb2UyIn1d/d02d26cbf0/RuneSocketFilled.png",
+            "stackSize": 1,
+            "typeLine": "高级冰川符文",
+            "verified": false,
+            "w": 1
+          },
+          {
+            "baseType": "高级冰川符文",
+            "bondedMods": [
+              "[ShamanOnlyMods|羁绊]：",
+              "[MartialWeapon|战斗武器]: [Freeze|冻结]积蓄值提高 30%",
+              "法杖或长杖: [Freeze|冻结]积蓄值提高 30%",
+              "护甲:",
+              "+20 生命上限",
+              "+20 魔力上限"
+            ],
+            "descrText": "放入武器或护甲的一个空的[Augment|增幅器]插槽中，即可将其效果应用于此物品。一旦放入插槽，无法再被移除，但可以被其他[Augment|增幅器]物品替换。",
+            "explicitMods": [
+              "[MartialWeapon|战斗武器]: 附加 9 - 15 [Cold|冰霜]伤害",
+              "法杖或长杖: [Gain|获得]相当于伤害 10% 的额外[Cold|冰霜]伤害",
+              "护甲: [Resistances|冰霜抗性] +18%"
+            ],
+            "frameType": 5,
+            "frameTypeId": "Currency",
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUnVuZXMvQ29sZFJ1bmVUaWVyMiIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/e407a6e36d/ColdRuneTier2.png",
+            "id": "0951197b99c14e9b13da1d787bf9540303c7017d5368a2e8af0d3bef0946bf9f",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "maxStackSize": 10,
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "堆叠数量",
+                "type": 32,
+                "values": [
+                  [
+                    "1/10",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "[Rune|符文]",
+                "values": []
+              }
+            ],
+            "realm": "poe2",
+            "requirements": [
+              {
+                "displayMode": 0,
+                "name": "等级",
+                "type": 62,
+                "values": [
+                  [
+                    "30",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "socket": 1,
+            "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9SdW5lU29ja2V0RmlsbGVkIiwicmVhbG0iOiJwb2UyIn1d/d02d26cbf0/RuneSocketFilled.png",
+            "stackSize": 1,
+            "typeLine": "高级冰川符文",
+            "verified": false,
+            "w": 1
+          }
+        ],
+        "inventoryId": "Boots"
+      },
+      "empty": false
+    }
+  ],
+  "weaponSets": [
+    {
+      "id": 1,
+      "offhandEmpty": true,
+      "mainHand": {
+        "id": "830b6487117434fa689d138c61cc12e99c08030c17c9fca942708435ca1c19bf",
+        "name": "",
+        "baseType": "翱翔战矛",
+        "rarity": "Magic",
+        "ilvl": 80,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9PbmVIYW5kU3BlYXJzLzFIU3BlYXIwNCIsInciOjEsImgiOjQsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/5f32a7f996/1HSpear04.png",
+        "explicitMods": [
+          "[Physical|物理]伤害提高 43%",
+          "+77 [Accuracy|命中]值",
+          "[Attack|攻击]速度提高 27%"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "[Spear|战矛]",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 0,
+            "name": "[Physical|物理]伤害",
+            "type": 9,
+            "values": [
+              [
+                "50-93",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[Critical|暴击]率",
+            "type": 12,
+            "values": [
+              [
+                "5.00%",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "每秒攻击次数",
+            "type": 13,
+            "values": [
+              [
+                "2.16",
+                1
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "70",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Strength|力量]",
+            "type": 63,
+            "values": [
+              [
+                "41",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Dexterity|敏捷]",
+            "type": 64,
+            "values": [
+              [
+                "115",
+                0
+              ]
+            ]
+          }
+        ],
+        "socketedItems": [
+          {
+            "baseType": "高级迅捷符文",
+            "bondedMods": [
+              "[ShamanOnlyMods|羁绊]：",
+              "[MartialWeapon|战斗武器]: [Herald|捷]技能的[Reservation|保留][Efficiency|效能]提高 15%",
+              "护甲: [AilmentThreshold|元素异常状态阈值]提高 15%"
+            ],
+            "descrText": "放入武器或护甲的一个空的[Augment|增幅器]插槽中，即可将其效果应用于此物品。一旦放入插槽，无法再被移除，但可以被其他[Augment|增幅器]物品替换。",
+            "explicitMods": [
+              "[MartialWeapon|战斗武器]: [SkillSpeed|技能速度]提高 8%",
+              "护甲: 你身上的[Debuff|减益]消失速度加快 8%"
+            ],
+            "frameType": 5,
+            "frameTypeId": "Currency",
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUnVuZXMvTGlnaHRuaW5nUnVuZVNwZWNpYWwzIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/ea23289554/LightningRuneSpecial3.png",
+            "id": "85506cf720f1971c7a1f2f7cb15c749e2f69ec44eb6558d06a21594ffd25e96a",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "maxStackSize": 10,
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "堆叠数量",
+                "type": 32,
+                "values": [
+                  [
+                    "1/10",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "[Rune|符文]",
+                "values": []
+              }
+            ],
+            "realm": "poe2",
+            "socket": 0,
+            "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9SdW5lU29ja2V0RmlsbGVkU3BlY2lhbCIsInJlYWxtIjoicG9lMiJ9XQ/4576081b73/RuneSocketFilledSpecial.png",
+            "stackSize": 1,
+            "typeLine": "高级迅捷符文",
+            "verified": false,
+            "w": 1
+          },
+          {
+            "baseType": "战矛飞掷",
+            "descrText": "可在技能面板中管理技能。",
+            "frameType": 4,
+            "frameTypeId": "Gem",
+            "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvSHVudHJlc3NJY2VTcGVhciIsInJlYWxtIjoicG9lMiJ9XQ/da079143ea/HuntressIceSpear.png",
+            "gemTabs": [
+              {
+                "name": "战矛飞掷",
+                "pages": [
+                  {
+                    "skillName": "战矛飞掷"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "displayMode": 0,
+                        "name": "攻击伤害",
+                        "values": [
+                          [
+                            "232%",
+                            0
+                          ]
+                        ]
+                      }
+                    ],
+                    "skillName": "爆炸",
+                    "stats": [
+                      "爆炸范围为 2 米"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvQmxhbmtHZW0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/250ec3ed08/BlankGem.png",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "[Attack|攻击], [AoESkill|效果区域], [Projectile|投射物], [Repeat|可重复]",
+                "values": []
+              },
+              {
+                "displayMode": 0,
+                "name": "等级",
+                "type": 5,
+                "values": [
+                  [
+                    "1",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "攻击速度",
+                "values": [
+                  [
+                    "70% 基础",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "攻击伤害",
+                "values": [
+                  [
+                    "125%",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "realm": "poe2",
+            "secDescrText": "大力掷出[Spear|战矛]。尽量消耗一个[Charges|狂怒球]，使[Spear|战矛]结束飞行时爆炸。",
+            "support": false,
+            "typeLine": "战矛飞掷",
+            "verified": false,
+            "w": 1,
+            "weaponRequirements": [
+              {
+                "displayMode": 0,
+                "name": "",
+                "type": 96,
+                "values": [
+                  [
+                    "[Spear|战矛]",
+                    0
+                  ]
+                ]
+              }
+            ]
+          }
+        ],
+        "inventoryId": "Weapon"
+      }
+    },
+    {
+      "id": 2,
+      "offhandEmpty": false,
+      "offHand": {
+        "id": "3717db423605c6140ad44cc0321014285fd7807621c3c0e0a0a00ecbda9c2c9e",
+        "name": "神圣之火",
+        "baseType": "圣地权杖",
+        "rarity": "Unique",
+        "ilvl": 84,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9TY2VwdGVycy9VbmlxdWVzL1NhY3JlZEZsYW1lIiwidyI6MiwiaCI6Mywic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/f6c6572ac6/SacredFlame.png",
+        "explicitMods": [
+          "[Gain|获得]相当于伤害 60% 的额外[Fire|火焰]伤害",
+          "[Presence|在场]的[Allies|友军]每秒再生生命上限 2.6% 的生命",
+          "[Presence|在场]的[Allies|友军][Gain|获得]相当于伤害 29% 的额外火焰伤害",
+          "[Presence|在场]的敌人根据最低的[Resistances|抗性]抵抗[ElementalDamage|元素伤害]"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "[Sceptre|权杖]",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 0,
+            "name": "[Quality|品质]",
+            "type": 6,
+            "values": [
+              [
+                "+20%",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[Spirit|精魂]",
+            "type": 25,
+            "values": [
+              [
+                "115",
+                1
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "78",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Strength|力量]",
+            "type": 63,
+            "values": [
+              [
+                "42",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Intelligence|智慧]",
+            "type": 65,
+            "values": [
+              [
+                "106",
+                0
+              ]
+            ]
+          }
+        ],
+        "socketedItems": [
+          {
+            "baseType": "狡兔雕像",
+            "bondedMods": [
+              "[ShamanOnlyMods|羁绊]：",
+              "护甲: 被击败的敌人掉落的金币数量提高 10%",
+              "权杖: [Minion|召唤生物]的[Command|命令]技能的[CooldownRecovery|冷却回复速度]提高 30%"
+            ],
+            "descrText": "放入胸甲或权杖的空置[Augment|增幅器]插槽中，对物品产生该效果。一旦放入插槽，无法再被移除，但可以被其他[Augment|增幅器]物品替换。",
+            "explicitMods": [
+              "护甲: [ItemRarity|物品稀有度]提高 12%",
+              "权杖: 该装备[Spirit|精魂]提高 15%"
+            ],
+            "frameType": 5,
+            "frameTypeId": "Currency",
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvVG9ybWVudGVkU3Bpcml0U29ja2V0YWJsZXMvQXptZXJpU29ja2V0YWJsZVJhYmJpdCIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/7bce11e67d/AzmeriSocketableRabbit.png",
+            "id": "18c829451924aa645ed0554138a789fabb30e5efbde475085a6bb9e94bb3bd63",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "maxStackSize": 10,
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "堆叠数量",
+                "type": 32,
+                "values": [
+                  [
+                    "1/10",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "[Idol|雕像]",
+                "values": []
+              },
+              {
+                "displayMode": 0,
+                "name": "仅限",
+                "values": [
+                  [
+                    "1",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "realm": "poe2",
+            "socket": 0,
+            "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9Bem1lcmlTb2NrZXRGaWxsZWRTYWNyZWQiLCJyZWFsbSI6InBvZTIifV0/a8f77dcc81/AzmeriSocketFilledSacred.png",
+            "stackSize": 1,
+            "typeLine": "狡兔雕像",
+            "verified": false,
+            "w": 1
+          },
+          {
+            "baseType": "火焰净化",
+            "descrText": "可在技能面板中管理技能。",
+            "frameType": 4,
+            "frameTypeId": "Gem",
+            "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvUHVyaXR5b2ZGaXJlV2VhcG9uU2tpbGwiLCJyZWFsbSI6InBvZTIifV0/402d027ff8/PurityofFireWeaponSkill.png",
+            "gemSockets": [
+              "W",
+              "W",
+              "W",
+              "W"
+            ],
+            "gemTabs": [
+              {
+                "name": "火焰净化",
+                "pages": [
+                  {
+                    "skillName": "火焰净化",
+                    "stats": [
+                      "[Aura|光环]给予 +39% [Fire|火焰]抗性"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvQmxhbmtHZW0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/250ec3ed08/BlankGem.png",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "[Buff|增益], [Persistent|永久性], [Aura|光环], [Fire|火焰]",
+                "values": []
+              },
+              {
+                "displayMode": 0,
+                "name": "等级",
+                "type": 5,
+                "values": [
+                  [
+                    "18",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "realm": "poe2",
+            "requirements": [
+              {
+                "displayMode": 0,
+                "name": "等级",
+                "type": 62,
+                "values": [
+                  [
+                    "78",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 1,
+                "name": "[Strength|力量]",
+                "type": 63,
+                "values": [
+                  [
+                    "42",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 1,
+                "name": "[Intelligence|智慧]",
+                "type": 65,
+                "values": [
+                  [
+                    "106",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "secDescrText": "释放一个[Aura|光环]，提高你和[Presence|在场]的[Allies|友军]的[Resistances|火焰抗性]。",
+            "socketedItems": [
+              {
+                "baseType": "活力 II",
+                "descrText": "在技能面板中放入一个技能的辅助宝石插槽，使技能获得该效果。无法在一个技能中镶嵌多个相同类别的辅助宝石。",
+                "frameType": 4,
+                "frameTypeId": "Gem",
+                "gemTabs": [
+                  {
+                    "name": "辅助",
+                    "pages": [
+                      {
+                        "skillName": "",
+                        "stats": [
+                          "被辅助技能激活时每秒再生 2% 的生命"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "h": 1,
+                "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvTmV3U3VwcG9ydC9WaXRhbGl0eVN1cHBvcnRHZW0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/4d0a173757/VitalitySupportGem.png",
+                "iconTierText": "II",
+                "identified": true,
+                "ilvl": 0,
+                "league": "奥杜尔秘符",
+                "name": "",
+                "properties": [
+                  {
+                    "displayMode": 0,
+                    "name": "[SupportGem|辅助], [Buff|增益], [Persistent|永久性]",
+                    "values": []
+                  },
+                  {
+                    "displayMode": 0,
+                    "name": "[SupportGemCategory|类别]",
+                    "values": [
+                      [
+                        "活力",
+                        0
+                      ]
+                    ]
+                  },
+                  {
+                    "displayMode": 0,
+                    "name": "额外保留",
+                    "type": 104,
+                    "values": [
+                      [
+                        "40 [Spirit|精魂]",
+                        0
+                      ]
+                    ]
+                  }
+                ],
+                "realm": "poe2",
+                "secDescrText": "辅助[Persistent|永久性][Buff|增益]技能，激活该技能时提高你的生命回复速度。",
+                "socket": 0,
+                "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9JdGVtc1N1cHBvcnRTb2NrZXRlZFdoaXRlIiwicmVhbG0iOiJwb2UyIn1d/7815336083/ItemsSupportSocketedWhite.png",
+                "support": true,
+                "supportGemRequirements": [
+                  {
+                    "displayMode": 0,
+                    "name": "+5 [Strength|力量]",
+                    "type": 63,
+                    "values": [
+                      [
+                        "(5)",
+                        0
+                      ]
+                    ]
+                  }
+                ],
+                "typeLine": "活力 II",
+                "verified": false,
+                "w": 1
+              },
+              {
+                "baseType": "清晰 II",
+                "descrText": "在技能面板中放入一个技能的辅助宝石插槽，使技能获得该效果。无法在一个技能中镶嵌多个相同类别的辅助宝石。",
+                "frameType": 4,
+                "frameTypeId": "Gem",
+                "gemTabs": [
+                  {
+                    "name": "辅助",
+                    "pages": [
+                      {
+                        "skillName": "",
+                        "stats": [
+                          "被辅助技能激活时，魔力再生速度提高 50%"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "h": 1,
+                "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvTmV3U3VwcG9ydC9DbGFyaXR5U3VwcG9ydEdlbSIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/b8cfb97d8c/ClaritySupportGem.png",
+                "iconTierText": "II",
+                "identified": true,
+                "ilvl": 0,
+                "league": "奥杜尔秘符",
+                "name": "",
+                "properties": [
+                  {
+                    "displayMode": 0,
+                    "name": "[SupportGem|辅助], [Buff|增益], [Persistent|永久性]",
+                    "values": []
+                  },
+                  {
+                    "displayMode": 0,
+                    "name": "[SupportGemCategory|类别]",
+                    "values": [
+                      [
+                        "清晰",
+                        0
+                      ]
+                    ]
+                  },
+                  {
+                    "displayMode": 0,
+                    "name": "额外保留",
+                    "type": 104,
+                    "values": [
+                      [
+                        "20 [Spirit|精魂]",
+                        0
+                      ]
+                    ]
+                  }
+                ],
+                "realm": "poe2",
+                "secDescrText": "辅助[Persistent|永久性][Buff|增益]技能，激活该技能时提高你的魔力回复速度。",
+                "socket": 1,
+                "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9JdGVtc1N1cHBvcnRTb2NrZXRlZFdoaXRlIiwicmVhbG0iOiJwb2UyIn1d/7815336083/ItemsSupportSocketedWhite.png",
+                "support": true,
+                "supportGemRequirements": [
+                  {
+                    "displayMode": 0,
+                    "name": "+5 [Intelligence|智慧]",
+                    "type": 65,
+                    "values": [
+                      [
+                        "(5)",
+                        0
+                      ]
+                    ]
+                  }
+                ],
+                "typeLine": "清晰 II",
+                "verified": false,
+                "w": 1
+              },
+              {
+                "baseType": "精准 II",
+                "descrText": "在技能面板中放入一个技能的辅助宝石插槽，使技能获得该效果。无法在一个技能中镶嵌多个相同类别的辅助宝石。",
+                "frameType": 4,
+                "frameTypeId": "Gem",
+                "gemTabs": [
+                  {
+                    "name": "辅助",
+                    "pages": [
+                      {
+                        "skillName": "",
+                        "stats": [
+                          "被辅助技能激活时，[Accuracy|命中]值提高 50%"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "h": 1,
+                "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvTmV3U3VwcG9ydC9QcmVjaXNpb25TdXBwb3J0R2VtIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/9739e056ca/PrecisionSupportGem.png",
+                "iconTierText": "II",
+                "identified": true,
+                "ilvl": 0,
+                "league": "奥杜尔秘符",
+                "name": "",
+                "properties": [
+                  {
+                    "displayMode": 0,
+                    "name": "[SupportGem|辅助], [Buff|增益], [Persistent|永久性]",
+                    "values": []
+                  },
+                  {
+                    "displayMode": 0,
+                    "name": "[SupportGemCategory|类别]",
+                    "values": [
+                      [
+                        "精准",
+                        0
+                      ]
+                    ]
+                  },
+                  {
+                    "displayMode": 0,
+                    "name": "额外保留",
+                    "type": 104,
+                    "values": [
+                      [
+                        "20 [Spirit|精魂]",
+                        0
+                      ]
+                    ]
+                  }
+                ],
+                "realm": "poe2",
+                "secDescrText": "辅助[Persistent|永久性][Buff|增益]技能，激活该技能时提高你的[Accuracy|命中]。",
+                "socket": 2,
+                "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9JdGVtc1N1cHBvcnRTb2NrZXRlZFdoaXRlIiwicmVhbG0iOiJwb2UyIn1d/7815336083/ItemsSupportSocketedWhite.png",
+                "support": true,
+                "supportGemRequirements": [
+                  {
+                    "displayMode": 0,
+                    "name": "+5 [Dexterity|敏捷]",
+                    "type": 64,
+                    "values": [
+                      [
+                        "(5)",
+                        0
+                      ]
+                    ]
+                  }
+                ],
+                "typeLine": "精准 II",
+                "verified": false,
+                "w": 1
+              },
+              {
+                "baseType": "她的宣言",
+                "descrText": "在技能面板中放入一个技能的辅助宝石插槽，使技能获得该效果。无法在一个技能中镶嵌多个相同类别的辅助宝石。",
+                "flavourText": [
+                  "“法律具有约束力，法律是绝对的。\r",
+                  "如果他们认为执行法律是出于自身的选择，那便再好不过。\r",
+                  "履行我们庄严的职责，刻不容缓。”"
+                ],
+                "frameType": 4,
+                "frameTypeId": "Gem",
+                "gemTabs": [
+                  {
+                    "name": "辅助",
+                    "pages": [
+                      {
+                        "skillName": "",
+                        "stats": [
+                          "被辅助技能激活时，敌人进入你的[Presence|在场]范围时[Intimidate|被威吓] 4 秒"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "h": 1,
+                "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvTmV3U3VwcG9ydC9MaW5lYWdlL01vdGhlcnNEZWNsYXJhdGlvbiIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/f6ea457e7b/MothersDeclaration.png",
+                "identified": true,
+                "ilvl": 0,
+                "league": "奥杜尔秘符",
+                "name": "",
+                "properties": [
+                  {
+                    "displayMode": 0,
+                    "name": "[SupportGem|辅助], [LineageSupports|血统], [Buff|增益], [Persistent|永久性]",
+                    "values": []
+                  },
+                  {
+                    "displayMode": 0,
+                    "name": "[SupportGemCategory|类别]",
+                    "values": [
+                      [
+                        "她的宣言",
+                        0
+                      ]
+                    ]
+                  },
+                  {
+                    "displayMode": 0,
+                    "name": "额外保留",
+                    "type": 104,
+                    "values": [
+                      [
+                        "30 [Spirit|精魂]",
+                        0
+                      ]
+                    ]
+                  }
+                ],
+                "realm": "poe2",
+                "secDescrText": "辅助[Persistent|持续性] [Buff|增益状态]技能。技能激活时，进入你[Presence|存在]范围内的敌人会[Intimidate|被威吓]。",
+                "socket": 3,
+                "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9JdGVtc1N1cHBvcnRTb2NrZXRlZFdoaXRlIiwicmVhbG0iOiJwb2UyIn1d/7815336083/ItemsSupportSocketedWhite.png",
+                "support": true,
+                "typeLine": "她的宣言",
+                "verified": false,
+                "w": 1
+              }
+            ],
+            "sockets": [
+              {
+                "group": 0,
+                "type": "gem"
+              },
+              {
+                "group": 1,
+                "type": "gem"
+              },
+              {
+                "group": 2,
+                "type": "gem"
+              },
+              {
+                "group": 3,
+                "type": "gem"
+              }
+            ],
+            "support": false,
+            "typeLine": "火焰净化",
+            "verified": false,
+            "w": 1
+          }
+        ],
+        "inventoryId": "Offhand2"
+      },
+      "mainHand": {
+        "id": "d987107085842253ae2c9c91eeb1f2c66fc05d7a34b49586c7627ea9f7041cf9",
+        "name": "暴怒 刀锋",
+        "baseType": "阿科扬战矛",
+        "rarity": "Rare",
+        "ilvl": 81,
+        "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9PbmVIYW5kU3BlYXJzLzFIU3BlYXIxMCIsInciOjEsImgiOjQsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/114525ad0e/1HSpear10.png",
+        "explicitMods": [
+          "附加 26 - 46 [Physical|物理]伤害",
+          "附加 9 - 235 [Lightning|闪电]伤害"
+        ],
+        "properties": [
+          {
+            "displayMode": 0,
+            "name": "[Spear|战矛]",
+            "type": 109,
+            "values": []
+          },
+          {
+            "displayMode": 0,
+            "name": "[Quality|品质]",
+            "type": 6,
+            "values": [
+              [
+                "+20%",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[Physical|物理]伤害",
+            "type": 9,
+            "values": [
+              [
+                "78-142",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "闪电伤害",
+            "type": 10,
+            "values": [
+              [
+                "9-235",
+                6
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "[Critical|暴击]率",
+            "type": 12,
+            "values": [
+              [
+                "11.22%",
+                1
+              ]
+            ]
+          },
+          {
+            "displayMode": 0,
+            "name": "每秒攻击次数",
+            "type": 13,
+            "values": [
+              [
+                "1.60",
+                0
+              ]
+            ]
+          }
+        ],
+        "requirements": [
+          {
+            "displayMode": 0,
+            "name": "等级",
+            "type": 62,
+            "values": [
+              [
+                "78",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Strength|力量]",
+            "type": 63,
+            "values": [
+              [
+                "50",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Dexterity|敏捷]",
+            "type": 64,
+            "values": [
+              [
+                "127",
+                0
+              ]
+            ]
+          },
+          {
+            "displayMode": 1,
+            "name": "[Intelligence|智慧]",
+            "type": 65,
+            "values": [
+              [
+                "90",
+                0
+              ]
+            ]
+          }
+        ],
+        "socketedItems": [
+          {
+            "baseType": "提卡巴的灵核",
+            "descrText": "放入武器、胸甲或盾牌的空置[Augment|增幅器]插槽中，对物品产生该效果。一旦放入插槽，无法再被移除，但可以被其他[Augment|增幅器]物品替换。",
+            "explicitMods": [
+              "[MartialWeapon|战斗武器]: +5% [CriticalDamageBonus|暴击伤害加成]",
+              "护甲: 对你的击中的[CriticalDamageBonus|暴击伤害加成]降低 20%",
+              "盾牌和轻盾: 对你的击中的[CriticalDamageBonus|暴击伤害加成]降低 20%"
+            ],
+            "frameType": 5,
+            "frameTypeId": "Currency",
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvU291bENvcmVzL0dyZWF0ZXJTb3VsQ29yZUNyaXQiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/6d3a52eb08/GreaterSoulCoreCrit.png",
+            "id": "669a063cba3ca814e1558787ac0ba15f8cb5ab618e6bda9d711e6c2970e399cd",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "maxStackSize": 10,
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "堆叠数量",
+                "type": 32,
+                "values": [
+                  [
+                    "1/10",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "[SoulCore|灵核]",
+                "values": []
+              }
+            ],
+            "realm": "poe2",
+            "socket": 0,
+            "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9Tb3VsQ29yZXNTb2NrZXRGaWxsZWQiLCJyZWFsbSI6InBvZTIifV0/c66303ad53/SoulCoresSocketFilled.png",
+            "stackSize": 1,
+            "typeLine": "提卡巴的灵核",
+            "verified": false,
+            "w": 1
+          },
+          {
+            "baseType": "奥杜尔之忿怒",
+            "bondedMods": [
+              "[ShamanOnlyMods|羁绊]：",
+              "武器: [Lightning|闪电]伤害提高 25%"
+            ],
+            "descrText": "放入[Rarity|稀有]武器的空置[Augment|增幅器]插槽中，对物品产生该效果。镶嵌时转化词缀，后续添加的词缀不会被转化。一旦放入插槽，无法再被移除或替换。",
+            "explicitMods": [
+              "武器: 将物品上的所有[Fire|火焰]与[Cold|冰霜]词缀转化为等值的[Lightning|闪电]词缀"
+            ],
+            "flavourText": [
+              "“在山巅之上，奥杜尔发现了符文的秘密。\r",
+              "它们等待着意志与号令。\r",
+              "他高举宝剑，接受了苍穹之力。”"
+            ],
+            "frameType": 5,
+            "frameTypeId": "Currency",
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRXhwZWRpdGlvbjIvRWxlbWVudGFsQ29udmVyc2lvblJ1bmVMaWdodG5pbmciLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/c40f15995a/ElementalConversionRuneLightning.png",
+            "id": "a3627eb4b9a10d83ead8432c18dd56d7ed6e9a44a1d2b58e18f34a0f7de4a23d",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "maxStackSize": 10,
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "堆叠数量",
+                "type": 32,
+                "values": [
+                  [
+                    "1/10",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "[Rune|符文]",
+                "values": []
+              }
+            ],
+            "realm": "poe2",
+            "runeMods": [
+              "[SocketBound|插槽绑定]"
+            ],
+            "socket": 1,
+            "socketedIcon": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1VJSW1hZ2VzL0luR2FtZS9SdW5lU29ja2V0RmlsbGVkTGlnaHRuaW5nIiwicmVhbG0iOiJwb2UyIn1d/001593133c/RuneSocketFilledLightning.png",
+            "stackSize": 1,
+            "typeLine": "奥杜尔之忿怒",
+            "verified": false,
+            "w": 1
+          },
+          {
+            "baseType": "战矛飞掷",
+            "descrText": "可在技能面板中管理技能。",
+            "frameType": 4,
+            "frameTypeId": "Gem",
+            "gemSkill": "https://poecdn.game.qq.com/gen/image/WzIxLDE0LHsiayI6IjJEQXJ0L1NraWxsSWNvbnMvSHVudHJlc3NJY2VTcGVhciIsInJlYWxtIjoicG9lMiJ9XQ/da079143ea/HuntressIceSpear.png",
+            "gemTabs": [
+              {
+                "name": "战矛飞掷",
+                "pages": [
+                  {
+                    "skillName": "战矛飞掷"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "displayMode": 0,
+                        "name": "攻击伤害",
+                        "values": [
+                          [
+                            "232%",
+                            0
+                          ]
+                        ]
+                      }
+                    ],
+                    "skillName": "爆炸",
+                    "stats": [
+                      "爆炸范围为 2 米"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "h": 1,
+            "icon": "https://poecdn.game.qq.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvQmxhbmtHZW0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/250ec3ed08/BlankGem.png",
+            "identified": true,
+            "ilvl": 0,
+            "league": "奥杜尔秘符",
+            "name": "",
+            "properties": [
+              {
+                "displayMode": 0,
+                "name": "[Attack|攻击], [AoESkill|效果区域], [Projectile|投射物], [Repeat|可重复]",
+                "values": []
+              },
+              {
+                "displayMode": 0,
+                "name": "等级",
+                "type": 5,
+                "values": [
+                  [
+                    "1",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "攻击速度",
+                "values": [
+                  [
+                    "70% 基础",
+                    0
+                  ]
+                ]
+              },
+              {
+                "displayMode": 0,
+                "name": "攻击伤害",
+                "values": [
+                  [
+                    "125%",
+                    0
+                  ]
+                ]
+              }
+            ],
+            "realm": "poe2",
+            "secDescrText": "大力掷出[Spear|战矛]。尽量消耗一个[Charges|狂怒球]，使[Spear|战矛]结束飞行时爆炸。",
+            "support": false,
+            "typeLine": "战矛飞掷",
+            "verified": false,
+            "w": 1,
+            "weaponRequirements": [
+              {
+                "displayMode": 0,
+                "name": "",
+                "type": 96,
+                "values": [
+                  [
+                    "[Spear|战矛]",
+                    0
+                  ]
+                ]
+              }
+            ]
+          }
+        ],
+        "inventoryId": "Weapon2"
+      }
+    }
+  ],
+  "passives": [
+    {
+      "id": 722
+    },
+    {
+      "id": 1841
+    },
+    {
+      "id": 2582
+    },
+    {
+      "id": 2936
+    },
+    {
+      "id": 3994
+    },
+    {
+      "id": 7576
+    },
+    {
+      "id": 9089
+    },
+    {
+      "id": 9405
+    },
+    {
+      "id": 10364
+    },
+    {
+      "id": 10944
+    },
+    {
+      "id": 11472
+    },
+    {
+      "id": 11604
+    },
+    {
+      "id": 11825
+    },
+    {
+      "id": 13407
+    },
+    {
+      "id": 14226
+    },
+    {
+      "id": 14262
+    },
+    {
+      "id": 14267
+    },
+    {
+      "id": 14446
+    },
+    {
+      "id": 14725
+    },
+    {
+      "id": 15343
+    },
+    {
+      "id": 15775
+    },
+    {
+      "id": 17088
+    },
+    {
+      "id": 18818
+    },
+    {
+      "id": 18897
+    },
+    {
+      "id": 19370
+    },
+    {
+      "id": 19880
+    },
+    {
+      "id": 20437
+    },
+    {
+      "id": 20677
+    },
+    {
+      "id": 21537
+    },
+    {
+      "id": 21746
+    },
+    {
+      "id": 21984
+    },
+    {
+      "id": 23040
+    },
+    {
+      "id": 24287
+    },
+    {
+      "id": 24647
+    },
+    {
+      "id": 24786
+    },
+    {
+      "id": 26034
+    },
+    {
+      "id": 26556
+    },
+    {
+      "id": 26598
+    },
+    {
+      "id": 27705
+    },
+    {
+      "id": 29517
+    },
+    {
+      "id": 30657
+    },
+    {
+      "id": 30808
+    },
+    {
+      "id": 31433
+    },
+    {
+      "id": 31765
+    },
+    {
+      "id": 32545
+    },
+    {
+      "id": 32701
+    },
+    {
+      "id": 32763
+    },
+    {
+      "id": 33366
+    },
+    {
+      "id": 33866
+    },
+    {
+      "id": 34015
+    },
+    {
+      "id": 34081
+    },
+    {
+      "id": 34201
+    },
+    {
+      "id": 34233
+    },
+    {
+      "id": 34300
+    },
+    {
+      "id": 34324
+    },
+    {
+      "id": 37604
+    },
+    {
+      "id": 37691
+    },
+    {
+      "id": 37951
+    },
+    {
+      "id": 38463
+    },
+    {
+      "id": 38493
+    },
+    {
+      "id": 38537
+    },
+    {
+      "id": 39369
+    },
+    {
+      "id": 39552
+    },
+    {
+      "id": 39595
+    },
+    {
+      "id": 40270
+    },
+    {
+      "id": 41873
+    },
+    {
+      "id": 42078
+    },
+    {
+      "id": 42750
+    },
+    {
+      "id": 42794
+    },
+    {
+      "id": 42805
+    },
+    {
+      "id": 42857
+    },
+    {
+      "id": 43691
+    },
+    {
+      "id": 44776
+    },
+    {
+      "id": 46882
+    },
+    {
+      "id": 47976
+    },
+    {
+      "id": 48116
+    },
+    {
+      "id": 48773
+    },
+    {
+      "id": 49220
+    },
+    {
+      "id": 49356
+    },
+    {
+      "id": 49461
+    },
+    {
+      "id": 50912
+    },
+    {
+      "id": 51546
+    },
+    {
+      "id": 51741
+    },
+    {
+      "id": 52295
+    },
+    {
+      "id": 53185
+    },
+    {
+      "id": 54983
+    },
+    {
+      "id": 54984
+    },
+    {
+      "id": 55193
+    },
+    {
+      "id": 55995
+    },
+    {
+      "id": 56045
+    },
+    {
+      "id": 56838
+    },
+    {
+      "id": 57821
+    },
+    {
+      "id": 57970
+    },
+    {
+      "id": 58692
+    },
+    {
+      "id": 59538
+    },
+    {
+      "id": 59657
+    },
+    {
+      "id": 59720
+    },
+    {
+      "id": 60239
+    },
+    {
+      "id": 60735
+    },
+    {
+      "id": 61196
+    },
+    {
+      "id": 61403
+    },
+    {
+      "id": 61601
+    },
+    {
+      "id": 61834
+    },
+    {
+      "id": 64990
+    }
+  ],
+  "jewels": [],
+  "panel": {
+    "totalGameDuration": "507895",
+    "seasonGameDuration": "507895",
+    "lastLoginTime": "1781795118",
+    "league": "1152921504606848321"
+  },
+  "warnings": []
+}

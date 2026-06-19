@@ -1,5 +1,6 @@
 import { spawn, ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
+import * as path from 'path';
 import type { Pob2WorkerRequest, Pob2WorkerResponse } from './protocol.js';
 
 export interface Pob2BridgeOptions {
@@ -32,10 +33,12 @@ export class Pob2Bridge extends EventEmitter {
   }
 
   private spawn(): void {
+    console.log('Spawning Python:', this.options.pythonPath, this.options.driverPath);
     this.process = spawn(this.options.pythonPath, [this.options.driverPath], {
       stdio: ['pipe', 'pipe', 'pipe'],
-      cwd: this.options.pobSrcDir,
+      cwd: path.join(this.options.pobSrcDir, 'src'),
     });
+    console.log('Spawned process, pid:', this.process.pid);
 
     this.process.stdout?.on('data', (data: Buffer) => {
       this.buffer += data.toString('utf-8');
@@ -49,10 +52,12 @@ export class Pob2Bridge extends EventEmitter {
 
     this.process.stderr?.on('data', (data: Buffer) => {
       const err = data.toString('utf-8');
+      console.error('Python stderr:', err);
       this.emit('stderr', err);
     });
 
     this.process.on('exit', (code, signal) => {
+      console.log('Python exited:', code, signal);
       this.emit('exit', code, signal);
       if (this.currentRequest) {
         this.currentRequest.reject(
@@ -68,6 +73,11 @@ export class Pob2Bridge extends EventEmitter {
       this.requestQueue = [];
       this.process = null;
     });
+    
+    this.process.stdin?.on('error', (err) => {
+      console.error('stdin error:', err);
+      this.emit('error', err);
+    });
   }
 
   private handleLine(line: string): void {
@@ -80,12 +90,18 @@ export class Pob2Bridge extends EventEmitter {
       this.currentRequest = null;
       this.processQueue();
     } catch (err) {
-      clearTimeout(req.timer);
-      req.reject(
-        new Error(`Failed to parse JSON response: ${err}`),
-      );
-      this.currentRequest = null;
-      this.processQueue();
+      // Ignore non-JSON lines (e.g., Lua print/ConPrintf output) and continue waiting for the actual JSON response
+      const trimmed = line.trim();
+      if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+        // Likely a malformed JSON response, reject
+        clearTimeout(req.timer);
+        req.reject(
+          new Error(`Failed to parse JSON response: ${err}`),
+        );
+        this.currentRequest = null;
+        this.processQueue();
+      }
+      // Otherwise, ignore the line (e.g., "missing node 62386") and keep waiting
     }
   }
 

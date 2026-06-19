@@ -8,6 +8,7 @@
     "apps/*"
   ],
   "scripts": {
+    "dev": "concurrently -k -n API,WEB -c yellow,cyan \"npm run dev --workspace @pobd/api\" \"npm run dev --workspace @pobd/web\"",
     "build": "npm run build --workspaces",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -15,12 +16,13 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "typescript": "^5.4.0",
-    "vitest": "^1.6.0",
     "@types/node": "^20.12.0",
-    "eslint": "^8.57.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^7.0.0"
+    "@typescript-eslint/parser": "^7.0.0",
+    "concurrently": "^10.0.3",
+    "eslint": "^8.57.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
   },
   "engines": {
     "node": ">=20.0.0"
