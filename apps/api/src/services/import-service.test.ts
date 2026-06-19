@@ -123,6 +123,67 @@ describe('ImportService', () => {
     expect(service.get(result.id)?.buildXml).toBe('<PathOfBuilding2/>');
   });
 
+  it('preserves WeGame localized display metadata over PoB2 round-trip names', async () => {
+    const catalog = new MappingCatalog({
+      hash: 'catalog',
+      baseNames: new Map(),
+      uniqueNames: new Map(),
+      assetNames: new Map([['2DItems/Rings/Basetypes/AmethystRing', 'Amethyst Ring']]),
+      skillAssets: new Map(),
+      modTemplates: new Map(),
+      passiveNodeIds: new Set([722]),
+    });
+
+    // PoB2 baseline with English/corrupted names (simulates PoB2 round-trip)
+    const wegameBaseline: BaselineSnapshot = {
+      ...baseline(),
+      source: 'wegame',
+      items: [
+        { slotName: 'Ring 1', itemId: 10, name: 'Amethyst Ring', baseType: 'Amethyst Ring' },
+      ],
+    };
+
+    const service = new ImportService({
+      computeBaseline: async () => wegameBaseline,
+      getWeGameCatalog: async () => catalog,
+      convertWeGame: async () => ({
+        buildXml: '<PathOfBuilding2/>',
+        baseline: wegameBaseline,
+        validation: { roundTripValid: true, baselineValid: true, mainSkillValid: true },
+      }),
+    }, {
+      wegameAdapter: fakeWeGameAdapter({
+        equipments: [{
+          inventoryId: 'Ring',
+          baseType: '紫晶戒指',
+          typeLine: '紫晶戒指',
+          name: '紫晶戒指',
+          icon: assetUrl('2DItems/Rings/Basetypes/AmethystRing'),
+          rarity: '稀有',
+        }],
+      }),
+    });
+
+    const result = await service.importUrl('https://www.wegame.com.cn/share/test');
+
+    expect(result.status).toBe('calculable');
+    expect(result.normalizedBuild).toBeDefined();
+
+    const ring = result.normalizedBuild!.equipments.find(
+      e => e.slotName === 'Ring 1' || e.slotName === 'Ring',
+    );
+    expect(ring).toBeDefined();
+    expect(ring!.item).toBeDefined();
+    // Display fields from WeGame (Chinese) replace PoB2 English values
+    expect(ring!.item!.name).toBe('紫晶戒指');
+    expect(ring!.item!.baseType).toBe('紫晶戒指');
+    expect(ring!.item!.icon).toBe(assetUrl('2DItems/Rings/Basetypes/AmethystRing'));
+    expect(ring!.item!.rarity).toBe('稀有');
+    expect(ring!.item!.inventoryId).toBe('Ring');
+    // PoB2 identity preserved
+    expect(ring!.item!.id).toBe('10');
+  });
+
   it('returns catalog_refresh_failed instead of using a stale catalog', async () => {
     const service = new ImportService({
       computeBaseline: async () => baseline(),

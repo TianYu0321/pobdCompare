@@ -15,6 +15,7 @@ import type {
   ConversionReport,
   ImportResult,
   NormalizedBuild,
+  EquipmentSlot,
   AnalysisStage,
 } from '@pobd/schemas';
 
@@ -45,6 +46,24 @@ export interface StoredImport extends ImportResult {
 }
 
 export type ImportProgress = (stage: AnalysisStage, message: string) => void;
+
+/** Maps PoB2 slot names to possible WeGame inventoryId values for display matching */
+const POB2_TO_WEGAME_SLOT: Record<string, string[]> = {
+  'Weapon 1': ['Weapon', 'Weapon2'],
+  'Weapon1': ['Weapon', 'Weapon2'],
+  'Weapon 2': ['Offhand', 'Offhand1', 'Offhand2'],
+  'Weapon2': ['Offhand', 'Offhand1', 'Offhand2'],
+  'Body Armour': ['BodyArmour', 'Body'],
+  'BodyArmour': ['BodyArmour', 'Body'],
+  'Helmet': ['Helm', 'Helmet'],
+  'Helm': ['Helm', 'Helmet'],
+  'Ring 1': ['Ring'],
+  'Ring1': ['Ring'],
+  'Ring 2': ['Ring2'],
+  'Ring2': ['Ring2'],
+  'Flask 1': ['Flask'],
+  'Flask1': ['Flask'],
+};
 
 export class ImportService {
   private readonly imports = new Map<string, StoredImport>();
@@ -137,6 +156,7 @@ export class ImportService {
     const id = randomUUID();
     const fetched = await this.wegameAdapter.fetchWeGameBuild(url);
     const displayBuild = normalizeWeGame(fetched);
+    const displayEquipments = displayBuild.equipments;
     if (!this.baselineComputer.getWeGameCatalog || !this.baselineComputer.convertWeGame) {
       const report = createConversionReport();
       report.status = 'blocked';
@@ -219,6 +239,7 @@ export class ImportService {
         });
       }
       const normalizedBuild = this.normalizedFromBaseline(native.baseline, 'wegame');
+      this.mergeDisplayEquipments(normalizedBuild, displayEquipments);
       return this.storeWeGameResult({
         id,
         status: conversion.report.status === 'complete' ? 'calculable' : 'normalized',
@@ -331,6 +352,54 @@ export class ImportService {
       panel: this.panelFromCalcs(baseline.calcsOutput),
       warnings: dpsByNumber.size === 0 ? ['PoB2 未返回技能 DPS。'] : [],
     };
+  }
+
+  private mergeDisplayEquipments(
+    build: NormalizedBuild,
+    displayEquipments: EquipmentSlot[],
+  ): void {
+    const displayBySlot = new Map<string, EquipmentSlot>();
+    for (const slot of displayEquipments) {
+      const key = slot.slotName;
+      if (!displayBySlot.has(key)) {
+        displayBySlot.set(key, slot);
+      }
+    }
+
+    for (const equipment of build.equipments) {
+      let display = displayBySlot.get(equipment.slotName);
+
+      if (!display?.item) {
+        const aliases = POB2_TO_WEGAME_SLOT[equipment.slotName];
+        if (aliases) {
+          for (const alias of aliases) {
+            const candidate = displayBySlot.get(alias);
+            if (candidate?.item) {
+              display = candidate;
+              break;
+            }
+          }
+        }
+      }
+
+      if (!display?.item) continue;
+
+      const di = display.item;
+      equipment.item = {
+        id: equipment.item?.id ?? di.id,
+        name: di.name ?? equipment.item?.name ?? '',
+        baseType: di.baseType ?? equipment.item?.baseType ?? '',
+        rarity: di.rarity,
+        icon: di.icon,
+        explicitMods: di.explicitMods,
+        implicitMods: di.implicitMods,
+        bondedMods: di.bondedMods,
+        properties: di.properties,
+        requirements: di.requirements,
+        inventoryId: di.inventoryId,
+        rawText: equipment.item?.rawText ?? di.rawText,
+      };
+    }
   }
 
   private panelFromCalcs(calcs: Record<string, unknown>): NormalizedBuild['panel'] {
