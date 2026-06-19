@@ -15,6 +15,7 @@ import type {
   ConversionReport,
   ImportResult,
   NormalizedBuild,
+  EquipmentSlot,
   AnalysisStage,
 } from '@pobd/schemas';
 
@@ -45,6 +46,29 @@ export interface StoredImport extends ImportResult {
 }
 
 export type ImportProgress = (stage: AnalysisStage, message: string) => void;
+
+/** Authoritative slot mapping from PoB2 ImportTab.lua:1149 */
+const WEGAME_TO_POB2_SLOT: Record<string, string> = {
+  Weapon: 'Weapon 1',
+  Offhand: 'Weapon 2',
+  Weapon2: 'Weapon 1 Swap',
+  Offhand2: 'Weapon 2 Swap',
+  Helm: 'Helmet',
+  BodyArmour: 'Body Armour',
+  Gloves: 'Gloves',
+  Boots: 'Boots',
+  Amulet: 'Amulet',
+  Ring: 'Ring 1',
+  Ring2: 'Ring 2',
+  Ring3: 'Ring 3',
+  Belt: 'Belt',
+};
+
+/** Reverse: PoB2 slot name → WeGame inventoryId, built from the authoritative map */
+const POB2_TO_WEGAME_SLOT: Record<string, string> = {};
+for (const [wegame, pob2] of Object.entries(WEGAME_TO_POB2_SLOT)) {
+  POB2_TO_WEGAME_SLOT[pob2] ??= wegame;
+}
 
 export class ImportService {
   private readonly imports = new Map<string, StoredImport>();
@@ -137,6 +161,7 @@ export class ImportService {
     const id = randomUUID();
     const fetched = await this.wegameAdapter.fetchWeGameBuild(url);
     const displayBuild = normalizeWeGame(fetched);
+    const displayEquipments = displayBuild.equipments;
     if (!this.baselineComputer.getWeGameCatalog || !this.baselineComputer.convertWeGame) {
       const report = createConversionReport();
       report.status = 'blocked';
@@ -219,6 +244,7 @@ export class ImportService {
         });
       }
       const normalizedBuild = this.normalizedFromBaseline(native.baseline, 'wegame');
+      this.mergeDisplayEquipments(normalizedBuild, displayEquipments);
       return this.storeWeGameResult({
         id,
         status: conversion.report.status === 'complete' ? 'calculable' : 'normalized',
@@ -331,6 +357,47 @@ export class ImportService {
       panel: this.panelFromCalcs(baseline.calcsOutput),
       warnings: dpsByNumber.size === 0 ? ['PoB2 未返回技能 DPS。'] : [],
     };
+  }
+
+  private static nonEmpty(value: string | undefined | null): value is string {
+    return typeof value === 'string' && value.trim().length > 0;
+  }
+
+  private mergeDisplayEquipments(
+    build: NormalizedBuild,
+    displayEquipments: EquipmentSlot[],
+  ): void {
+    const displayBySlot = new Map<string, EquipmentSlot>();
+    for (const slot of displayEquipments) {
+      if (!displayBySlot.has(slot.slotName) && slot.item) {
+        displayBySlot.set(slot.slotName, slot);
+      }
+    }
+
+    for (const equipment of build.equipments) {
+      let display = displayBySlot.get(equipment.slotName);
+
+      if (!display) {
+        const wegameId = POB2_TO_WEGAME_SLOT[equipment.slotName];
+        if (wegameId) {
+          display = displayBySlot.get(wegameId) ?? undefined;
+        }
+      }
+
+      if (!display?.item) continue;
+
+      const di = display.item;
+      const existing = equipment.item ?? { name: '', baseType: '' };
+
+      equipment.item = {
+        ...existing,
+        ...di,
+        id: existing.id ?? di.id,
+        rawText: existing.rawText ?? di.rawText,
+        name: ImportService.nonEmpty(di.name) ? di.name : (existing.name ?? ''),
+        baseType: ImportService.nonEmpty(di.baseType) ? di.baseType : (existing.baseType ?? ''),
+      };
+    }
   }
 
   private panelFromCalcs(calcs: Record<string, unknown>): NormalizedBuild['panel'] {

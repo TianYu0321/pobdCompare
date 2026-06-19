@@ -123,6 +123,108 @@ describe('ImportService', () => {
     expect(service.get(result.id)?.buildXml).toBe('<PathOfBuilding2/>');
   });
 
+  it('preserves WeGame localized display metadata over PoB2 round-trip names', async () => {
+    const catalog = new MappingCatalog({
+      hash: 'catalog',
+      baseNames: new Map([
+        ['剑', 'Sword'],
+        ['盾', 'Shield'],
+        ['锤', 'Mace'],
+        ['斧', 'Axe'],
+        ['紫晶戒指', 'Amethyst Ring'],
+        ['重革腰带', 'Heavy Belt'],
+      ]),
+      uniqueNames: new Map(),
+      assetNames: new Map(),
+      skillAssets: new Map(),
+      modTemplates: new Map([
+        ['implicit.1', { id: 'implicit.1', englishTemplate: '+#% to Cold Resistance', chineseTemplate: '+#% 冰冷抗性' }],
+        ['explicit.1', { id: 'explicit.1', englishTemplate: '+# to maximum Life', chineseTemplate: '+# 最大生命' }],
+        ['explicit.2', { id: 'explicit.2', englishTemplate: '+#% to Fire Resistance', chineseTemplate: '+#% 火焰抗性' }],
+      ]),
+      passiveNodeIds: new Set([722]),
+    });
+
+    const beforeBaseline: BaselineSnapshot = {
+      ...baseline(),
+      source: 'wegame',
+      items: [
+        { slotName: 'Weapon 1', itemId: 1, name: 'Sword', baseType: 'Sword' },
+        { slotName: 'Weapon 2', itemId: 2, name: 'Shield', baseType: 'Shield' },
+        { slotName: 'Weapon 1 Swap', itemId: 3, name: 'Mace', baseType: 'Mace' },
+        { slotName: 'Weapon 2 Swap', itemId: 4, name: 'Axe', baseType: 'Axe' },
+        { slotName: 'Ring 1', itemId: 10, name: 'Amethyst Ring', baseType: 'Amethyst Ring' },
+        { slotName: 'Belt', itemId: 20, name: 'Heavy Belt', baseType: 'Heavy Belt' },
+        { slotName: 'Amulet', itemId: 30, name: 'Amber Amulet', baseType: 'Amber Amulet' },
+      ],
+    };
+
+    const service = new ImportService({
+      computeBaseline: async () => beforeBaseline,
+      getWeGameCatalog: async () => catalog,
+      convertWeGame: async () => ({
+        buildXml: '<PathOfBuilding2/>',
+        baseline: beforeBaseline,
+        validation: { roundTripValid: true, baselineValid: true, mainSkillValid: true },
+      }),
+    }, {
+      wegameAdapter: fakeWeGameAdapter({
+        equipments: [
+          { inventoryId: 'Weapon', name: '剑', baseType: '剑', typeLine: '剑' },
+          { inventoryId: 'Offhand', name: '盾', baseType: '盾', typeLine: '盾' },
+          { inventoryId: 'Weapon2', name: '锤', baseType: '锤', typeLine: '锤' },
+          { inventoryId: 'Offhand2', name: '斧', baseType: '斧', typeLine: '斧' },
+          {
+            inventoryId: 'Ring', name: '紫晶戒指', baseType: '紫晶戒指', typeLine: '紫晶戒指',
+            icon: assetUrl('2DItems/Rings/Basetypes/AmethystRing'),
+            rarity: '稀有', ilvl: 86,
+            explicitMods: ['+30 最大生命', '+25% 火焰抗性'],
+            implicitMods: ['+20% 冰冷抗性'],
+            properties: [{ name: 'Energy Shield', values: [['30', 0]] }],
+            requirements: [{ name: 'Level', values: [['80', 0]] }],
+            socketedItems: [{ typeLine: 'Added Lightning Damage', support: true }],
+          },
+          { inventoryId: 'Belt', name: '   ', baseType: '重革腰带', typeLine: '   ' },
+        ],
+      }),
+    });
+
+    const result = await service.importUrl('https://www.wegame.com.cn/share/test');
+    const equip = (slotName: string) =>
+      result.normalizedBuild!.equipments.find(e => e.slotName === slotName)!;
+
+    // 1. Exact weapon mapping (authoritative PoB2 ImportTab.lua:1149)
+    expect(equip('Weapon 1').item!.name).toBe('剑');
+    expect(equip('Weapon 2').item!.name).toBe('盾');
+    expect(equip('Weapon 1 Swap').item!.name).toBe('锤');
+    expect(equip('Weapon 2 Swap').item!.name).toBe('斧');
+
+    // 2. Full display metadata (Chinese) survives with mods/props/sockets/ilvl
+    const ring = equip('Ring 1').item!;
+    expect(ring.name).toBe('紫晶戒指');
+    expect(ring.baseType).toBe('紫晶戒指');
+    expect(ring.icon).toBe(assetUrl('2DItems/Rings/Basetypes/AmethystRing'));
+    expect(ring.rarity).toBe('稀有');
+    expect(ring.ilvl).toBe(86);
+    expect(ring.explicitMods).toEqual(['+30 最大生命', '+25% 火焰抗性']);
+    expect(ring.implicitMods).toEqual(['+20% 冰冷抗性']);
+    expect(ring.properties).toEqual([{ name: 'Energy Shield', values: [['30', 0]] }]);
+    expect(ring.requirements).toEqual([{ name: 'Level', values: [['80', 0]] }]);
+    expect(ring.socketedItems).toEqual([{ typeLine: 'Added Lightning Damage', support: true }]);
+    expect(ring.inventoryId).toBe('Ring');
+    expect(ring.id).toBe('10');
+
+    // 3. Empty/whitespace WeGame name falls back to PoB2
+    expect(equip('Belt').item!.name).toBe('Heavy Belt');
+
+    // 4. No matching display slot → PoB2 unchanged
+    expect(equip('Amulet').item!.name).toBe('Amber Amulet');
+    expect(equip('Amulet').item!.baseType).toBe('Amber Amulet');
+
+    // 5. Native baseline object unchanged
+    expect(result.baseline).toBe(beforeBaseline);
+  });
+
   it('returns catalog_refresh_failed instead of using a stale catalog', async () => {
     const service = new ImportService({
       computeBaseline: async () => baseline(),
