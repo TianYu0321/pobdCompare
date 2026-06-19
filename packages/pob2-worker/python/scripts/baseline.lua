@@ -88,19 +88,20 @@ end
 build.calcsTab:BuildOutput()
 runCallback("OnFrame")
 
--- Capture baseline result
-local result = {
-    success = true,
-    calcsOutput = {},
-    breakdown = {},
-    skillDpsList = {},
-    itemSlots = {},
-    passiveNodes = {},
-}
+local function weakestElementalMaximumHitTaken(co)
+    local min
+    if type(co.FireMaximumHitTaken) == "number" and co.FireMaximumHitTaken > 0 then min = co.FireMaximumHitTaken end
+    if type(co.ColdMaximumHitTaken) == "number" and co.ColdMaximumHitTaken > 0 then
+        if not min or co.ColdMaximumHitTaken < min then min = co.ColdMaximumHitTaken end
+    end
+    if type(co.LightningMaximumHitTaken) == "number" and co.LightningMaximumHitTaken > 0 then
+        if not min or co.LightningMaximumHitTaken < min then min = co.LightningMaximumHitTaken end
+    end
+    return min
+end
 
-if build.calcsTab and build.calcsTab.calcsOutput then
-    local co = build.calcsTab.calcsOutput
-    result.calcsOutput = {
+local function buildCalcsOutput(co)
+    local out = {
         CombinedDPS = co.CombinedDPS or 0,
         Speed = co.Speed or 0,
         CritChance = co.CritChance or 0,
@@ -112,6 +113,36 @@ if build.calcsTab and build.calcsTab.calcsOutput then
         Mana = co.Mana or 0,
         Armour = co.Armour or 0,
     }
+    if co.PhysicalMaximumHitTaken ~= nil then out.PhysicalMaximumHitTaken = co.PhysicalMaximumHitTaken end
+    if co.FireMaximumHitTaken ~= nil then out.FireMaximumHitTaken = co.FireMaximumHitTaken end
+    if co.ColdMaximumHitTaken ~= nil then out.ColdMaximumHitTaken = co.ColdMaximumHitTaken end
+    if co.LightningMaximumHitTaken ~= nil then out.LightningMaximumHitTaken = co.LightningMaximumHitTaken end
+    if co.ChaosMaximumHitTaken ~= nil then out.ChaosMaximumHitTaken = co.ChaosMaximumHitTaken end
+    if co.EnergyShield ~= nil then out.EnergyShield = co.EnergyShield end
+    if co.Evasion ~= nil then out.Evasion = co.Evasion end
+    if co.EffectiveBlockChance ~= nil then out.BlockChance = co.EffectiveBlockChance elseif co.BlockChance ~= nil then out.BlockChance = co.BlockChance end
+    if co.FireResist ~= nil then out.FireResist = co.FireResist end
+    if co.ColdResist ~= nil then out.ColdResist = co.ColdResist end
+    if co.LightningResist ~= nil then out.LightningResist = co.LightningResist end
+    if co.ChaosResist ~= nil then out.ChaosResist = co.ChaosResist end
+    if co.TotalEHP ~= nil then out.TotalEHP = co.TotalEHP end
+    local elem = weakestElementalMaximumHitTaken(co)
+    if elem ~= nil then out.ElementalMaximumHitTaken = elem end
+    return out
+end
+
+-- Capture baseline result
+local result = {
+    success = true,
+    calcsOutput = {},
+    breakdown = {},
+    skillDpsList = {},
+    itemSlots = {},
+    passiveNodes = {},
+}
+
+if build.calcsTab and build.calcsTab.calcsOutput then
+    result.calcsOutput = buildCalcsOutput(build.calcsTab.calcsOutput)
 end
 
 local env = build.calcsTab and build.calcsTab.calcsEnv

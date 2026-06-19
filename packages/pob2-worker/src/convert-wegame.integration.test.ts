@@ -50,5 +50,39 @@ describeIntegration('convert_wegame native bridge', () => {
       roundTripValid: true,
       baselineValid: true,
     });
+
+    // Assert real MaximumHitTaken keys are present in calcsOutput
+    expect(response.calcsOutput).toBeDefined();
+    const co = response.calcsOutput!;
+    const mhtKeys = ['PhysicalMaximumHitTaken', 'FireMaximumHitTaken', 'ColdMaximumHitTaken', 'LightningMaximumHitTaken', 'ChaosMaximumHitTaken'] as const;
+    for (const key of mhtKeys) {
+      expect(co[key]).toBeDefined();
+      expect(typeof co[key]).toBe('number');
+      expect(Number.isFinite(co[key])).toBe(true);
+      // PoB2 should supply positive values even for an empty level-10 character
+      expect(co[key]).toBeGreaterThan(0);
+    }
+
+    // ElementalMaximumHitTaken must equal min(FireMaximumHitTaken, ColdMaximumHitTaken, LightningMaximumHitTaken)
+    expect(co.ElementalMaximumHitTaken).toBeDefined();
+    expect(typeof co.ElementalMaximumHitTaken).toBe('number');
+    expect(Number.isFinite(co.ElementalMaximumHitTaken)).toBe(true);
+    expect(co.ElementalMaximumHitTaken).toBeGreaterThan(0);
+    const fire = co.FireMaximumHitTaken;
+    const cold = co.ColdMaximumHitTaken;
+    const lightning = co.LightningMaximumHitTaken;
+    expect(typeof fire).toBe('number');
+    expect(typeof cold).toBe('number');
+    expect(typeof lightning).toBe('number');
+    const expectedElemental = Math.min(fire as number, cold as number, lightning as number);
+    expect(co.ElementalMaximumHitTaken).toBe(expectedElemental);
+
+    // Verify defence keys are present and finite
+    const defenceKeys = ['EnergyShield', 'Evasion', 'BlockChance', 'FireResist', 'ColdResist', 'LightningResist', 'ChaosResist', 'TotalEHP'] as const;
+    for (const key of defenceKeys) {
+      expect(co[key]).toBeDefined();
+      expect(typeof co[key]).toBe('number');
+      expect(Number.isFinite(co[key])).toBe(true);
+    }
   });
 });

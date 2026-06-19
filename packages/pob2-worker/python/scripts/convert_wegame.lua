@@ -35,6 +35,49 @@ function toJSON(obj)
     return "null"
 end
 
+local function weakestElementalMaximumHitTaken(co)
+    local min
+    if type(co.FireMaximumHitTaken) == "number" and co.FireMaximumHitTaken > 0 then min = co.FireMaximumHitTaken end
+    if type(co.ColdMaximumHitTaken) == "number" and co.ColdMaximumHitTaken > 0 then
+        if not min or co.ColdMaximumHitTaken < min then min = co.ColdMaximumHitTaken end
+    end
+    if type(co.LightningMaximumHitTaken) == "number" and co.LightningMaximumHitTaken > 0 then
+        if not min or co.LightningMaximumHitTaken < min then min = co.LightningMaximumHitTaken end
+    end
+    return min
+end
+
+local function buildCalcsOutput(co)
+    local out = {
+        CombinedDPS = co.CombinedDPS or 0,
+        Speed = co.Speed or 0,
+        CritChance = co.CritChance or 0,
+        CritMultiplier = co.CritMultiplier or 0,
+        HitChance = co.HitChance or 0,
+        AverageDamage = co.AverageDamage or 0,
+        MainHand_AverageHit = (co.MainHand and co.MainHand.AverageHit) or 0,
+        Life = co.Life or 0,
+        Mana = co.Mana or 0,
+        Armour = co.Armour or 0,
+    }
+    if co.PhysicalMaximumHitTaken ~= nil then out.PhysicalMaximumHitTaken = co.PhysicalMaximumHitTaken end
+    if co.FireMaximumHitTaken ~= nil then out.FireMaximumHitTaken = co.FireMaximumHitTaken end
+    if co.ColdMaximumHitTaken ~= nil then out.ColdMaximumHitTaken = co.ColdMaximumHitTaken end
+    if co.LightningMaximumHitTaken ~= nil then out.LightningMaximumHitTaken = co.LightningMaximumHitTaken end
+    if co.ChaosMaximumHitTaken ~= nil then out.ChaosMaximumHitTaken = co.ChaosMaximumHitTaken end
+    if co.EnergyShield ~= nil then out.EnergyShield = co.EnergyShield end
+    if co.Evasion ~= nil then out.Evasion = co.Evasion end
+    if co.EffectiveBlockChance ~= nil then out.BlockChance = co.EffectiveBlockChance elseif co.BlockChance ~= nil then out.BlockChance = co.BlockChance end
+    if co.FireResist ~= nil then out.FireResist = co.FireResist end
+    if co.ColdResist ~= nil then out.ColdResist = co.ColdResist end
+    if co.LightningResist ~= nil then out.LightningResist = co.LightningResist end
+    if co.ChaosResist ~= nil then out.ChaosResist = co.ChaosResist end
+    if co.TotalEHP ~= nil then out.TotalEHP = co.TotalEHP end
+    local elem = weakestElementalMaximumHitTaken(co)
+    if elem ~= nil then out.ElementalMaximumHitTaken = elem end
+    return out
+end
+
 local function selectedItemCount()
     local count = 0
     for _, slot in pairs(build.itemsTab.slots or {}) do
@@ -204,18 +247,7 @@ elseif not baselineValid then
 end
 
 if co then
-    result.calcsOutput = {
-        CombinedDPS = co.CombinedDPS or 0,
-        Speed = co.Speed or 0,
-        CritChance = co.CritChance or 0,
-        CritMultiplier = co.CritMultiplier or 0,
-        HitChance = co.HitChance or 0,
-        AverageDamage = co.AverageDamage or 0,
-        MainHand_AverageHit = (co.MainHand and co.MainHand.AverageHit) or 0,
-        Life = co.Life or 0,
-        Mana = co.Mana or 0,
-        Armour = co.Armour or 0,
-    }
+    result.calcsOutput = buildCalcsOutput(co)
 end
 
 if build.skillsTab and build.skillsTab.socketGroupList then
