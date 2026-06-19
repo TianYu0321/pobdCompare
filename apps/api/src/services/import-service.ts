@@ -47,23 +47,28 @@ export interface StoredImport extends ImportResult {
 
 export type ImportProgress = (stage: AnalysisStage, message: string) => void;
 
-/** Maps PoB2 slot names to possible WeGame inventoryId values for display matching */
-const POB2_TO_WEGAME_SLOT: Record<string, string[]> = {
-  'Weapon 1': ['Weapon', 'Weapon2'],
-  'Weapon1': ['Weapon', 'Weapon2'],
-  'Weapon 2': ['Offhand', 'Offhand1', 'Offhand2'],
-  'Weapon2': ['Offhand', 'Offhand1', 'Offhand2'],
-  'Body Armour': ['BodyArmour', 'Body'],
-  'BodyArmour': ['BodyArmour', 'Body'],
-  'Helmet': ['Helm', 'Helmet'],
-  'Helm': ['Helm', 'Helmet'],
-  'Ring 1': ['Ring'],
-  'Ring1': ['Ring'],
-  'Ring 2': ['Ring2'],
-  'Ring2': ['Ring2'],
-  'Flask 1': ['Flask'],
-  'Flask1': ['Flask'],
+/** Authoritative slot mapping from PoB2 ImportTab.lua:1149 */
+const WEGAME_TO_POB2_SLOT: Record<string, string> = {
+  Weapon: 'Weapon 1',
+  Offhand: 'Weapon 2',
+  Weapon2: 'Weapon 1 Swap',
+  Offhand2: 'Weapon 2 Swap',
+  Helm: 'Helmet',
+  BodyArmour: 'Body Armour',
+  Gloves: 'Gloves',
+  Boots: 'Boots',
+  Amulet: 'Amulet',
+  Ring: 'Ring 1',
+  Ring2: 'Ring 2',
+  Ring3: 'Ring 3',
+  Belt: 'Belt',
 };
+
+/** Reverse: PoB2 slot name → WeGame inventoryId, built from the authoritative map */
+const POB2_TO_WEGAME_SLOT: Record<string, string> = {};
+for (const [wegame, pob2] of Object.entries(WEGAME_TO_POB2_SLOT)) {
+  POB2_TO_WEGAME_SLOT[pob2] ??= wegame;
+}
 
 export class ImportService {
   private readonly imports = new Map<string, StoredImport>();
@@ -354,50 +359,43 @@ export class ImportService {
     };
   }
 
+  private static nonEmpty(value: string | undefined | null): value is string {
+    return typeof value === 'string' && value.trim().length > 0;
+  }
+
   private mergeDisplayEquipments(
     build: NormalizedBuild,
     displayEquipments: EquipmentSlot[],
   ): void {
     const displayBySlot = new Map<string, EquipmentSlot>();
     for (const slot of displayEquipments) {
-      const key = slot.slotName;
-      if (!displayBySlot.has(key)) {
-        displayBySlot.set(key, slot);
+      if (!displayBySlot.has(slot.slotName) && slot.item) {
+        displayBySlot.set(slot.slotName, slot);
       }
     }
 
     for (const equipment of build.equipments) {
       let display = displayBySlot.get(equipment.slotName);
 
-      if (!display?.item) {
-        const aliases = POB2_TO_WEGAME_SLOT[equipment.slotName];
-        if (aliases) {
-          for (const alias of aliases) {
-            const candidate = displayBySlot.get(alias);
-            if (candidate?.item) {
-              display = candidate;
-              break;
-            }
-          }
+      if (!display) {
+        const wegameId = POB2_TO_WEGAME_SLOT[equipment.slotName];
+        if (wegameId) {
+          display = displayBySlot.get(wegameId) ?? undefined;
         }
       }
 
       if (!display?.item) continue;
 
       const di = display.item;
+      const existing = equipment.item ?? { name: '', baseType: '' };
+
       equipment.item = {
-        id: equipment.item?.id ?? di.id,
-        name: di.name ?? equipment.item?.name ?? '',
-        baseType: di.baseType ?? equipment.item?.baseType ?? '',
-        rarity: di.rarity,
-        icon: di.icon,
-        explicitMods: di.explicitMods,
-        implicitMods: di.implicitMods,
-        bondedMods: di.bondedMods,
-        properties: di.properties,
-        requirements: di.requirements,
-        inventoryId: di.inventoryId,
-        rawText: equipment.item?.rawText ?? di.rawText,
+        ...existing,
+        ...di,
+        id: existing.id ?? di.id,
+        rawText: existing.rawText ?? di.rawText,
+        name: ImportService.nonEmpty(di.name) ? di.name : (existing.name ?? ''),
+        baseType: ImportService.nonEmpty(di.baseType) ? di.baseType : (existing.baseType ?? ''),
       };
     }
   }
