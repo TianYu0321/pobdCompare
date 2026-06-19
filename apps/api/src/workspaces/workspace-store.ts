@@ -160,8 +160,8 @@ export class WorkspaceStore {
       candidate.rawText,
       baseline.baselineHash,
       candidate.itemId,
+      candidate.slotName,
     );
-    (mutation.payload as Record<string, unknown>).sourceSlotName = candidate.slotName;
 
     const applied = await this.executor.applyGearSwap({ baseline, currentBuildXml, mutation });
 
@@ -256,12 +256,20 @@ export class WorkspaceStore {
     return state;
   }
 
+  private requireRevisionValue<T>(map: Map<string, T>, revisionId: string, label: string): T {
+    const value = map.get(revisionId);
+    if (value === undefined) {
+      throw new Error(`WorkspaceStore invariant: ${label} for revision ${revisionId} not found`);
+    }
+    return value;
+  }
+
   private view(workspace: WorkspaceState): WorkspaceView {
     const sideView = (side: SideState) => {
       const current = side.session.current();
-      const buildXml = side.xmlByRevision.get(current.revisionId) ?? side.imported.baseline!.buildXml;
-      const baseline = side.snapshotByRevision.get(current.revisionId) ?? side.imported.baseline!;
-      const display = side.displayBuildByRevision.get(current.revisionId) ?? side.imported.normalizedBuild!;
+      const buildXml = this.requireRevisionValue(side.xmlByRevision, current.revisionId, 'buildXml');
+      const baseline = this.requireRevisionValue(side.snapshotByRevision, current.revisionId, 'snapshot');
+      const display = this.requireRevisionValue(side.displayBuildByRevision, current.revisionId, 'displayBuild');
       return {
         session: side.session.snapshot(),
         currentBuildXml: buildXml,
@@ -276,8 +284,8 @@ export class WorkspaceStore {
     let diff: BuildDiffResult | undefined;
     if (viewB && workspace.a.imported.normalizedBuild && workspace.b!.imported.normalizedBuild) {
       const skill =
-        workspace.a.imported.baseline?.mainSkillSelection.selectedSkillName
-        ?? workspace.a.imported.normalizedBuild!.skillDps[0]?.skillName
+        viewA.currentBaseline.mainSkillSelection?.selectedSkillName
+        ?? viewA.currentNormalizedBuild.skillDps[0]?.skillName
         ?? '待选择';
       diff = computeBuildDiff(viewA.currentNormalizedBuild, viewB.currentNormalizedBuild, skill);
     }

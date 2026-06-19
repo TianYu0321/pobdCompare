@@ -1,27 +1,26 @@
-import type { RevisionResult } from '@/api';
+import { toCanonicalSlotKey } from '../../../../packages/schemas/src/canonical-slots.js';
 
-/**
- * Canonical-slot normalizer for gear-slot names (frontend-only).
- */
-function normalise(slot: string): string {
-  const v = slot.toLowerCase().replace(/[\s_-]/g, '');
-  const map: Record<string, string> = {
-    helmet: 'helm', bodyarmour: 'bodyarmour', body: 'bodyarmour',
-    weapon: 'weapon1', mainhand: 'weapon1',
-    offhand1: 'offhand', offhand: 'weapon2',
-    ring: 'ring1', ringleft: 'ring1', ringright: 'ring2',
-    charm: 'charm1',
+/** Client-side revision result shape (loose type, mirrors SimulationResult). */
+interface RevisionResult {
+  resultKind: string;
+  dpsDeltaPercent: number;
+  dpsDelta: number;
+  target?: { type: string; slotName?: string };
+  outputDiff: unknown;
+  hitLineDelta?: {
+    source?: string;
+    warnings?: string[];
+    physicalHitLineDelta?: { baseline: number; variant: number; delta: number; deltaPercent?: number };
+    elementalHitLineDelta?: { baseline: number; variant: number; delta: number; deltaPercent?: number };
   };
-  return map[v] ?? v;
 }
 
 /**
  * Returns the slot name that a revision result mutated, or undefined if none.
- * Prefers result.target.slotName, falls back to no information.
  */
 export function changedSlotName(result?: RevisionResult): string | undefined {
   if (!result) return undefined;
-  if (result.target?.slotName) return normalise(result.target.slotName);
+  if (result.target?.slotName) return toCanonicalSlotKey(result.target.slotName);
   return undefined;
 }
 
@@ -46,7 +45,7 @@ export function slotDeltaText(
   }
 
   const changed = changedSlotName(r);
-  if (!changed || !slotName || normalise(slotName) !== changed) {
+  if (!changed || !slotName || toCanonicalSlotKey(slotName) !== changed) {
     return 'DPS Δ 待模拟';
   }
 

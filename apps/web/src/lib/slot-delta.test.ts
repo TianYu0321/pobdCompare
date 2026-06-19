@@ -1,58 +1,68 @@
 import { describe, expect, it } from 'vitest';
 
 import { changedSlotName, slotDeltaText } from './slot-delta';
-import type { RevisionResult } from '@/api';
 
-const gainResult: RevisionResult = {
+type TestResult = {
+  resultKind: string;
+  dpsDeltaPercent: number;
+  dpsDelta: number;
+  target?: { type: string; slotName?: string };
+  outputDiff: { offence: Record<string, unknown> };
+  hitLineDelta?: {
+    source?: string;
+    warnings?: string[];
+    physicalHitLineDelta?: { baseline: number; variant: number; delta: number; deltaPercent?: number };
+    elementalHitLineDelta?: { baseline: number; variant: number; delta: number; deltaPercent?: number };
+  };
+};
+
+const gainResult: TestResult = {
   resultKind: 'normal_gain',
   dpsDeltaPercent: 10,
   dpsDelta: 5000,
-  variantHash: 'v1',
   target: { type: 'item', slotName: 'Weapon 1' },
   outputDiff: { offence: {} },
   hitLineDelta: {
+    source: 'pob2_output',
+    warnings: [],
     physicalHitLineDelta: { baseline: 10000, variant: 10500, delta: 500, deltaPercent: 5 },
     elementalHitLineDelta: { baseline: 8000, variant: 7600, delta: -400, deltaPercent: -5 },
   },
 };
 
-const incompatibleResult: RevisionResult = {
+const incompatibleResult: TestResult = {
   resultKind: 'incompatible',
   dpsDeltaPercent: 0,
   dpsDelta: 0,
-  variantHash: 'v2',
   target: { type: 'item', slotName: 'Boots' },
   outputDiff: { offence: {} },
 };
 
-const calcFailedResult: RevisionResult = {
+const calcFailedResult: TestResult = {
   resultKind: 'calc_failed',
   dpsDeltaPercent: 0,
   dpsDelta: 0,
-  variantHash: 'v3',
   target: { type: 'item', slotName: 'Helm' },
   outputDiff: { offence: {} },
 };
 
-const noHitLines: RevisionResult = {
+const noHitLines: TestResult = {
   resultKind: 'normal_gain',
   dpsDeltaPercent: 5,
   dpsDelta: 100,
-  variantHash: 'v4',
   target: { type: 'item', slotName: 'Ring 1' },
   outputDiff: { offence: {} },
 };
 
-const noTargetResult: RevisionResult = {
+const noTargetResult: TestResult = {
   resultKind: 'normal_gain',
   dpsDeltaPercent: 3,
   dpsDelta: 50,
-  variantHash: 'v5',
   outputDiff: { offence: {} },
 };
 
 describe('changedSlotName', () => {
-  it('returns normalised slot name from result.target.slotName', () => {
+  it('returns normalised slot key from result.target.slotName', () => {
     expect(changedSlotName(gainResult)).toBe('weapon1');
   });
 
@@ -104,17 +114,17 @@ describe('slotDeltaText', () => {
   });
 
   it('canonical normalisation: Main Hand matches Weapon 1', () => {
-    const rev = { result: { ...gainResult, target: { type: 'item', slotName: 'Main Hand' } } };
+    const rev = { result: { ...gainResult, target: { type: 'item' as const, slotName: 'Main Hand' } } };
     expect(slotDeltaText(rev, 'Weapon 1')).toContain('DPS +10.0%');
   });
 
   it('canonical normalisation: Helmet matches Helm', () => {
-    const rev = { result: { ...gainResult, target: { type: 'item', slotName: 'Helmet' } } };
+    const rev = { result: { ...gainResult, target: { type: 'item' as const, slotName: 'Helmet' } } };
     expect(slotDeltaText(rev, 'Helm')).toContain('DPS +10.0%');
   });
 
   it('canonical normalisation: Ring Right matches Ring 2', () => {
-    const rev = { result: { ...gainResult, target: { type: 'item', slotName: 'Ring 2' } } };
+    const rev = { result: { ...gainResult, target: { type: 'item' as const, slotName: 'Ring 2' } } };
     expect(slotDeltaText(rev, 'Ring Right')).toContain('DPS +10.0%');
   });
 });

@@ -17,10 +17,11 @@ import {
   type WorkspaceResult,
   type WorkspaceView,
   type WorkspaceSideView,
-  type RevisionResult,
 } from '@/api';
+import type { SimulationResult } from '@pobd/schemas';
+import { toCanonicalSlotKey } from '../../../../packages/schemas/src/canonical-slots.js';
 import type { BuildDiffResult, EquipmentSlot, NormalizedBuild } from '@/types';
-import { extractHitLines, computeHitLinesDelta, safePercentDelta } from '@/lib/hit-lines';
+import { computeHitLinesDelta, safePercentDelta, type HitLinesValues } from '@/lib/hit-lines';
 import { slotDeltaText } from '@/lib/slot-delta';
 
 type Side = 'a' | 'b';
@@ -98,9 +99,7 @@ export default function ComparePage() {
     if (sideView) {
       setSide(side, { workspace: sideView });
     }
-    if (workspace.diff) {
-      setDiff(workspace.diff);
-    }
+    setDiff(workspace.diff);
   };
 
   const runImport = async (side: Side, source: File | string) => {
@@ -177,7 +176,7 @@ export default function ComparePage() {
       const list = await getGearCandidates(workspaceId, side);
       setCandidates(list.filter((candidate) =>
         candidate.sourceSide !== side &&
-        normalizeSlot(candidate.slotName) === normalizeSlot(slot.slotName),
+        toCanonicalSlotKey(candidate.slotName) === toCanonicalSlotKey(slot.slotName),
       ));
     } catch (caught) {
       setMutationMessage(caught instanceof Error ? caught.message : String(caught));
@@ -192,16 +191,15 @@ export default function ComparePage() {
       const outcome = await waitForJob<GearSwapOutcome>(jobId);
       if (outcome.applied && outcome.workspace) {
         updateWorkspaceState(drawer.side, outcome.workspace);
-        const simulation = outcome.result;
-        if (simulation?.resultKind === 'normal_gain' || simulation?.resultKind === 'normal_loss' || simulation?.resultKind === 'neutral') {
-          setMutationMessage(`创建 Variant：DPS ${formatDelta(simulation.dpsDeltaPercent)}`);
+        const rk = outcome.result?.resultKind;
+        if (rk === 'normal_gain' || rk === 'normal_loss' || rk === 'neutral') {
+          setMutationMessage(`创建 Variant：DPS ${formatDelta(outcome.result!.dpsDeltaPercent)}`);
         }
-      } else if (outcome.result?.resultKind === 'incompatible') {
-        setMutationMessage(`不兼容：${outcome.result.resultKind}`);
-      } else if (outcome.result?.resultKind === 'calc_failed') {
-        setMutationMessage(`计算失败：${outcome.result.resultKind}`);
       } else {
-        setMutationMessage(outcome.result ? `结果：${outcome.result.resultKind}` : '操作未生效');
+        const rk = outcome.result?.resultKind;
+        if (rk === 'incompatible') setMutationMessage(`不兼容：${rk}`);
+        else if (rk === 'calc_failed') setMutationMessage(`计算失败：${rk}`);
+        else setMutationMessage(outcome.result ? `结果：${rk}` : '操作未生效');
       }
     } catch (caught) {
       setMutationMessage(caught instanceof Error ? caught.message : String(caught));
@@ -383,8 +381,17 @@ function BuildPanel({
   const [tab, setTab] = useState<Tab>('equipment');
   const build = (workspace?.currentNormalizedBuild ?? result.normalizedBuild)!;
   if (!build) return <section className="build-panel missing">构筑数据不可用</section>;
-  const selectedSkill = result.baseline?.mainSkillSelection.selectedSkillName ?? build.skillDps[0]?.skillName;
-  const dps = result.baseline?.calcsOutput.CombinedDPS ?? build.skillDps.find((skill) => skill.skillName === selectedSkill)?.dps;
+
+  // Use workspace currentBaseline (revision snapshot) after swaps; fall back to imported result
+  const effectiveBaseline = workspace?.currentBaseline ?? result.baseline;
+  const effectiveCalcs = effectiveBaseline?.calcsOutput ?? {};
+  const selectedSkill = effectiveBaseline?.mainSkillSelection?.selectedSkillName ?? build.skillDps[0]?.skillName;
+  const dps = typeof effectiveCalcs.CombinedDPS === 'number'
+    ? effectiveCalcs.CombinedDPS
+    : build.skillDps.find((skill) => skill.skillName === selectedSkill)?.dps;
+
+  const hitLines = hitLineValues(effectiveBaseline);
+
   const flags = cursorFlags(workspace);
   return (
     <section className="build-panel">
@@ -399,8 +406,8 @@ function BuildPanel({
       <div className="summary-grid">
         <Summary label="主技能" value={selectedSkill ?? '待选择'} wide />
         <Summary label="DPS" value={formatNumber(dps)} accent />
-        <Summary label="物理一击线" value={hitLineSummary(result).physical} />
-        <Summary label="元素一击线" value={hitLineSummary(result).elemental} />
+        <Summary label="物理一击线" value={formatNumber(hitLines.physical)} />
+        <Summary label="元素一击线" value={formatNumber(hitLines.elemental)} />
         <Summary label="转换状态" value={result.status === 'calculable' ? 'PoB2 原生' : '映射未完成'} />
       </div>
       <div className="panel-tools">
@@ -453,7 +460,7 @@ function EquipmentGrid({
   build: NormalizedBuild;
   side: Side;
   onItem: (side: Side, slot: EquipmentSlot) => void;
-  currentRevision?: { result?: RevisionResult };
+  currentRevision?: { result?: SimulationResult };
 }) {
   return (
     <div className="equipment-grid">
@@ -670,9 +677,22 @@ function EmptyState({ text }: { text: string }) {
   return <div className="empty-state">{text}</div>;
 }
 
-function hitLineSummary(result: ImportResult): { physical: string; elemental: string } {
-  const h = extractHitLines(result);
-  return { physical: formatNumber(h.physical), elemental: formatNumber(h.elemental) };
+function hitLineValues(baseline: { calcsOutput?: Record<string, unknown>; rawBreakdown?: Record<string, unknown> } | undefined): HitLinesValues {
+  if (!baseline) return { physical: undefined, fire: undefined, cold: undefined, lightning: undefined, chaos: undefined, elemental: undefined, life: undefined };
+  const co = baseline.calcsOutput ?? {};
+  const lookup = (key: string) => {
+    const v = co[key];
+    return typeof v === 'number' ? v : undefined;
+  };
+  const physical = lookup('PhysicalMaximumHitTaken');
+  const fire = lookup('FireMaximumHitTaken');
+  const cold = lookup('ColdMaximumHitTaken');
+  const lightning = lookup('LightningMaximumHitTaken');
+  const chaos = lookup('ChaosMaximumHitTaken');
+  const life = lookup('Life');
+  const derived = lookup('ElementalMaximumHitTaken');
+  const elemental = derived !== undefined ? derived : [fire, cold, lightning].filter((v): v is number => v !== undefined && v > 0).reduce((a, b) => Math.min(a, b), Infinity);
+  return { physical, fire, cold, lightning, chaos, elemental: Number.isFinite(elemental) ? elemental : undefined, life };
 }
 
 function formatNumber(value: unknown): string {
@@ -690,22 +710,6 @@ function sourceLabel(source: ImportResult['source']): string {
 }
 
 function findSlot(slots: EquipmentSlot[], target: string): EquipmentSlot | undefined {
-  const normalized = normalizeSlot(target);
-  return slots.find((slot) => normalizeSlot(slot.slotName) === normalized);
-}
-
-function normalizeSlot(slot: string): string {
-  const value = slot.toLowerCase().replace(/[\s_-]/g, '');
-  const aliases: Record<string, string> = {
-    helmet: 'helm',
-    bodyarmour: 'bodyarmour',
-    body: 'bodyarmour',
-    weapon: 'weapon1',
-    mainhand: 'weapon1',
-    offhand1: 'offhand',
-    ring: 'ring1',
-    ringleft: 'ring1',
-    ringright: 'ring2',
-  };
-  return aliases[value] ?? value;
+  const normalized = toCanonicalSlotKey(target);
+  return slots.find((slot) => toCanonicalSlotKey(slot.slotName) === normalized);
 }

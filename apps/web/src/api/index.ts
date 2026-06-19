@@ -1,4 +1,5 @@
 import type { BuildDiffResult, NormalizedBuild } from '@/types';
+import type { SimulationResult } from '@pobd/schemas';
 
 const API_BASE = 'http://127.0.0.1:8787/api';
 
@@ -97,24 +98,6 @@ export interface PassiveRankings {
 // WorkspaceView / Mutation types (frontend mirror)
 // ============================================
 
-export interface RevisionResult {
-  resultKind: string;
-  dpsDeltaPercent: number;
-  dpsDelta: number;
-  variantHash: string;
-  target?: {
-    type: string;
-    slotName?: string;
-  };
-  outputDiff: {
-    offence: Record<string, { baseline: number; variant: number; delta: number; deltaPercent?: number }>;
-  };
-  hitLineDelta?: {
-    physicalHitLineDelta?: { baseline: number; variant: number; delta: number; deltaPercent?: number };
-    elementalHitLineDelta?: { baseline: number; variant: number; delta: number; deltaPercent?: number };
-  };
-}
-
 export interface WorkspaceSideView {
   session: {
     baselineHash: string;
@@ -122,7 +105,7 @@ export interface WorkspaceSideView {
       revisionId: string;
       parentRevisionId?: string;
       variantHash: string;
-      result?: RevisionResult;
+      result?: SimulationResult;
       createdAt: number;
     }>;
     cursor: number;
@@ -132,11 +115,15 @@ export interface WorkspaceSideView {
     baselineHash: string;
     id: string;
     calcsOutput: Record<string, unknown>;
+    rawBreakdown: Record<string, unknown>;
+    mainSkillSelection?: {
+      selectedSkillName: string;
+    };
   };
   currentRevision: {
     revisionId: string;
     variantHash: string;
-    result?: RevisionResult;
+    result?: SimulationResult;
   };
   currentNormalizedBuild: NormalizedBuild;
 }
@@ -150,19 +137,7 @@ export interface WorkspaceView {
 
 export interface GearSwapOutcome {
   applied: boolean;
-  result?: {
-    resultKind: string;
-    dpsDeltaPercent: number;
-    dpsDelta: number;
-    variantHash: string;
-    outputDiff: {
-      offence: Record<string, { baseline: number; variant: number; delta: number; deltaPercent?: number }>;
-    };
-    hitLineDelta?: {
-      physicalHitLineDelta?: { baseline: number; variant: number; delta: number; deltaPercent?: number };
-      elementalHitLineDelta?: { baseline: number; variant: number; delta: number; deltaPercent?: number };
-    };
-  };
+  result?: SimulationResult;
   revision?: {
     revisionId: string;
     parentRevisionId: string;

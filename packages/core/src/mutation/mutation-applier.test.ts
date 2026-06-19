@@ -86,6 +86,16 @@ describe('MutationFactory', () => {
     expect(mut.source).toBe('target_bd_import');
   });
 
+  it('createGearSwapMutation accepts and stores sourceSlotName', () => {
+    const factory = new MutationFactory(mockTreeProvider);
+    const mut = factory.createGearSwapMutation('Helm', 'Item\nBase', 'hash', 42, 'Helmet');
+
+    expect(mut.type).toBe('item_swap');
+    expect((mut.payload as Record<string, unknown>).slotName).toBe('Helm');
+    expect((mut.payload as Record<string, unknown>).sourceSlotName).toBe('Helmet');
+    expect((mut.payload as Record<string, unknown>).itemId).toBe(42);
+  });
+
   it('createGearComboMutation returns correct mutation', () => {
     const factory = new MutationFactory(mockTreeProvider);
     const swaps = [

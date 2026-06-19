@@ -515,4 +515,89 @@ describe('WorkspaceStore', () => {
     expect(outcome.workspace.a.currentNormalizedBuild).toBeDefined();
     expect(outcome.workspace.diff).toBeDefined();
   });
+
+  it('diff mainSkill comes from current baseline after swap', async () => {
+    const store = new WorkspaceStore({
+      applyGearSwap: async () => ({
+        buildXml: '<PathOfBuilding variant="1"/>',
+        result: okResult(),
+        snapshot: makeBaseline('snap-1', [{ slotName: 'Weapon 1', itemId: 1, name: 'Weapon' }]),
+      }),
+    });
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
+    // Overwrite rev-0 snapshot to set custom skill name
+    const a = (store as unknown as { workspaces: Map<string, { a: { snapshotByRevision: Map<string, BaselineSnapshot> } }> }).workspaces.get(workspace.id)!;
+    a.a.snapshotByRevision.set('rev-0', makeBaseline('snap-0', []));
+
+    // Apply swap — diff skill should come from current snapshot (rev-0 baseline has skill name 'Skill')
+    const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
+    const outcome = await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
+    expect(outcome.workspace.diff?.mainSkill).toBe('Skill');
+  });
+
+  it('continuous swap keeps immutable imported baseline for comparison, second buildXml is revision 1', async () => {
+    const baselinesPassed: string[] = [];
+    const buildXmlsPassed: string[] = [];
+    const store = new WorkspaceStore({
+      applyGearSwap: async ({ baseline, currentBuildXml }) => {
+        baselinesPassed.push(baseline.baselineHash);
+        buildXmlsPassed.push(currentBuildXml);
+        return {
+          buildXml: `<PathOfBuilding variant="${buildXmlsPassed.length}"/>`,
+          result: okResult({ variantHash: `variant-${buildXmlsPassed.length}` }),
+          snapshot: makeBaseline(`snap-${buildXmlsPassed.length}`, []),
+        };
+      },
+    });
+    const impA = makeImported('a', 'hash-immutable', 'Axe');
+    const impB = makeImported('b', 'hash-b', 'Maul');
+    const workspace = store.create(impA, impB);
+    const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
+
+    // First swap
+    await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
+    // Second swap
+    await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
+
+    // Both swaps must use the immutable imported baseline hash
+    expect(baselinesPassed).toEqual(['hash-immutable', 'hash-immutable']);
+    // First currentBuildXml is initial; second is revision 1 variant
+    expect(buildXmlsPassed[0]).toBe('<PathOfBuilding/>');
+    expect(buildXmlsPassed[1]).toBe('<PathOfBuilding variant="1"/>');
+  });
+
+  it('calc_failed executor makes completed job with applied:false, workspace unchanged', async () => {
+    const store = new WorkspaceStore({
+      applyGearSwap: async () => ({
+        buildXml: '<PathOfBuilding baseline/>',
+        result: {
+          ...calcFailedResult,
+          errorMessage: 'snapshot failed',
+        },
+        snapshot: makeBaseline('snap-stale', []),
+      }),
+    });
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
+    const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
+
+    const outcome = await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
+    expect(outcome.applied).toBe(false);
+    expect(outcome.result?.resultKind).toBe('calc_failed');
+    // Workspace cursor, XML, snapshot, display all unchanged
+    expect(store.get(workspace.id)?.a.session.cursor).toBe(0);
+    expect(store.get(workspace.id)?.a.currentBuildXml).toBe('<PathOfBuilding/>');
+  });
+
+  it('view throws invariant error when revision map entry is missing', () => {
+    const store = new WorkspaceStore({
+      applyGearSwap: async () => { throw new Error('unused'); },
+    });
+    // Directly test the requireRevisionValue invariant method
+    const map = new Map<string, string>();
+    map.set('rev-0', 'exists');
+    expect(() => {
+      const method = (store as unknown as { requireRevisionValue: <T>(map: Map<string, T>, revisionId: string, label: string) => T }).requireRevisionValue;
+      method(map, 'rev-999', 'testLabel');
+    }).toThrow('testLabel');
+  });
 });

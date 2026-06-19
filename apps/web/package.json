@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@pobd/schemas": "^0.1.0",
     "@tanstack/react-query": "^5.51.0",
     "axios": "^1.7.0",
     "clsx": "^2.1.0",

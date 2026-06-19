@@ -209,4 +209,46 @@ describe('local API', () => {
 
     await app.close();
   });
+
+  it('POST gear-swaps with calc_failed executor completes job with applied:false, workspace unchanged', async () => {
+    const jobs = new JobRegistry();
+    const snap = makeSnap('base');
+    const imports = new ImportService({
+      computeBaseline: async () => snap,
+    });
+    const workspaces = new WorkspaceStore({
+      applyGearSwap: async () => ({
+        buildXml: '<PathOfBuilding baseline/>',
+        result: { ...okSimResult, resultKind: 'calc_failed', errorMessage: 'snapshot failed', dpsDelta: 0, dpsDeltaPercent: 0 },
+        snapshot: makeSnap('base'),
+      }),
+    });
+    const app = await createApp({ imports, workspaces, jobs });
+
+    const ws = workspaces.create(
+      stubImport('imp-a3', 'hash-a3', 'Weapon 1', 'Axe'),
+      stubImport('imp-b3', 'hash-b3', 'Weapon 1', 'Maul'),
+    );
+
+    const swapResp = await app.inject({
+      method: 'POST',
+      url: `/api/workspaces/${ws.id}/gear-swaps`,
+      payload: { side: 'a', candidateId: 'b:Weapon 1:1', targetSlotName: 'Weapon 1' },
+    });
+    expect(swapResp.statusCode).toBe(202);
+    const { jobId } = swapResp.json<{ jobId: string }>();
+
+    for (let i = 0; i < 20; i++) {
+      const jobResp = await app.inject({ method: 'GET', url: `/api/jobs/${jobId}` });
+      const job = jobResp.json<{ status: string; result?: Record<string, unknown> }>();
+      if (job.status === 'completed') {
+        expect(job.result!.applied).toBe(false);
+        expect((job.result!.result as Record<string, string>)?.resultKind).toBe('calc_failed');
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+
+    await app.close();
+  });
 });
