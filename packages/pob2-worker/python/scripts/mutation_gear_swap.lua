@@ -135,7 +135,7 @@ local result = {
 
 if build.calcsTab and build.calcsTab.calcsOutput then
     local co = build.calcsTab.calcsOutput
-    result.calcsOutput = {
+    local out = {
         CombinedDPS = co.CombinedDPS or 0,
         Speed = co.Speed or 0,
         CritChance = co.CritChance or 0,
@@ -146,20 +146,34 @@ if build.calcsTab and build.calcsTab.calcsOutput then
         Life = co.Life or 0,
         Mana = co.Mana or 0,
         Armour = co.Armour or 0,
-        PhysicalMaximumHitTaken = co.PhysicalMaximumHitTaken or 0,
-        FireMaximumHitTaken = co.FireMaximumHitTaken or 0,
-        ColdMaximumHitTaken = co.ColdMaximumHitTaken or 0,
-        LightningMaximumHitTaken = co.LightningMaximumHitTaken or 0,
-        ChaosMaximumHitTaken = co.ChaosMaximumHitTaken or 0,
-        EnergyShield = co.EnergyShield or 0,
-        Evasion = co.Evasion or 0,
-        BlockChance = co.BlockChance or 0,
-        FireResist = co.FireResist or 0,
-        ColdResist = co.ColdResist or 0,
-        LightningResist = co.LightningResist or 0,
-        ChaosResist = co.ChaosResist or 0,
-        TotalEHP = co.TotalEHP or 0,
     }
+    if co.PhysicalMaximumHitTaken ~= nil then out.PhysicalMaximumHitTaken = co.PhysicalMaximumHitTaken end
+    if co.FireMaximumHitTaken ~= nil then out.FireMaximumHitTaken = co.FireMaximumHitTaken end
+    if co.ColdMaximumHitTaken ~= nil then out.ColdMaximumHitTaken = co.ColdMaximumHitTaken end
+    if co.LightningMaximumHitTaken ~= nil then out.LightningMaximumHitTaken = co.LightningMaximumHitTaken end
+    if co.ChaosMaximumHitTaken ~= nil then out.ChaosMaximumHitTaken = co.ChaosMaximumHitTaken end
+    if co.EnergyShield ~= nil then out.EnergyShield = co.EnergyShield end
+    if co.Evasion ~= nil then out.Evasion = co.Evasion end
+    if co.EffectiveBlockChance ~= nil then out.BlockChance = co.EffectiveBlockChance elseif co.BlockChance ~= nil then out.BlockChance = co.BlockChance end
+    if co.FireResist ~= nil then out.FireResist = co.FireResist end
+    if co.ColdResist ~= nil then out.ColdResist = co.ColdResist end
+    if co.LightningResist ~= nil then out.LightningResist = co.LightningResist end
+    if co.ChaosResist ~= nil then out.ChaosResist = co.ChaosResist end
+    if co.TotalEHP ~= nil then out.TotalEHP = co.TotalEHP end
+    local function weakestElementalMaximumHitTaken(co2)
+        local min
+        if type(co2.FireMaximumHitTaken) == "number" and co2.FireMaximumHitTaken > 0 then min = co2.FireMaximumHitTaken end
+        if type(co2.ColdMaximumHitTaken) == "number" and co2.ColdMaximumHitTaken > 0 then
+            if not min or co2.ColdMaximumHitTaken < min then min = co2.ColdMaximumHitTaken end
+        end
+        if type(co2.LightningMaximumHitTaken) == "number" and co2.LightningMaximumHitTaken > 0 then
+            if not min or co2.LightningMaximumHitTaken < min then min = co2.LightningMaximumHitTaken end
+        end
+        return min
+    end
+    local elem = weakestElementalMaximumHitTaken(co)
+    if elem ~= nil then out.ElementalMaximumHitTaken = elem end
+    result.calcsOutput = out
 end
 
 local env = build.calcsTab and build.calcsTab.calcsEnv

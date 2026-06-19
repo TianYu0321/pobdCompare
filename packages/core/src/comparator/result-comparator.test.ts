@@ -238,11 +238,35 @@ describe('ResultComparator', () => {
 
     expect(result.hitLineDelta?.source).toBe('pob2_output');
     expect(result.hitLineDelta?.physicalHitLineDelta?.delta).toBe(100);
-    expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(100); // min of fire(400)/cold(350)/lightning(300) = 300, delta = 300-200 = 100
+    // derived elemental = min(300,250,200)=200 -> min(400,350,300)=300, delta=100
+    expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(100);
     expect(result.hitLineDelta?.fireHitLineDelta?.delta).toBe(100);
     expect(result.hitLineDelta?.coldHitLineDelta?.delta).toBe(100);
     expect(result.hitLineDelta?.lightningHitLineDelta?.delta).toBe(100);
     expect(result.hitLineDelta?.chaosHitLineDelta?.delta).toBe(100);
+  });
+
+  it('should prefer direct ElementalMaximumHitTaken over derivation from fire/cold/lightning', () => {
+    const baseline = createBaseline(1000);
+    (baseline.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 400;
+    (baseline.calcsOutput as Record<string, unknown>).FireMaximumHitTaken = 300;
+    (baseline.calcsOutput as Record<string, unknown>).ColdMaximumHitTaken = 250;
+    (baseline.calcsOutput as Record<string, unknown>).LightningMaximumHitTaken = 200;
+    (baseline.calcsOutput as Record<string, unknown>).ElementalMaximumHitTaken = 250;
+
+    const variant = createVariant(baseline, 1200);
+    (variant.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 500;
+    (variant.calcsOutput as Record<string, unknown>).FireMaximumHitTaken = 400;
+    (variant.calcsOutput as Record<string, unknown>).ColdMaximumHitTaken = 350;
+    (variant.calcsOutput as Record<string, unknown>).LightningMaximumHitTaken = 300;
+    (variant.calcsOutput as Record<string, unknown>).ElementalMaximumHitTaken = 350;
+
+    const result = comparator.compare(baseline, variant);
+
+    // ElementalMaximumHitTaken is present directly (250->350), so it must be used, not the min of fire/cold/lightning
+    expect(result.hitLineDelta?.elementalHitLineDelta?.baseline).toBe(250);
+    expect(result.hitLineDelta?.elementalHitLineDelta?.variant).toBe(350);
+    expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(100);
   });
 
   it('should derive elementalHitLineDelta as min of fire/cold/lightning when direct ElementalMaximumHitTaken is absent', () => {
@@ -262,7 +286,7 @@ describe('ResultComparator', () => {
 
     const result = comparator.compare(baseline, variant);
 
-    // elemental = min(350, 300, 250) = 250
+    // direct ElementalMaximumHitTaken absent -> derived as min(350,300,250)=250
     expect(result.hitLineDelta?.elementalHitLineDelta?.baseline).toBe(200);
     expect(result.hitLineDelta?.elementalHitLineDelta?.variant).toBe(250);
     expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(50);
@@ -296,6 +320,26 @@ describe('ResultComparator', () => {
     expect(result.hitLineDelta?.source).toBe('normalized_breakdown');
     expect(result.hitLineDelta?.physicalHitLineDelta?.delta).toBe(100);
     expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(100);
+  });
+
+  it('should omit elementalHitLineDelta when neither direct key nor three elemental direct keys are present', () => {
+    const baseline = createBaseline(1000);
+    (baseline.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 400;
+    (baseline.calcsOutput as Record<string, unknown>).FireMaximumHitTaken = 0;
+    (baseline.calcsOutput as Record<string, unknown>).ColdMaximumHitTaken = 0;
+    (baseline.calcsOutput as Record<string, unknown>).LightningMaximumHitTaken = 0;
+
+    const variant = createVariant(baseline, 1200);
+    (variant.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 500;
+    (variant.calcsOutput as Record<string, unknown>).FireMaximumHitTaken = 0;
+    (variant.calcsOutput as Record<string, unknown>).ColdMaximumHitTaken = 0;
+    (variant.calcsOutput as Record<string, unknown>).LightningMaximumHitTaken = 0;
+
+    const result = comparator.compare(baseline, variant);
+
+    // zero is not > 0, so derivation yields nil; no ElementalMaximumHitTaken key was set
+    expect(result.hitLineDelta?.elementalHitLineDelta).toBeUndefined();
+    expect(result.hitLineDelta?.physicalHitLineDelta?.delta).toBe(100);
   });
 
   it('should include warnings when calc output is missing', () => {

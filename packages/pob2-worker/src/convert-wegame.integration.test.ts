@@ -54,42 +54,35 @@ describeIntegration('convert_wegame native bridge', () => {
     // Assert real MaximumHitTaken keys are present in calcsOutput
     expect(response.calcsOutput).toBeDefined();
     const co = response.calcsOutput!;
-    expect(co.PhysicalMaximumHitTaken).toBeDefined();
-    expect(typeof co.PhysicalMaximumHitTaken).toBe('number');
-    expect(Number.isFinite(co.PhysicalMaximumHitTaken)).toBe(true);
-
-    expect(co.FireMaximumHitTaken).toBeDefined();
-    expect(typeof co.FireMaximumHitTaken).toBe('number');
-    expect(Number.isFinite(co.FireMaximumHitTaken)).toBe(true);
-
-    expect(co.ColdMaximumHitTaken).toBeDefined();
-    expect(typeof co.ColdMaximumHitTaken).toBe('number');
-    expect(Number.isFinite(co.ColdMaximumHitTaken)).toBe(true);
-
-    expect(co.LightningMaximumHitTaken).toBeDefined();
-    expect(typeof co.LightningMaximumHitTaken).toBe('number');
-    expect(Number.isFinite(co.LightningMaximumHitTaken)).toBe(true);
-
-    expect(co.ChaosMaximumHitTaken).toBeDefined();
-    expect(typeof co.ChaosMaximumHitTaken).toBe('number');
-    expect(Number.isFinite(co.ChaosMaximumHitTaken)).toBe(true);
-
-    // Validate derived ElementalMaximumHitTaken as min of finite positive fire/cold/lightning
-    const elements = [co.FireMaximumHitTaken, co.ColdMaximumHitTaken, co.LightningMaximumHitTaken]
-      .filter((v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && v > 0);
-    const coElemental = co.ElementalMaximumHitTaken;
-    if (elements.length === 3) {
-      const expectedElemental = Math.min(...elements);
-      if (coElemental !== undefined) {
-        expect(coElemental).toBe(expectedElemental);
-      }
+    const mhtKeys = ['PhysicalMaximumHitTaken', 'FireMaximumHitTaken', 'ColdMaximumHitTaken', 'LightningMaximumHitTaken', 'ChaosMaximumHitTaken'] as const;
+    for (const key of mhtKeys) {
+      expect(co[key]).toBeDefined();
+      expect(typeof co[key]).toBe('number');
+      expect(Number.isFinite(co[key])).toBe(true);
+      // PoB2 should supply positive values even for an empty level-10 character
+      expect(co[key]).toBeGreaterThan(0);
     }
 
-    // Verify defence keys are present
-    const defenceKeys = ['EnergyShield', 'Evasion', 'BlockChance', 'FireResist', 'ColdResist', 'LightningResist', 'ChaosResist', 'TotalEHP'];
+    // ElementalMaximumHitTaken must equal min(FireMaximumHitTaken, ColdMaximumHitTaken, LightningMaximumHitTaken)
+    expect(co.ElementalMaximumHitTaken).toBeDefined();
+    expect(typeof co.ElementalMaximumHitTaken).toBe('number');
+    expect(Number.isFinite(co.ElementalMaximumHitTaken)).toBe(true);
+    expect(co.ElementalMaximumHitTaken).toBeGreaterThan(0);
+    const fire = co.FireMaximumHitTaken;
+    const cold = co.ColdMaximumHitTaken;
+    const lightning = co.LightningMaximumHitTaken;
+    expect(typeof fire).toBe('number');
+    expect(typeof cold).toBe('number');
+    expect(typeof lightning).toBe('number');
+    const expectedElemental = Math.min(fire as number, cold as number, lightning as number);
+    expect(co.ElementalMaximumHitTaken).toBe(expectedElemental);
+
+    // Verify defence keys are present and finite
+    const defenceKeys = ['EnergyShield', 'Evasion', 'BlockChance', 'FireResist', 'ColdResist', 'LightningResist', 'ChaosResist', 'TotalEHP'] as const;
     for (const key of defenceKeys) {
       expect(co[key]).toBeDefined();
       expect(typeof co[key]).toBe('number');
+      expect(Number.isFinite(co[key])).toBe(true);
     }
   });
 });
