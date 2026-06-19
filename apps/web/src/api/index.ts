@@ -102,6 +102,10 @@ export interface RevisionResult {
   dpsDeltaPercent: number;
   dpsDelta: number;
   variantHash: string;
+  target?: {
+    type: string;
+    slotName?: string;
+  };
   outputDiff: {
     offence: Record<string, { baseline: number; variant: number; delta: number; deltaPercent?: number }>;
   };

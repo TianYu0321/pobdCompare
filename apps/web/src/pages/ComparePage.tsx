@@ -21,6 +21,7 @@ import {
 } from '@/api';
 import type { BuildDiffResult, EquipmentSlot, NormalizedBuild } from '@/types';
 import { extractHitLines, computeHitLinesDelta, safePercentDelta } from '@/lib/hit-lines';
+import { slotDeltaText } from '@/lib/slot-delta';
 
 type Side = 'a' | 'b';
 type Tab = 'equipment' | 'skills' | 'passives';
@@ -442,20 +443,6 @@ const SLOT_LAYOUT = [
   ['Ring 1', 'Amulet', 'Ring 2'],
   ['Charm 1', 'Charm 2', 'Charm 3'],
 ];
-
-function slotDeltaText(currentRevision?: { result?: RevisionResult }, _slotName?: string): string {
-  const r = currentRevision?.result;
-  if (!r) return 'DPS Δ 待模拟';
-  if (r.resultKind === 'incompatible' || r.resultKind === 'calc_failed' || r.resultKind === 'invalid_variant') return 'DPS Δ 待模拟';
-  const parts: string[] = [`DPS ${formatDelta(r.dpsDeltaPercent)}`];
-  if (r.hitLineDelta?.physicalHitLineDelta?.deltaPercent !== undefined) {
-    parts.push(`物 ${formatDelta(r.hitLineDelta.physicalHitLineDelta.deltaPercent)}`);
-  }
-  if (r.hitLineDelta?.elementalHitLineDelta?.deltaPercent !== undefined) {
-    parts.push(`元 ${formatDelta(r.hitLineDelta.elementalHitLineDelta.deltaPercent)}`);
-  }
-  return parts.join(' · ');
-}
 
 function EquipmentGrid({
   build,

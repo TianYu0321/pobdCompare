@@ -274,17 +274,28 @@ export class Pob2Runtime {
     const result = new ResultComparator().compare(input.baseline, variant);
 
     // Compute a fresh authoritative snapshot from the variant XML
-    const snapshot = await this.computeBaseline({
-      buildXml,
-      source: input.baseline.source,
-      character: input.baseline.character,
-      league: input.baseline.league,
-      preferredSkillNumber: input.baseline.skillNumber,
-      preferredSkillName: input.baseline.mainSkillSelection.selectedSkillName,
-      skillPart: input.baseline.skillPart,
-      weaponSet: input.baseline.weaponSet,
-      config: input.baseline.config,
-    });
+    let snapshot: BaselineSnapshot;
+    try {
+      snapshot = await this.computeBaseline({
+        buildXml,
+        source: input.baseline.source,
+        character: input.baseline.character,
+        league: input.baseline.league,
+        preferredSkillNumber: input.baseline.skillNumber,
+        preferredSkillName: input.baseline.mainSkillSelection.selectedSkillName,
+        skillPart: input.baseline.skillPart,
+        weaponSet: input.baseline.weaponSet,
+        config: input.baseline.config,
+      });
+    } catch (snapshotError) {
+      // Snapshot recomputation failed – return a calc_failed outcome.
+      // buildXml stays at input.currentBuildXml (non-applied state).
+      return {
+        buildXml: input.currentBuildXml,
+        result: this.calcFailedResult(input.baseline, input.mutation, snapshotError instanceof Error ? snapshotError.message : String(snapshotError)),
+        snapshot: input.baseline,
+      };
+    }
 
     return {
       buildXml,
@@ -395,6 +406,44 @@ export class Pob2Runtime {
       return normalized.includes('weapon') ? 'weapon_type_mismatch' : 'main_skill_invalid';
     }
     return undefined;
+  }
+
+  private calcFailedResult(
+    baseline: BaselineSnapshot,
+    mutation: BuildMutation,
+    errorMessage: string,
+  ): SimulationResult {
+    const baselineDps =
+      typeof baseline.calcsOutput.CombinedDPS === 'number'
+        ? baseline.calcsOutput.CombinedDPS
+        : 0;
+    return {
+      jobId: `${baseline.baselineHash}_${mutation.mutationId}`,
+      baselineHash: baseline.baselineHash,
+      variantHash: createHash('sha256').update(`${mutation.mutationId}:calc_failed`).digest('hex'),
+      mutationId: mutation.mutationId,
+      mutationType: mutation.type,
+      resultKind: 'calc_failed',
+      affectedSkillNumber: baseline.skillNumber,
+      isMainSkillStillValid: false,
+      target: {
+        type: 'item',
+        slotName: 'slotName' in mutation.payload ? mutation.payload.slotName : undefined,
+      },
+      baselineDps,
+      variantDps: baselineDps,
+      dpsDelta: 0,
+      dpsDeltaPercent: 0,
+      outputDiff: { offence: {} },
+      errorCode: 'snapshot_failed',
+      errorMessage,
+      warnings: [errorMessage],
+      evidence: [
+        { type: 'baseline', baselineHash: baseline.baselineHash },
+        { type: 'mutation', mutationId: mutation.mutationId },
+      ],
+      createdAt: Date.now(),
+    };
   }
 
   private incompatibleResult(

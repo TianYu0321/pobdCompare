@@ -343,18 +343,28 @@ describe('WorkspaceStore', () => {
     expect(savedSnapshot?.id).toBe('snap-mandatory');
   });
 
-  it('snapshot recomputation failure does NOT produce normal result — must throw', async () => {
+  it('snapshot recomputation failure returns calc_failed outcome, does not append', async () => {
     const store = new WorkspaceStore({
-      applyGearSwap: async () => {
-        throw new Error('snapshot failed');
-      },
+      applyGearSwap: async () => ({
+        buildXml: '<PathOfBuilding baseline/>',
+        result: {
+          ...calcFailedResult,
+          errorMessage: 'snapshot failed',
+        },
+        snapshot: makeBaseline('snap-stale', []),
+      }),
     });
     const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
     const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
-    await expect(
-      store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName),
-    ).rejects.toThrow('snapshot failed');
+
+    const outcome = await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
+    expect(outcome.applied).toBe(false);
+    expect(outcome.result?.resultKind).toBe('calc_failed');
+    expect(outcome.result?.errorMessage).toBe('snapshot failed');
+    // Cursor must NOT advance
     expect(store.get(workspace.id)?.a.session.cursor).toBe(0);
+    // XML must remain baseline
+    expect(store.get(workspace.id)?.a.currentBuildXml).toBe('<PathOfBuilding/>');
   });
 
   it('continuous swap uses parent revision XML and chains revisions', async () => {
