@@ -1,0 +1,2755 @@
+{
+  "totalBuilds": 10,
+  "totalJobs": 210,
+  "successRate": 100,
+  "passedBuilds": 10,
+  "failedBuilds": 0,
+  "perBuildResults": [
+    {
+      "buildFile": "0.4万盾植物德一键刷图BD.build",
+      "baselineHash": "bbfc6c88c65da2e33ec7fbb11f9ef16ceba861ba5139c0b95d1128116085a640",
+      "skillName": "Main Skill",
+      "passiveRemoveCount": 10,
+      "passiveAddCount": 10,
+      "gearSwapCount": 0,
+      "totalJobs": 20,
+      "completedJobs": 20,
+      "failedJobs": 0,
+      "successRate": 100,
+      "passed": true,
+      "topGains": [],
+      "topLosses": [],
+      "failedJobsReport": []
+    },
+    {
+      "buildFile": "0.4佣兵榴弹开荒BD.build",
+      "baselineHash": "58e46de3a24d77b947467c7281e8eb1d358c33cdc2d5b3101e1f9ff727594553",
+      "skillName": "Main Skill",
+      "passiveRemoveCount": 10,
+      "passiveAddCount": 10,
+      "gearSwapCount": 0,
+      "totalJobs": 20,
+      "completedJobs": 20,
+      "failedJobs": 0,
+      "successRate": 100,
+      "passed": true,
+      "topGains": [
+        {
+          "jobId": "58e46de3a24d77b947467c7281e8eb1d358c33cdc2d5b3101e1f9ff727594553_mut-passive_add-14254-29d8bb966c5dc72f",
+          "baselineHash": "58e46de3a24d77b947467c7281e8eb1d358c33cdc2d5b3101e1f9ff727594553",
+          "variantHash": "d1750654617967ad60d21d9403ccbc7a947626052db8569360cd97108ad5725d",
+          "mutationId": "mut-passive_add-14254-29d8bb966c5dc72f",
+          "mutationType": "passive_add",
+          "resultKind": "normal_gain",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 14254
+          },
+          "baselineDps": 1.9616548359375,
+          "variantDps": 2.0805430078125,
+          "dpsDelta": 0.11888817187500011,
+          "dpsDeltaPercent": 6.060606060606067,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.9616548359375,
+                "variant": 2.0805430078125,
+                "delta": 0.11888817187500011,
+                "deltaPercent": 6.060606060606067
+              },
+              "attackSpeed": {
+                "baseline": 1.6335,
+                "variant": 1.7325,
+                "delta": 0.09899999999999998,
+                "deltaPercent": 6.06060606060606
+              },
+              "critChance": {
+                "baseline": 2.75,
+                "variant": 2.75,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critMultiplier": {
+                "baseline": 2,
+                "variant": 2,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 55,
+                "variant": 55,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 116,
+                "variant": 116,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "armour": {
+                "baseline": 11,
+                "variant": 11,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "58e46de3a24d77b947467c7281e8eb1d358c33cdc2d5b3101e1f9ff727594553",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "d1750654617967ad60d21d9403ccbc7a947626052db8569360cd97108ad5725d",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788865337,
+          "calcDurationMs": 1034,
+          "gainPerPoint": 0.11888817187500011,
+          "passiveAddMeta": {
+            "targetNodeId": 14254,
+            "actuallyAddedNodeIds": [
+              14254
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": 0.11888817187500011
+          }
+        }
+      ],
+      "topLosses": [
+        {
+          "jobId": "58e46de3a24d77b947467c7281e8eb1d358c33cdc2d5b3101e1f9ff727594553_mut-passive_add-6230-1c6efe663c25c9d3",
+          "baselineHash": "58e46de3a24d77b947467c7281e8eb1d358c33cdc2d5b3101e1f9ff727594553",
+          "variantHash": "4eaeda685f0147042760af59b03933f99baa5d0653cdb6b9a755e20726391215",
+          "mutationId": "mut-passive_add-6230-1c6efe663c25c9d3",
+          "mutationType": "passive_add",
+          "resultKind": "normal_loss",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 6230
+          },
+          "baselineDps": 1.9616548359375,
+          "variantDps": 0.36544921875,
+          "dpsDelta": -1.5962056171874999,
+          "dpsDeltaPercent": -81.37036077627045,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.9616548359375,
+                "variant": 0.36544921875,
+                "delta": -1.5962056171874999,
+                "deltaPercent": -81.37036077627045
+              },
+              "attackSpeed": {
+                "baseline": 1.6335,
+                "variant": 1.65,
+                "delta": 0.01649999999999996,
+                "deltaPercent": 1.0101010101010075
+              },
+              "critChance": {
+                "baseline": 2.75,
+                "variant": 1.25,
+                "delta": -1.5,
+                "deltaPercent": -54.54545454545454
+              },
+              "critMultiplier": {
+                "baseline": 2,
+                "variant": 2,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 55,
+                "variant": 25,
+                "delta": -30,
+                "deltaPercent": -54.54545454545454
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 116,
+                "variant": 65,
+                "delta": -51,
+                "deltaPercent": -43.96551724137931
+              },
+              "armour": {
+                "baseline": 11,
+                "variant": 0,
+                "delta": -11,
+                "deltaPercent": -100
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "58e46de3a24d77b947467c7281e8eb1d358c33cdc2d5b3101e1f9ff727594553",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "4eaeda685f0147042760af59b03933f99baa5d0653cdb6b9a755e20726391215",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788866183,
+          "calcDurationMs": 1880,
+          "gainPerPoint": -1.5962056171874999,
+          "passiveAddMeta": {
+            "targetNodeId": 6230,
+            "actuallyAddedNodeIds": [
+              6230
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": -1.5962056171874999
+          }
+        }
+      ],
+      "failedJobsReport": []
+    },
+    {
+      "buildFile": "0.4刷图攻坚生存兼备猎魔人BD.build",
+      "baselineHash": "97443a037cf294c17a882a8058249d620a10622bf8f42eedae116b94b59802c9",
+      "skillName": "Main Skill",
+      "passiveRemoveCount": 10,
+      "passiveAddCount": 10,
+      "gearSwapCount": 0,
+      "totalJobs": 20,
+      "completedJobs": 20,
+      "failedJobs": 0,
+      "successRate": 100,
+      "passed": true,
+      "topGains": [
+        {
+          "jobId": "97443a037cf294c17a882a8058249d620a10622bf8f42eedae116b94b59802c9_mut-passive_add-8194-c5441e94263e3b38",
+          "baselineHash": "97443a037cf294c17a882a8058249d620a10622bf8f42eedae116b94b59802c9",
+          "variantHash": "492cb9b6b202ac6ca3bdf50115d290e58278d4ed11f8df1a679124c6ce56a6f9",
+          "mutationId": "mut-passive_add-8194-c5441e94263e3b38",
+          "mutationType": "passive_add",
+          "resultKind": "normal_gain",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 8194
+          },
+          "baselineDps": 0,
+          "variantDps": 0.36544921875,
+          "dpsDelta": 0.36544921875,
+          "dpsDeltaPercent": 0,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 0,
+                "variant": 0.36544921875,
+                "delta": 0.36544921875,
+                "deltaPercent": 0
+              },
+              "attackSpeed": {
+                "baseline": 1.16,
+                "variant": 1.65,
+                "delta": 0.49,
+                "deltaPercent": 42.241379310344826
+              },
+              "critChance": {
+                "baseline": 0,
+                "variant": 1.25,
+                "delta": 1.25,
+                "deltaPercent": 0
+              },
+              "critMultiplier": {
+                "baseline": 2,
+                "variant": 2,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 100,
+                "variant": 25,
+                "delta": -75,
+                "deltaPercent": -75
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 155,
+                "variant": 65,
+                "delta": -90,
+                "deltaPercent": -58.06451612903226
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "97443a037cf294c17a882a8058249d620a10622bf8f42eedae116b94b59802c9",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "492cb9b6b202ac6ca3bdf50115d290e58278d4ed11f8df1a679124c6ce56a6f9",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788868988,
+          "calcDurationMs": 980,
+          "gainPerPoint": 0.36544921875,
+          "passiveAddMeta": {
+            "targetNodeId": 8194,
+            "actuallyAddedNodeIds": [
+              8194
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": 0.36544921875
+          }
+        }
+      ],
+      "topLosses": [],
+      "failedJobsReport": []
+    },
+    {
+      "buildFile": "0.4德鲁伊天启coc BD.build",
+      "baselineHash": "3e1f2addd6ef8baa7f3bc26a2f5f0eb37abf0509ac79a064d53c5cf223efdef2",
+      "skillName": "Main Skill",
+      "passiveRemoveCount": 10,
+      "passiveAddCount": 10,
+      "gearSwapCount": 0,
+      "totalJobs": 20,
+      "completedJobs": 20,
+      "failedJobs": 0,
+      "successRate": 100,
+      "passed": true,
+      "topGains": [
+        {
+          "jobId": "3e1f2addd6ef8baa7f3bc26a2f5f0eb37abf0509ac79a064d53c5cf223efdef2_mut-passive_add-63209-a5893028eec57a7a",
+          "baselineHash": "3e1f2addd6ef8baa7f3bc26a2f5f0eb37abf0509ac79a064d53c5cf223efdef2",
+          "variantHash": "4c9d0fce76a9fe730362d2a9633b1646057b32d1d31d04ac1d7babd3f01ac4c9",
+          "mutationId": "mut-passive_add-63209-a5893028eec57a7a",
+          "mutationType": "passive_add",
+          "resultKind": "normal_gain",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 63209
+          },
+          "baselineDps": 1.3746348,
+          "variantDps": 1.446984,
+          "dpsDelta": 0.07234920000000011,
+          "dpsDeltaPercent": 5.2631578947368505,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.3746348,
+                "variant": 1.446984,
+                "delta": 0.07234920000000011,
+                "deltaPercent": 5.2631578947368505
+              },
+              "attackSpeed": {
+                "baseline": 1.782,
+                "variant": 1.782,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critChance": {
+                "baseline": 100,
+                "variant": 100,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critMultiplier": {
+                "baseline": 1.16,
+                "variant": 1.16,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 28,
+                "variant": 28,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 84,
+                "variant": 84,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "3e1f2addd6ef8baa7f3bc26a2f5f0eb37abf0509ac79a064d53c5cf223efdef2",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "4c9d0fce76a9fe730362d2a9633b1646057b32d1d31d04ac1d7babd3f01ac4c9",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788872189,
+          "calcDurationMs": 576,
+          "gainPerPoint": 0.07234920000000011,
+          "passiveAddMeta": {
+            "targetNodeId": 63209,
+            "actuallyAddedNodeIds": [
+              63209
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": 0.07234920000000011
+          }
+        }
+      ],
+      "topLosses": [
+        {
+          "jobId": "3e1f2addd6ef8baa7f3bc26a2f5f0eb37abf0509ac79a064d53c5cf223efdef2_mut-passive_add-41263-f7ca475e80e34a48",
+          "baselineHash": "3e1f2addd6ef8baa7f3bc26a2f5f0eb37abf0509ac79a064d53c5cf223efdef2",
+          "variantHash": "9eb0ca06d535127bd015f753193e6f7ebf965315529faf315688f2c1bb63fc3f",
+          "mutationId": "mut-passive_add-41263-f7ca475e80e34a48",
+          "mutationType": "passive_add",
+          "resultKind": "normal_loss",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 41263
+          },
+          "baselineDps": 1.3746348,
+          "variantDps": 0.36544921875,
+          "dpsDelta": -1.00918558125,
+          "dpsDeltaPercent": -73.41481397459165,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.3746348,
+                "variant": 0.36544921875,
+                "delta": -1.00918558125,
+                "deltaPercent": -73.41481397459165
+              },
+              "attackSpeed": {
+                "baseline": 1.782,
+                "variant": 1.65,
+                "delta": -0.13200000000000012,
+                "deltaPercent": -7.407407407407414
+              },
+              "critChance": {
+                "baseline": 100,
+                "variant": 1.25,
+                "delta": -98.75,
+                "deltaPercent": -98.75
+              },
+              "critMultiplier": {
+                "baseline": 1.16,
+                "variant": 2,
+                "delta": 0.8400000000000001,
+                "deltaPercent": 72.41379310344828
+              },
+              "hitChance": {
+                "baseline": 28,
+                "variant": 25,
+                "delta": -3,
+                "deltaPercent": -10.714285714285714
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 84,
+                "variant": 65,
+                "delta": -19,
+                "deltaPercent": -22.61904761904762
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "3e1f2addd6ef8baa7f3bc26a2f5f0eb37abf0509ac79a064d53c5cf223efdef2",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "9eb0ca06d535127bd015f753193e6f7ebf965315529faf315688f2c1bb63fc3f",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788873817,
+          "calcDurationMs": 2203,
+          "gainPerPoint": -1.00918558125,
+          "passiveAddMeta": {
+            "targetNodeId": 41263,
+            "actuallyAddedNodeIds": [
+              41263
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": -1.00918558125
+          }
+        },
+        {
+          "jobId": "3e1f2addd6ef8baa7f3bc26a2f5f0eb37abf0509ac79a064d53c5cf223efdef2_mut-passive_remove-5571-bb8ddadc0ad49190",
+          "baselineHash": "3e1f2addd6ef8baa7f3bc26a2f5f0eb37abf0509ac79a064d53c5cf223efdef2",
+          "variantHash": "36e7f38fef3ecabcd7d752a2ac7865a8782715a3d218fae212272e43faa071b6",
+          "mutationId": "mut-passive_remove-5571-bb8ddadc0ad49190",
+          "mutationType": "passive_remove",
+          "resultKind": "normal_loss",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 5571
+          },
+          "baselineDps": 1.3746348,
+          "variantDps": 1.085238,
+          "dpsDelta": -0.2893968,
+          "dpsDeltaPercent": -21.05263157894737,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.3746348,
+                "variant": 1.085238,
+                "delta": -0.2893968,
+                "deltaPercent": -21.05263157894737
+              },
+              "attackSpeed": {
+                "baseline": 1.782,
+                "variant": 1.782,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critChance": {
+                "baseline": 100,
+                "variant": 100,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critMultiplier": {
+                "baseline": 1.16,
+                "variant": 1.16,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 28,
+                "variant": 28,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 84,
+                "variant": 84,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "3e1f2addd6ef8baa7f3bc26a2f5f0eb37abf0509ac79a064d53c5cf223efdef2",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "36e7f38fef3ecabcd7d752a2ac7865a8782715a3d218fae212272e43faa071b6",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788875514,
+          "calcDurationMs": 3900,
+          "passiveRemoveMeta": {
+            "targetNodeId": 5571,
+            "actuallyRemovedNodeIds": [
+              5571
+            ],
+            "cascadeRemoved": false,
+            "cascadeNodeCount": 0
+          }
+        }
+      ],
+      "failedJobsReport": []
+    },
+    {
+      "buildFile": "0.4战术家高爆榴弹BD.build",
+      "baselineHash": "bdd6d436ff776727166f4e012d76320aff56bbecbb13af0fe57c3d4a3cbbfd8a",
+      "skillName": "Main Skill",
+      "passiveRemoveCount": 10,
+      "passiveAddCount": 10,
+      "gearSwapCount": 0,
+      "totalJobs": 20,
+      "completedJobs": 20,
+      "failedJobs": 0,
+      "successRate": 100,
+      "passed": true,
+      "topGains": [
+        {
+          "jobId": "bdd6d436ff776727166f4e012d76320aff56bbecbb13af0fe57c3d4a3cbbfd8a_mut-passive_add-55231-a952f950b0eec592",
+          "baselineHash": "bdd6d436ff776727166f4e012d76320aff56bbecbb13af0fe57c3d4a3cbbfd8a",
+          "variantHash": "0bda36dbc24a15bfefbc3aec2630a7101968ae31b1c524dba3af8a4b95b03f58",
+          "mutationId": "mut-passive_add-55231-a952f950b0eec592",
+          "mutationType": "passive_add",
+          "resultKind": "normal_gain",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 55231
+          },
+          "baselineDps": 1.70615808,
+          "variantDps": 2.0132665344,
+          "dpsDelta": 0.3071084544,
+          "dpsDeltaPercent": 18,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.70615808,
+                "variant": 2.0132665344,
+                "delta": 0.3071084544,
+                "deltaPercent": 18
+              },
+              "attackSpeed": {
+                "baseline": 1.6335,
+                "variant": 1.6335,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critChance": {
+                "baseline": 2.4,
+                "variant": 2.4,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critMultiplier": {
+                "baseline": 2,
+                "variant": 2,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 48,
+                "variant": 48,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 225,
+                "variant": 288,
+                "delta": 63,
+                "deltaPercent": 28.000000000000004
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 20,
+                "delta": 20,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "bdd6d436ff776727166f4e012d76320aff56bbecbb13af0fe57c3d4a3cbbfd8a",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "0bda36dbc24a15bfefbc3aec2630a7101968ae31b1c524dba3af8a4b95b03f58",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788877664,
+          "calcDurationMs": 1419,
+          "gainPerPoint": 0.3071084544,
+          "passiveAddMeta": {
+            "targetNodeId": 55231,
+            "actuallyAddedNodeIds": [
+              55231
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": 0.3071084544
+          }
+        },
+        {
+          "jobId": "bdd6d436ff776727166f4e012d76320aff56bbecbb13af0fe57c3d4a3cbbfd8a_mut-passive_add-52354-2dd8bd8356883711",
+          "baselineHash": "bdd6d436ff776727166f4e012d76320aff56bbecbb13af0fe57c3d4a3cbbfd8a",
+          "variantHash": "5c93f20f1796b84e2ca8cd4fb0bc81d564ef2a6a8d6bec1393884d0431b323dc",
+          "mutationId": "mut-passive_add-52354-2dd8bd8356883711",
+          "mutationType": "passive_add",
+          "resultKind": "normal_gain",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 52354
+          },
+          "baselineDps": 1.70615808,
+          "variantDps": 1.90688256,
+          "dpsDelta": 0.20072447999999987,
+          "dpsDeltaPercent": 11.764705882352935,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.70615808,
+                "variant": 1.90688256,
+                "delta": 0.20072447999999987,
+                "deltaPercent": 11.764705882352935
+              },
+              "attackSpeed": {
+                "baseline": 1.6335,
+                "variant": 1.6335,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critChance": {
+                "baseline": 2.4,
+                "variant": 2.4,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critMultiplier": {
+                "baseline": 2,
+                "variant": 2,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 48,
+                "variant": 48,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 225,
+                "variant": 361,
+                "delta": 136,
+                "deltaPercent": 60.44444444444444
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "bdd6d436ff776727166f4e012d76320aff56bbecbb13af0fe57c3d4a3cbbfd8a",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "5c93f20f1796b84e2ca8cd4fb0bc81d564ef2a6a8d6bec1393884d0431b323dc",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788877026,
+          "calcDurationMs": 780,
+          "gainPerPoint": 0.20072447999999987,
+          "passiveAddMeta": {
+            "targetNodeId": 52354,
+            "actuallyAddedNodeIds": [
+              52354
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": 0.20072447999999987
+          }
+        }
+      ],
+      "topLosses": [],
+      "failedJobsReport": []
+    },
+    {
+      "buildFile": "0.4方案2佣兵60级榴弹开荒BD.build",
+      "baselineHash": "42dc1d999d88f0834248fda253628f0458cd880f63353dc19d01ead9440035fe",
+      "skillName": "Main Skill",
+      "passiveRemoveCount": 10,
+      "passiveAddCount": 10,
+      "gearSwapCount": 0,
+      "totalJobs": 20,
+      "completedJobs": 20,
+      "failedJobs": 0,
+      "successRate": 100,
+      "passed": true,
+      "topGains": [
+        {
+          "jobId": "42dc1d999d88f0834248fda253628f0458cd880f63353dc19d01ead9440035fe_mut-passive_add-52354-995f2515b5769090",
+          "baselineHash": "42dc1d999d88f0834248fda253628f0458cd880f63353dc19d01ead9440035fe",
+          "variantHash": "376e9fc2d875270ef1699fa981cdda9585c43c1973037f3d1f7065d352e066b7",
+          "mutationId": "mut-passive_add-52354-995f2515b5769090",
+          "mutationType": "passive_add",
+          "resultKind": "normal_gain",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 52354
+          },
+          "baselineDps": 1.571574015,
+          "variantDps": 1.6697973909375,
+          "dpsDelta": 0.09822337593749997,
+          "dpsDeltaPercent": 6.249999999999998,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.571574015,
+                "variant": 1.6697973909375,
+                "delta": 0.09822337593749997,
+                "deltaPercent": 6.249999999999998
+              },
+              "attackSpeed": {
+                "baseline": 1.6335,
+                "variant": 1.6335,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critChance": {
+                "baseline": 2.35,
+                "variant": 2.35,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critMultiplier": {
+                "baseline": 2,
+                "variant": 2,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 47,
+                "variant": 47,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 105,
+                "variant": 242,
+                "delta": 137,
+                "deltaPercent": 130.47619047619048
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "42dc1d999d88f0834248fda253628f0458cd880f63353dc19d01ead9440035fe",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "376e9fc2d875270ef1699fa981cdda9585c43c1973037f3d1f7065d352e066b7",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788881072,
+          "calcDurationMs": 636,
+          "gainPerPoint": 0.09822337593749997,
+          "passiveAddMeta": {
+            "targetNodeId": 52354,
+            "actuallyAddedNodeIds": [
+              52354
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": 0.09822337593749997
+          }
+        },
+        {
+          "jobId": "42dc1d999d88f0834248fda253628f0458cd880f63353dc19d01ead9440035fe_mut-passive_add-14254-0131c171d86621fd",
+          "baselineHash": "42dc1d999d88f0834248fda253628f0458cd880f63353dc19d01ead9440035fe",
+          "variantHash": "35b62011df2fca283de6c6595ef3ef526f4d695bc2874e97fde6fc838d07b130",
+          "mutationId": "mut-passive_add-14254-0131c171d86621fd",
+          "mutationType": "passive_add",
+          "resultKind": "normal_gain",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 14254
+          },
+          "baselineDps": 1.571574015,
+          "variantDps": 1.666820925,
+          "dpsDelta": 0.09524690999999996,
+          "dpsDeltaPercent": 6.060606060606059,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.571574015,
+                "variant": 1.666820925,
+                "delta": 0.09524690999999996,
+                "deltaPercent": 6.060606060606059
+              },
+              "attackSpeed": {
+                "baseline": 1.6335,
+                "variant": 1.7325,
+                "delta": 0.09899999999999998,
+                "deltaPercent": 6.06060606060606
+              },
+              "critChance": {
+                "baseline": 2.35,
+                "variant": 2.35,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critMultiplier": {
+                "baseline": 2,
+                "variant": 2,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 47,
+                "variant": 47,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 105,
+                "variant": 105,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "42dc1d999d88f0834248fda253628f0458cd880f63353dc19d01ead9440035fe",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "35b62011df2fca283de6c6595ef3ef526f4d695bc2874e97fde6fc838d07b130",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788881479,
+          "calcDurationMs": 1043,
+          "gainPerPoint": 0.09524690999999996,
+          "passiveAddMeta": {
+            "targetNodeId": 14254,
+            "actuallyAddedNodeIds": [
+              14254
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": 0.09524690999999996
+          }
+        },
+        {
+          "jobId": "42dc1d999d88f0834248fda253628f0458cd880f63353dc19d01ead9440035fe_mut-passive_add-39570-8ab7e8ef8e619075",
+          "baselineHash": "42dc1d999d88f0834248fda253628f0458cd880f63353dc19d01ead9440035fe",
+          "variantHash": "79e041fb88a1daa031a407b37c09ad19a42762cab046ad7f72968f2a78fb69e9",
+          "mutationId": "mut-passive_add-39570-8ab7e8ef8e619075",
+          "mutationType": "passive_add",
+          "resultKind": "normal_gain",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 39570
+          },
+          "baselineDps": 1.571574015,
+          "variantDps": 1.5975545058,
+          "dpsDelta": 0.02598049080000009,
+          "dpsDeltaPercent": 1.6531509526135868,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.571574015,
+                "variant": 1.5975545058,
+                "delta": 0.02598049080000009,
+                "deltaPercent": 1.6531509526135868
+              },
+              "attackSpeed": {
+                "baseline": 1.6335,
+                "variant": 1.6335,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critChance": {
+                "baseline": 2.35,
+                "variant": 2.35,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critMultiplier": {
+                "baseline": 2,
+                "variant": 2,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 47,
+                "variant": 47,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 105,
+                "variant": 210,
+                "delta": 105,
+                "deltaPercent": 100
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "42dc1d999d88f0834248fda253628f0458cd880f63353dc19d01ead9440035fe",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "79e041fb88a1daa031a407b37c09ad19a42762cab046ad7f72968f2a78fb69e9",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788881811,
+          "calcDurationMs": 1375,
+          "gainPerPoint": 0.02598049080000009,
+          "passiveAddMeta": {
+            "targetNodeId": 39570,
+            "actuallyAddedNodeIds": [
+              39570
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": 0.02598049080000009
+          }
+        }
+      ],
+      "topLosses": [],
+      "failedJobsReport": []
+    },
+    {
+      "buildFile": "0.4猎巫人迫击炮幻影射手榴弹BD.build",
+      "baselineHash": "8027d23f852a43403f27c357113bd7a9181f402951d36adda99bb6f0f8eb7564",
+      "skillName": "Main Skill",
+      "passiveRemoveCount": 10,
+      "passiveAddCount": 10,
+      "gearSwapCount": 0,
+      "totalJobs": 20,
+      "completedJobs": 20,
+      "failedJobs": 0,
+      "successRate": 100,
+      "passed": true,
+      "topGains": [],
+      "topLosses": [],
+      "failedJobsReport": []
+    },
+    {
+      "buildFile": "0.4赛季最强萨满德鲁伊开荒BD.build",
+      "baselineHash": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975",
+      "skillName": "Main Skill",
+      "passiveRemoveCount": 10,
+      "passiveAddCount": 10,
+      "gearSwapCount": 0,
+      "totalJobs": 20,
+      "completedJobs": 20,
+      "failedJobs": 0,
+      "successRate": 100,
+      "passed": true,
+      "topGains": [
+        {
+          "jobId": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975_mut-passive_add-21017-3b7b76da521d572c",
+          "baselineHash": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975",
+          "variantHash": "e1108c43a95fe45df4a3644867a3d79ba698f6261833cb37fd59140f552c8078",
+          "mutationId": "mut-passive_add-21017-3b7b76da521d572c",
+          "mutationType": "passive_add",
+          "resultKind": "normal_gain",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 21017
+          },
+          "baselineDps": 1.191078042,
+          "variantDps": 1.89498078,
+          "dpsDelta": 0.703902738,
+          "dpsDeltaPercent": 59.09795270997029,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.191078042,
+                "variant": 1.89498078,
+                "delta": 0.703902738,
+                "deltaPercent": 59.09795270997029
+              },
+              "attackSpeed": {
+                "baseline": 1.551,
+                "variant": 1.551,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critChance": {
+                "baseline": 0.95,
+                "variant": 1.65,
+                "delta": 0.7,
+                "deltaPercent": 73.68421052631578
+              },
+              "critMultiplier": {
+                "baseline": 2.1,
+                "variant": 2.1,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 19,
+                "variant": 30,
+                "delta": 11,
+                "deltaPercent": 57.89473684210527
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 84,
+                "variant": 168,
+                "delta": 84,
+                "deltaPercent": 100
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "e1108c43a95fe45df4a3644867a3d79ba698f6261833cb37fd59140f552c8078",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788886340,
+          "calcDurationMs": 948,
+          "gainPerPoint": 0.703902738,
+          "passiveAddMeta": {
+            "targetNodeId": 21017,
+            "actuallyAddedNodeIds": [
+              21017
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": 0.703902738
+          }
+        },
+        {
+          "jobId": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975_mut-passive_add-65189-a6463e48f2d6e886",
+          "baselineHash": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975",
+          "variantHash": "d96dfaddabf357168b1fa43aa00d6bfe229dde157f65400c5d2480c490913edb",
+          "mutationId": "mut-passive_add-65189-a6463e48f2d6e886",
+          "mutationType": "passive_add",
+          "resultKind": "normal_gain",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 65189
+          },
+          "baselineDps": 1.191078042,
+          "variantDps": 1.8919098,
+          "dpsDelta": 0.7008317580000001,
+          "dpsDeltaPercent": 58.84012073828493,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.191078042,
+                "variant": 1.8919098,
+                "delta": 0.7008317580000001,
+                "deltaPercent": 58.84012073828493
+              },
+              "attackSpeed": {
+                "baseline": 1.551,
+                "variant": 1.551,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critChance": {
+                "baseline": 0.95,
+                "variant": 1.5,
+                "delta": 0.55,
+                "deltaPercent": 57.89473684210527
+              },
+              "critMultiplier": {
+                "baseline": 2.1,
+                "variant": 2.1,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 19,
+                "variant": 30,
+                "delta": 11,
+                "deltaPercent": 57.89473684210527
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 84,
+                "variant": 168,
+                "delta": 84,
+                "deltaPercent": 100
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "d96dfaddabf357168b1fa43aa00d6bfe229dde157f65400c5d2480c490913edb",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788885741,
+          "calcDurationMs": 349,
+          "gainPerPoint": 0.7008317580000001,
+          "passiveAddMeta": {
+            "targetNodeId": 65189,
+            "actuallyAddedNodeIds": [
+              65189
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": 0.7008317580000001
+          }
+        },
+        {
+          "jobId": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975_mut-passive_add-14459-67ea7c698b1a3ec4",
+          "baselineHash": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975",
+          "variantHash": "155eae5eb346cbfb26abf349786bf3148afaadf1a1612a3f0de6ea3030538fda",
+          "mutationId": "mut-passive_add-14459-67ea7c698b1a3ec4",
+          "mutationType": "passive_add",
+          "resultKind": "normal_gain",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 14459
+          },
+          "baselineDps": 1.191078042,
+          "variantDps": 1.8919098,
+          "dpsDelta": 0.7008317580000001,
+          "dpsDeltaPercent": 58.84012073828493,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.191078042,
+                "variant": 1.8919098,
+                "delta": 0.7008317580000001,
+                "deltaPercent": 58.84012073828493
+              },
+              "attackSpeed": {
+                "baseline": 1.551,
+                "variant": 1.551,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critChance": {
+                "baseline": 0.95,
+                "variant": 1.5,
+                "delta": 0.55,
+                "deltaPercent": 57.89473684210527
+              },
+              "critMultiplier": {
+                "baseline": 2.1,
+                "variant": 2.1,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 19,
+                "variant": 30,
+                "delta": 11,
+                "deltaPercent": 57.89473684210527
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 84,
+                "variant": 168,
+                "delta": 84,
+                "deltaPercent": 100
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "155eae5eb346cbfb26abf349786bf3148afaadf1a1612a3f0de6ea3030538fda",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788886309,
+          "calcDurationMs": 917,
+          "gainPerPoint": 0.7008317580000001,
+          "passiveAddMeta": {
+            "targetNodeId": 14459,
+            "actuallyAddedNodeIds": [
+              14459
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": 0.7008317580000001
+          }
+        },
+        {
+          "jobId": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975_mut-passive_add-17517-e09d1c1c11a10336",
+          "baselineHash": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975",
+          "variantHash": "22af1d61a5d8da3f27526fd263d8eea4690225b8eeec1bafbca2d519408fdb5a",
+          "mutationId": "mut-passive_add-17517-e09d1c1c11a10336",
+          "mutationType": "passive_add",
+          "resultKind": "normal_gain",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 17517
+          },
+          "baselineDps": 1.191078042,
+          "variantDps": 1.3027416084375,
+          "dpsDelta": 0.11166356643750008,
+          "dpsDeltaPercent": 9.375000000000007,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.191078042,
+                "variant": 1.3027416084375,
+                "delta": 0.11166356643750008,
+                "deltaPercent": 9.375000000000007
+              },
+              "attackSpeed": {
+                "baseline": 1.551,
+                "variant": 1.551,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critChance": {
+                "baseline": 0.95,
+                "variant": 0.95,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critMultiplier": {
+                "baseline": 2.1,
+                "variant": 2.1,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 19,
+                "variant": 19,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 84,
+                "variant": 84,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "22af1d61a5d8da3f27526fd263d8eea4690225b8eeec1bafbca2d519408fdb5a",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788885786,
+          "calcDurationMs": 393,
+          "gainPerPoint": 0.11166356643750008,
+          "passiveAddMeta": {
+            "targetNodeId": 17517,
+            "actuallyAddedNodeIds": [
+              17517
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": 0.11166356643750008
+          }
+        },
+        {
+          "jobId": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975_mut-passive_add-17584-09b2e90cdf91b3d5",
+          "baselineHash": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975",
+          "variantHash": "7ac378455ef6430acf9329e8d52d766008c8b4d16cd3bde8786568c06a75b035",
+          "mutationId": "mut-passive_add-17584-09b2e90cdf91b3d5",
+          "mutationType": "passive_add",
+          "resultKind": "normal_gain",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 17584
+          },
+          "baselineDps": 1.191078042,
+          "variantDps": 1.3027416084375,
+          "dpsDelta": 0.11166356643750008,
+          "dpsDeltaPercent": 9.375000000000007,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.191078042,
+                "variant": 1.3027416084375,
+                "delta": 0.11166356643750008,
+                "deltaPercent": 9.375000000000007
+              },
+              "attackSpeed": {
+                "baseline": 1.551,
+                "variant": 1.551,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critChance": {
+                "baseline": 0.95,
+                "variant": 0.95,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critMultiplier": {
+                "baseline": 2.1,
+                "variant": 2.1,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 19,
+                "variant": 19,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 84,
+                "variant": 84,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "7ac378455ef6430acf9329e8d52d766008c8b4d16cd3bde8786568c06a75b035",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788885798,
+          "calcDurationMs": 406,
+          "gainPerPoint": 0.11166356643750008,
+          "passiveAddMeta": {
+            "targetNodeId": 17584,
+            "actuallyAddedNodeIds": [
+              17584
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": 0.11166356643750008
+          }
+        }
+      ],
+      "topLosses": [
+        {
+          "jobId": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975_mut-passive_add-15671-4f8c3e18f80ac208",
+          "baselineHash": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975",
+          "variantHash": "9bbf9806ca507444796e1b3747647801502620957cd0837d5e8bb46e02131664",
+          "mutationId": "mut-passive_add-15671-4f8c3e18f80ac208",
+          "mutationType": "passive_add",
+          "resultKind": "normal_loss",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 15671
+          },
+          "baselineDps": 1.191078042,
+          "variantDps": 0.36544921875,
+          "dpsDelta": -0.82562882325,
+          "dpsDeltaPercent": -69.31777718474639,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.191078042,
+                "variant": 0.36544921875,
+                "delta": -0.82562882325,
+                "deltaPercent": -69.31777718474639
+              },
+              "attackSpeed": {
+                "baseline": 1.551,
+                "variant": 1.65,
+                "delta": 0.09899999999999998,
+                "deltaPercent": 6.382978723404253
+              },
+              "critChance": {
+                "baseline": 0.95,
+                "variant": 1.25,
+                "delta": 0.30000000000000004,
+                "deltaPercent": 31.578947368421055
+              },
+              "critMultiplier": {
+                "baseline": 2.1,
+                "variant": 2,
+                "delta": -0.10000000000000009,
+                "deltaPercent": -4.761904761904765
+              },
+              "hitChance": {
+                "baseline": 19,
+                "variant": 25,
+                "delta": 6,
+                "deltaPercent": 31.57894736842105
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 84,
+                "variant": 65,
+                "delta": -19,
+                "deltaPercent": -22.61904761904762
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "9bbf9806ca507444796e1b3747647801502620957cd0837d5e8bb46e02131664",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788885633,
+          "calcDurationMs": 241,
+          "gainPerPoint": -0.82562882325,
+          "passiveAddMeta": {
+            "targetNodeId": 15671,
+            "actuallyAddedNodeIds": [
+              15671
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": -0.82562882325
+          }
+        },
+        {
+          "jobId": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975_mut-passive_add-21912-87624e2234dce4a2",
+          "baselineHash": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975",
+          "variantHash": "f41c540bb852e4acfa3372c5277e3db409a0f8c8e717cdafe5673a4053d9d3b0",
+          "mutationId": "mut-passive_add-21912-87624e2234dce4a2",
+          "mutationType": "passive_add",
+          "resultKind": "normal_loss",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 21912
+          },
+          "baselineDps": 1.191078042,
+          "variantDps": 0.36544921875,
+          "dpsDelta": -0.82562882325,
+          "dpsDeltaPercent": -69.31777718474639,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 1.191078042,
+                "variant": 0.36544921875,
+                "delta": -0.82562882325,
+                "deltaPercent": -69.31777718474639
+              },
+              "attackSpeed": {
+                "baseline": 1.551,
+                "variant": 1.65,
+                "delta": 0.09899999999999998,
+                "deltaPercent": 6.382978723404253
+              },
+              "critChance": {
+                "baseline": 0.95,
+                "variant": 1.25,
+                "delta": 0.30000000000000004,
+                "deltaPercent": 31.578947368421055
+              },
+              "critMultiplier": {
+                "baseline": 2.1,
+                "variant": 2,
+                "delta": -0.10000000000000009,
+                "deltaPercent": -4.761904761904765
+              },
+              "hitChance": {
+                "baseline": 19,
+                "variant": 25,
+                "delta": 6,
+                "deltaPercent": 31.57894736842105
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 84,
+                "variant": 65,
+                "delta": -19,
+                "deltaPercent": -22.61904761904762
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "4904110110f96f09028ed39ac42efaabc2d5d7a10d8719a2da35f8f176378975",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "f41c540bb852e4acfa3372c5277e3db409a0f8c8e717cdafe5673a4053d9d3b0",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788885988,
+          "calcDurationMs": 596,
+          "gainPerPoint": -0.82562882325,
+          "passiveAddMeta": {
+            "targetNodeId": 21912,
+            "actuallyAddedNodeIds": [
+              21912
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": -0.82562882325
+          }
+        }
+      ],
+      "failedJobsReport": []
+    },
+    {
+      "buildFile": "0.4赛季萨满天火自走熊.build",
+      "baselineHash": "3d5de36f0c0bf085bff99eb211c580f75b16e16d092ed61e1975dbe5a33c7056",
+      "skillName": "Main Skill",
+      "passiveRemoveCount": 10,
+      "passiveAddCount": 10,
+      "gearSwapCount": 0,
+      "totalJobs": 20,
+      "completedJobs": 20,
+      "failedJobs": 0,
+      "successRate": 100,
+      "passed": true,
+      "topGains": [
+        {
+          "jobId": "3d5de36f0c0bf085bff99eb211c580f75b16e16d092ed61e1975dbe5a33c7056_mut-passive_add-63209-f92f21865511d0ec",
+          "baselineHash": "3d5de36f0c0bf085bff99eb211c580f75b16e16d092ed61e1975dbe5a33c7056",
+          "variantHash": "0534b0aae9cf7f983d999fb7c320104b738252ba0c3b9928405e2e9da0fa1a3d",
+          "mutationId": "mut-passive_add-63209-f92f21865511d0ec",
+          "mutationType": "passive_add",
+          "resultKind": "normal_gain",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 63209
+          },
+          "baselineDps": 3.1549212942897,
+          "variantDps": 3.2164926117897,
+          "dpsDelta": 0.06157131749999989,
+          "dpsDeltaPercent": 1.9515959910455412,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 3.1549212942897,
+                "variant": 3.2164926117897,
+                "delta": 0.06157131749999989,
+                "deltaPercent": 1.9515959910455412
+              },
+              "attackSpeed": {
+                "baseline": 1.7325,
+                "variant": 1.7325,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critChance": {
+                "baseline": 1.4,
+                "variant": 1.4,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critMultiplier": {
+                "baseline": 2.1,
+                "variant": 2.1,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 28,
+                "variant": 28,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 174,
+                "variant": 174,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "3d5de36f0c0bf085bff99eb211c580f75b16e16d092ed61e1975dbe5a33c7056",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "0534b0aae9cf7f983d999fb7c320104b738252ba0c3b9928405e2e9da0fa1a3d",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788888671,
+          "calcDurationMs": 1074,
+          "gainPerPoint": 0.06157131749999989,
+          "passiveAddMeta": {
+            "targetNodeId": 63209,
+            "actuallyAddedNodeIds": [
+              63209
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": 0.06157131749999989
+          }
+        }
+      ],
+      "topLosses": [
+        {
+          "jobId": "3d5de36f0c0bf085bff99eb211c580f75b16e16d092ed61e1975dbe5a33c7056_mut-passive_add-15671-93a8a6400e8c1aca",
+          "baselineHash": "3d5de36f0c0bf085bff99eb211c580f75b16e16d092ed61e1975dbe5a33c7056",
+          "variantHash": "dfa1d5374a4526ab105d87499fc45f8708361901cd2c8a626edc73aa72d9c94f",
+          "mutationId": "mut-passive_add-15671-93a8a6400e8c1aca",
+          "mutationType": "passive_add",
+          "resultKind": "normal_loss",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 15671
+          },
+          "baselineDps": 3.1549212942897,
+          "variantDps": 0.36544921875,
+          "dpsDelta": -2.7894720755397,
+          "dpsDeltaPercent": -88.41653452935732,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 3.1549212942897,
+                "variant": 0.36544921875,
+                "delta": -2.7894720755397,
+                "deltaPercent": -88.41653452935732
+              },
+              "attackSpeed": {
+                "baseline": 1.7325,
+                "variant": 1.65,
+                "delta": -0.08250000000000002,
+                "deltaPercent": -4.761904761904763
+              },
+              "critChance": {
+                "baseline": 1.4,
+                "variant": 1.25,
+                "delta": -0.1499999999999999,
+                "deltaPercent": -10.714285714285708
+              },
+              "critMultiplier": {
+                "baseline": 2.1,
+                "variant": 2,
+                "delta": -0.10000000000000009,
+                "deltaPercent": -4.761904761904765
+              },
+              "hitChance": {
+                "baseline": 28,
+                "variant": 25,
+                "delta": -3,
+                "deltaPercent": -10.714285714285714
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 174,
+                "variant": 65,
+                "delta": -109,
+                "deltaPercent": -62.643678160919535
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "3d5de36f0c0bf085bff99eb211c580f75b16e16d092ed61e1975dbe5a33c7056",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "dfa1d5374a4526ab105d87499fc45f8708361901cd2c8a626edc73aa72d9c94f",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788888217,
+          "calcDurationMs": 620,
+          "gainPerPoint": -2.7894720755397,
+          "passiveAddMeta": {
+            "targetNodeId": 15671,
+            "actuallyAddedNodeIds": [
+              15671
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": -2.7894720755397
+          }
+        }
+      ],
+      "failedJobsReport": []
+    },
+    {
+      "buildFile": "yewuheng1.build",
+      "baselineHash": "d25d956c6653aebf797d378466ecfe96cab004e0e6f7408bec689cdfeed46c10",
+      "skillName": "Main Skill",
+      "passiveRemoveCount": 10,
+      "passiveAddCount": 10,
+      "gearSwapCount": 10,
+      "totalJobs": 30,
+      "completedJobs": 30,
+      "failedJobs": 0,
+      "successRate": 100,
+      "passed": true,
+      "topGains": [
+        {
+          "jobId": "d25d956c6653aebf797d378466ecfe96cab004e0e6f7408bec689cdfeed46c10_mut-passive_add-33751-c6c53bd4d87e8ecb",
+          "baselineHash": "d25d956c6653aebf797d378466ecfe96cab004e0e6f7408bec689cdfeed46c10",
+          "variantHash": "6754ceed4bc1731c4f17d1cbf220ea3335d48f88310a33b491ea01b91365ecbc",
+          "mutationId": "mut-passive_add-33751-c6c53bd4d87e8ecb",
+          "mutationType": "passive_add",
+          "resultKind": "normal_gain",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 33751
+          },
+          "baselineDps": 38.39756097561,
+          "variantDps": 39.874390243902,
+          "dpsDelta": 1.4768292682920006,
+          "dpsDeltaPercent": 3.846153846152045,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 38.39756097561,
+                "variant": 39.874390243902,
+                "delta": 1.4768292682920006,
+                "deltaPercent": 3.846153846152045
+              },
+              "attackSpeed": {
+                "baseline": 0.63414634146341,
+                "variant": 0.65853658536585,
+                "delta": 0.024390243902440045,
+                "deltaPercent": 3.846153846154035
+              },
+              "critChance": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critMultiplier": {
+                "baseline": 2,
+                "variant": 2,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 100,
+                "variant": 100,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 1,
+                "variant": 1,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "d25d956c6653aebf797d378466ecfe96cab004e0e6f7408bec689cdfeed46c10",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "6754ceed4bc1731c4f17d1cbf220ea3335d48f88310a33b491ea01b91365ecbc",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788894823,
+          "calcDurationMs": 4235,
+          "gainPerPoint": 1.4768292682920006,
+          "passiveAddMeta": {
+            "targetNodeId": 33751,
+            "actuallyAddedNodeIds": [
+              33751
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": 1.4768292682920006
+          }
+        },
+        {
+          "jobId": "d25d956c6653aebf797d378466ecfe96cab004e0e6f7408bec689cdfeed46c10_mut-passive_add-33292-b68d28c70838e994",
+          "baselineHash": "d25d956c6653aebf797d378466ecfe96cab004e0e6f7408bec689cdfeed46c10",
+          "variantHash": "c9693ce8007e72bd203aecf97a7bfc1a526f3a8ecdc2a866b2fb295876c47813",
+          "mutationId": "mut-passive_add-33292-b68d28c70838e994",
+          "mutationType": "passive_add",
+          "resultKind": "normal_gain",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 33292
+          },
+          "baselineDps": 38.39756097561,
+          "variantDps": 39.031707317073,
+          "dpsDelta": 0.6341463414630013,
+          "dpsDeltaPercent": 1.65152766308727,
+          "pointCost": 1,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 38.39756097561,
+                "variant": 39.031707317073,
+                "delta": 0.6341463414630013,
+                "deltaPercent": 1.65152766308727
+              },
+              "attackSpeed": {
+                "baseline": 0.63414634146341,
+                "variant": 0.63414634146341,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critChance": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critMultiplier": {
+                "baseline": 2,
+                "variant": 2,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 100,
+                "variant": 100,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 1,
+                "variant": 1,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "d25d956c6653aebf797d378466ecfe96cab004e0e6f7408bec689cdfeed46c10",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "c9693ce8007e72bd203aecf97a7bfc1a526f3a8ecdc2a866b2fb295876c47813",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788891873,
+          "calcDurationMs": 1286,
+          "gainPerPoint": 0.6341463414630013,
+          "passiveAddMeta": {
+            "targetNodeId": 33292,
+            "actuallyAddedNodeIds": [
+              33292
+            ],
+            "pathAutoFilled": false,
+            "actualPointCost": 1,
+            "gainPerPoint": 0.6341463414630013
+          }
+        }
+      ],
+      "topLosses": [
+        {
+          "jobId": "d25d956c6653aebf797d378466ecfe96cab004e0e6f7408bec689cdfeed46c10_mut-passive_remove-2582-118a532f99571d9e",
+          "baselineHash": "d25d956c6653aebf797d378466ecfe96cab004e0e6f7408bec689cdfeed46c10",
+          "variantHash": "43d6b8bad7196b533072ffc24bbcfe4026cddeb628dc15c23f56c7cbd6fa3081",
+          "mutationId": "mut-passive_remove-2582-118a532f99571d9e",
+          "mutationType": "passive_remove",
+          "resultKind": "normal_loss",
+          "affectedSkillNumber": 1,
+          "isMainSkillStillValid": true,
+          "target": {
+            "type": "passive",
+            "id": 2582
+          },
+          "baselineDps": 38.39756097561,
+          "variantDps": 34.243902439024,
+          "dpsDelta": -4.153658536586001,
+          "dpsDeltaPercent": -10.81750619323032,
+          "outputDiff": {
+            "offence": {
+              "combinedDps": {
+                "baseline": 38.39756097561,
+                "variant": 34.243902439024,
+                "delta": -4.153658536586001,
+                "deltaPercent": -10.81750619323032
+              },
+              "attackSpeed": {
+                "baseline": 0.63414634146341,
+                "variant": 0.63414634146341,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critChance": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "critMultiplier": {
+                "baseline": 2,
+                "variant": 2,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "hitChance": {
+                "baseline": 100,
+                "variant": 100,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            },
+            "defence": {
+              "life": {
+                "baseline": 1,
+                "variant": 1,
+                "delta": 0,
+                "deltaPercent": 0
+              },
+              "armour": {
+                "baseline": 0,
+                "variant": 0,
+                "delta": 0,
+                "deltaPercent": 0
+              }
+            }
+          },
+          "hitLineDelta": {
+            "source": "panel_fallback",
+            "warnings": [
+              "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+              "Unable to compute hit line delta from any source"
+            ]
+          },
+          "warnings": [
+            "Hit line delta not available in calcsOutput or breakdown; falling back to panel data",
+            "Unable to compute hit line delta from any source"
+          ],
+          "evidence": [
+            {
+              "type": "baseline",
+              "baselineHash": "d25d956c6653aebf797d378466ecfe96cab004e0e6f7408bec689cdfeed46c10",
+              "label": "Baseline snapshot"
+            },
+            {
+              "type": "variant",
+              "variantHash": "43d6b8bad7196b533072ffc24bbcfe4026cddeb628dc15c23f56c7cbd6fa3081",
+              "label": "Variant snapshot"
+            },
+            {
+              "type": "calcs_output",
+              "path": "calcsOutput",
+              "label": "Calculation output"
+            },
+            {
+              "type": "raw_breakdown",
+              "path": "rawBreakdown",
+              "label": "Raw breakdown data"
+            }
+          ],
+          "createdAt": 1781788896476,
+          "calcDurationMs": 5888,
+          "passiveRemoveMeta": {
+            "targetNodeId": 2582,
+            "actuallyRemovedNodeIds": [
+              2582
+            ],
+            "cascadeRemoved": false,
+            "cascadeNodeCount": 0
+          }
+        }
+      ],
+      "failedJobsReport": []
+    }
+  ],
+  "failedJobsReport": [],
+  "generatedAt": 1781788903003,
+  "durationMs": 45397
+}

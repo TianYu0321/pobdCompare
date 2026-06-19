@@ -29,6 +29,11 @@ export interface Pob2WorkerResponse {
   skillDpsList?: SkillDpsInfo[];
   itemSlots?: ItemSlotInfo[];
   passiveNodes?: number[];
+  actuallyAddedNodeIds?: number[];
+  actuallyRemovedNodeIds?: number[];
+  pointCost?: number;
+  pathAutoFilled?: boolean;
+  cascadeRemoved?: boolean;
   error?: string;
   variantXml?: string;
 }

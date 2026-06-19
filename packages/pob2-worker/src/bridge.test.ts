@@ -13,7 +13,7 @@ describe('Pob2Bridge', () => {
   let mockStderr: any;
 
   beforeEach(() => {
-    mockStdin = { write: vi.fn() };
+    mockStdin = { write: vi.fn(), on: vi.fn() };
     mockStdout = { on: vi.fn() };
     mockStderr = { on: vi.fn() };
     mockProcess = {

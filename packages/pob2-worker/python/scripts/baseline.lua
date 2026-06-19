@@ -1,12 +1,75 @@
-dofile("HeadlessWrapper.lua")
-if mainObject == nil and launch ~= nil then mainObject = launch end
+function toJSON(obj)
+    local t = type(obj)
+    if t == "nil" then return "null" end
+    if t == "boolean" then return obj and "true" or "false" end
+    if t == "number" then return tostring(obj) end
+    if t == "string" then
+        local s = obj
+        s = s:gsub("\\", "\\\\")
+        s = s:gsub("\"", "\\\"")
+        s = s:gsub("\n", "\\n")
+        s = s:gsub("\r", "\\r")
+        s = s:gsub("\t", "\\t")
+        return '"' .. s .. '"'
+    end
+    if t == "table" then
+        local isArray = true
+        local maxIndex = 0
+        for k, v in pairs(obj) do
+            if type(k) ~= "number" or k <= 0 or math.floor(k) ~= k then
+                isArray = false
+            else
+                maxIndex = math.max(maxIndex, k)
+            end
+        end
+        if isArray and maxIndex >= 0 then
+            local parts = {}
+            for i = 1, maxIndex do
+                parts[i] = toJSON(obj[i])
+            end
+            return "[" .. table.concat(parts, ",") .. "]"
+        else
+            local parts = {}
+            local keys = {}
+            for k, _ in pairs(obj) do table.insert(keys, k) end
+            table.sort(keys, function(a, b)
+                if type(a) == "number" and type(b) == "number" then return a < b
+                elseif type(a) == "number" then return true
+                elseif type(b) == "number" then return false
+                else return tostring(a) < tostring(b) end
+            end)
+            for _, k in ipairs(keys) do
+                table.insert(parts, toJSON(tostring(k)) .. ":" .. toJSON(obj[k]))
+            end
+            return "{" .. table.concat(parts, ",") .. "}"
+        end
+    end
+    return "null"
+end
 
 newBuild()
 runCallback("OnFrame")
 
--- Load build from request XML
-loadBuildFromXML(_build_xml, "request")
-runCallback("OnFrame")
+-- Load build from request (XML or JSON)
+local buildXml = _build_xml
+if buildXml:sub(1,1) == "{" then
+    -- JSON format (e.g., PoB2 .build file with passive tree link)
+    local json = require("dkjson")
+    local data, _, err = json.decode(buildXml)
+    if err then
+        print("JSON decode error: " .. tostring(err))
+    elseif data and data.parts and data.parts[1] and data.parts[1].link then
+        local link = data.parts[1].link
+        build.spec:DecodeURL(link)
+        runCallback("OnFrame")
+    else
+        print("No link found in JSON build")
+    end
+else
+    -- XML format
+    loadBuildFromXML(buildXml, "request")
+    runCallback("OnFrame")
+end
 
 -- Set skill number and weapon set
 build.calcsTab.input.skill_number = _skill_number

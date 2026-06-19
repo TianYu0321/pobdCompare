@@ -3,6 +3,11 @@ import json
 import os
 import sys
 import traceback
+import io
+
+# Force UTF-8 encoding for stdin/stdout on Windows
+sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # Configuration
 POB_ROOT = os.environ.get("POB_ROOT", r"D:\PathOfBuilding-PoE2-dev\PathOfBuilding-PoE2-dev")
@@ -131,13 +136,14 @@ src_dir = os.path.join(POB_ROOT, "src").replace("\\", "/")
 pob_root_unix = POB_ROOT.replace("\\", "/")
 
 setup_script = f"""
-package.path = package.path .. ";{runtime_lua}/?.lua;{runtime_lua}/?/init.lua"
+package.path = package.path .. ";{runtime_lua}/?.lua;{runtime_lua}/?/init.lua;{src_dir}/?.lua;{src_dir}/?/init.lua"
 package.cpath = package.cpath .. ";{pob_root_unix}/runtime/?.dll"
 arg = arg or {{}}
 io.read = function(...) return nil end
 GetScriptPath = function() return "{src_dir}/" end
 GetRuntimePath = function() return "{pob_root_unix}/runtime/" end
 GetUserPath = function() return "{src_dir}/" end
+ConPrintf = function() end
 """
 
 ret = lua.luaL_loadstring(L, setup_script.encode("utf-8"))
@@ -168,61 +174,39 @@ if ret != 0:
     )
     sys.exit(1)
 
-# Pre-compile toJSON function
-toJSON_script = """
-function toJSON(obj)
-    local t = type(obj)
-    if t == "nil" then return "null" end
-    if t == "boolean" then return obj and "true" or "false" end
-    if t == "number" then return tostring(obj) end
-    if t == "string" then
-        local s = obj
-        s = s:gsub("\\\\", "\\\\\\\\")
-        s = s:gsub("\"", "\\\\\"")
-        s = s:gsub("\n", "\\\\n")
-        s = s:gsub("\r", "\\\\r")
-        s = s:gsub("\t", "\\\\t")
-        return '"' .. s .. '"'
-    end
-    if t == "table" then
-        local isArray = true
-        local maxIndex = 0
-        for k, v in pairs(obj) do
-            if type(k) ~= "number" or k <= 0 or math.floor(k) ~= k then
-                isArray = false
-            else
-                maxIndex = math.max(maxIndex, k)
-            end
-        end
-        if isArray and maxIndex > 0 then
-            local parts = {}
-            for i = 1, maxIndex do
-                parts[i] = toJSON(obj[i])
-            end
-            return "[" .. table.concat(parts, ",") .. "]"
-        else
-            local parts = {}
-            local keys = {}
-            for k, _ in pairs(obj) do table.insert(keys, k) end
-            table.sort(keys, function(a, b)
-                if type(a) == "number" and type(b) == "number" then return a < b
-                elseif type(a) == "number" then return true
-                elseif type(b) == "number" then return false
-                else return tostring(a) < tostring(b) end
-            end)
-            for _, k in ipairs(keys) do
-                table.insert(parts, toJSON(tostring(k)) .. ":" .. toJSON(obj[k]))
-            end
-            return "{" .. table.concat(parts, ",") .. "}"
-        end
-    end
-    return "null"
-end
-"""
+# Initialize HeadlessWrapper once (kept alive across requests)
+init_script = 'dofile("HeadlessWrapper.lua")'
+ret = lua.luaL_loadstring(L, init_script.encode("utf-8"))
+if ret != 0:
+    err = lua.lua_tolstring(L, -1, None)
+    print(
+        json.dumps(
+            {
+                "success": False,
+                "error": f"HeadlessWrapper load error: {err.decode() if err else 'Unknown'}",
+            }
+        ),
+        flush=True,
+    )
+    sys.exit(1)
 
-ret = lua.luaL_loadstring(L, toJSON_script.encode("utf-8"))
-if ret == 0:
-    lua.lua_pcall(L, 0, 0, 0)
+ret = lua.lua_pcall(L, 0, 0, 0)
+if ret != 0:
+    err = lua.lua_tolstring(L, -1, None)
+    print(
+        json.dumps(
+            {
+                "success": False,
+                "error": f"HeadlessWrapper runtime error: {err.decode() if err else 'Unknown'}",
+            }
+        ),
+        flush=True,
+    )
+    sys.exit(1)
+
+# toJSON is now defined in each Lua template (baseline.lua, mutation_*.lua)
+# Pre-compiled global toJSON is no longer needed
+toJSON_script = ""
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -282,11 +266,14 @@ def handle_request(request):
         if not result_str:
             return {"success": False, "error": "No result returned from Lua"}
 
-        # Pop result
-        lua.lua_settop(L, -2)
+        # Pop result and clear stack
+        lua.lua_settop(L, 0)
 
         # Parse result
-        result = json.loads(result_str.decode("utf-8"))
+        try:
+            result = json.loads(result_str.decode("utf-8"))
+        except json.JSONDecodeError as e:
+            return {"success": False, "error": f"JSON parse error: {e}. First 200 chars: {result_str.decode('utf-8', errors='replace')[:200]}"}
         return result
 
     except Exception as e:

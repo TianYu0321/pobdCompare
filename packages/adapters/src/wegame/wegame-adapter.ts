@@ -13,26 +13,41 @@ import {
 } from "./conversion-report";
 
 /**
- * WeGame share-link adapter.
+ * WeGame API adapter.
  *
- * **Important:** The exact WeGame data format is not yet known.  This adapter
- * implements a robust framework that:
- * 1. Detects WeGame share links.
- * 2. Attempts to fetch / extract raw data.
- * 3. Tries multiple parsing strategies (JSON, key-value, generic).
- * 4. Falls back to a `partial` / `failed` ConversionReport with detailed warnings.
- *
- * When the real WeGame data format is provided, only the parsing helpers below
- * need to be updated; the pipeline, report generation, and error handling are
- * already in place.
+ * Calls WeGame PoE2 APIs to fetch character data from a share link.
  */
 
 const WEGAME_HOSTS = ["wegame.com.cn", "www.wegame.com.cn", "m.wegame.com.cn"];
+const API_BASE = "https://www.wegame.com.cn/api/v1/wegame.pallas.poe2.Profile/";
 
 interface WeGameRawData {
   shareId: string;
   payload: unknown;
   format: "json" | "key-value" | "unknown";
+}
+
+interface WeGameRoleInfo {
+  openid: string;
+  role_id: string;
+  area: number;
+  name: string;
+  icon: string;
+  level: number;
+  phrase: string;
+  class_id: number;
+  class_name: string;
+  created_time: string;
+  total_game_duration: string;
+  season_game_duration: string;
+  last_login_time: string;
+  league_id: string;
+  account_name: string;
+}
+
+interface WeGameApiResponse {
+  result: { error_code: number; error_message: string };
+  [key: string]: unknown;
 }
 
 export class WeGameAdapter {
@@ -49,23 +64,153 @@ export class WeGameAdapter {
   }
 
   /**
+   * Extract share_code from a WeGame share URL.
+   */
+  extractShareCode(link: string): string {
+    const url = new URL(link);
+    // Hash format: #/share/{share_code}
+    const hashMatch = url.hash.match(/\/share\/([a-zA-Z0-9_-]+)/);
+    if (hashMatch) return hashMatch[1];
+    // Path format: /share/{share_code}
+    const pathMatch = url.pathname.match(/\/share\/([a-zA-Z0-9_-]+)/);
+    if (pathMatch) return pathMatch[1];
+    // Fallback: query param
+    return url.searchParams.get("id") ?? url.searchParams.get("shareId") ?? "";
+  }
+
+  /**
+   * Call WeGame API and return JSON response.
+   */
+  private async callApi(apiName: string, body: Record<string, unknown>): Promise<WeGameApiResponse> {
+    const resp = await fetch(`${API_BASE}${apiName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Referer": "https://www.wegame.com.cn/helper/poe2/",
+        "Origin": "https://www.wegame.com.cn",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!resp.ok) {
+      throw new Error(`WeGame API ${apiName} failed: ${resp.status} ${resp.statusText}`);
+    }
+
+    const data = await resp.json() as WeGameApiResponse;
+    if (data.result?.error_code !== 0) {
+      throw new Error(`WeGame API ${apiName} error: ${data.result?.error_message} (code=${data.result?.error_code})`);
+    }
+
+    return data;
+  }
+
+  /**
+   * Fetch full character data from a WeGame share link.
+   *
+   * Flow:
+   * 1. Extract share_code from URL
+   * 2. Call GetRoleInfo to get role_id, openid, and the new share_code
+   * 3. Parallel call all other APIs
+   */
+  async fetchWeGameBuild(link: string): Promise<{
+    roleInfo: WeGameRoleInfo;
+    equipments: unknown[];
+    skills: unknown[];
+    skillsDps: unknown[];
+    talentTree: { hashes: number[] };
+    panel: Record<string, unknown>;
+    jewels: unknown;
+    roleKeyData: Record<string, unknown>;
+    roleSummary: Record<string, unknown>;
+    raw: Record<string, unknown>;
+  }> {
+    if (!this.isWeGameLink(link)) {
+      throw new Error(`Not a valid WeGame link: ${link}`);
+    }
+
+    const shareCode = this.extractShareCode(link);
+    if (!shareCode) {
+      throw new Error(`Cannot extract share_code from URL: ${link}`);
+    }
+
+    // Step 1: GetRoleInfo to get role_id and openid
+    const roleInfoResp = await this.callApi("GetRoleInfo", {
+      area: 0,
+      openid: "",
+      share_code: shareCode,
+      from_src: "poe2_helper",
+    });
+
+    const role = roleInfoResp.role as WeGameRoleInfo;
+    const actualShareCode = roleInfoResp.share_code as string;
+    const openid = role.openid;
+    const roleId = role.role_id;
+
+    // Step 2: Parallel call all other APIs
+    const apiBody = {
+      area: 0,
+      openid,
+      role_id: roleId,
+      share_code: actualShareCode,
+      from_src: "poe2_helper",
+    };
+
+    const [
+      equipmentsResp,
+      skillsResp,
+      skillsDpsResp,
+      talentTreeResp,
+      panelResp,
+      jewelsResp,
+      roleKeyDataResp,
+      roleSummaryResp,
+    ] = await Promise.all([
+      this.callApi("GetEquipments", apiBody),
+      this.callApi("GetSkills", apiBody),
+      this.callApi("GetSkillsDps", apiBody),
+      this.callApi("GetTalentTree", apiBody),
+      this.callApi("GetPanelAttr", apiBody),
+      this.callApi("GetJewels", apiBody),
+      this.callApi("GetRoleKeyData", apiBody),
+      this.callApi("GetRoleSummary", apiBody),
+    ]);
+
+    return {
+      roleInfo: role,
+      equipments: equipmentsResp.equipments as unknown[] ?? [],
+      skills: skillsResp.skills as unknown[] ?? [],
+      skillsDps: skillsDpsResp.skills_dps as unknown[] ?? [],
+      talentTree: (talentTreeResp.talent_tree as { hashes: number[] }) ?? { hashes: [] },
+      panel: this.withoutResult(panelResp),
+      jewels: this.withoutResult(jewelsResp),
+      roleKeyData: (roleKeyDataResp.key_data as Record<string, unknown>) ?? {},
+      roleSummary: (roleSummaryResp.summary as Record<string, unknown>) ?? {},
+      raw: {
+        GetRoleInfo: roleInfoResp,
+        GetEquipments: equipmentsResp,
+        GetSkills: skillsResp,
+        GetSkillsDps: skillsDpsResp,
+        GetTalentTree: talentTreeResp,
+        GetPanelAttr: panelResp,
+        GetJewels: jewelsResp,
+        GetRoleKeyData: roleKeyDataResp,
+        GetRoleSummary: roleSummaryResp,
+      },
+    };
+  }
+
+  /**
    * Parse a WeGame share link and attempt to extract raw character data.
    *
-   * Because the exact format is still unknown, this method:
-   * - Extracts a `shareId` from the URL.
-   * - Returns a placeholder `rawData` string that downstream code can inspect.
+   * @deprecated Use `fetchWeGameBuild` instead for real API calls.
    */
   async parseWeGameShareLink(link: string): Promise<{ rawData: string; shareId: string }> {
     if (!this.isWeGameLink(link)) {
       throw new Error(`Not a valid WeGame link: ${link}`);
     }
 
-    const url = new URL(link);
-    const shareId = url.searchParams.get("id") ?? url.searchParams.get("shareId") ?? this.extractShareIdFromPath(url.pathname) ?? "unknown";
+    const shareId = this.extractShareCode(link);
 
-    // Framework: when real API / scraping is available, replace this block.
-    // For now, we return a structured placeholder so the caller knows parsing
-    // has not been implemented yet.
     const placeholder = {
       _meta: {
         adapter: "@pobd/adapters/wegame",
@@ -141,6 +286,11 @@ export class WeGameAdapter {
   private extractShareIdFromPath(pathname: string): string | undefined {
     const match = pathname.match(/\/share\/([a-zA-Z0-9_-]+)/);
     return match?.[1];
+  }
+
+  private withoutResult(response: WeGameApiResponse): Record<string, unknown> {
+    const { result: _result, ...payload } = response;
+    return payload;
   }
 
   private parseKeyValue(raw: string): Record<string, unknown> {

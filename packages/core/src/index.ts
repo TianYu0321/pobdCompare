@@ -6,3 +6,5 @@ export * from './mutation';
 export * from './comparator';
 export * from './analyzer';
 export * from './jobqueue';
+export * from './diff';
+export * from './workspace';

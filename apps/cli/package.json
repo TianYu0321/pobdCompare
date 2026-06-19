@@ -6,7 +6,7 @@
     "pobd-compare": "./bin/pobd-compare"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build",
     "test": "vitest run"
   },
   "dependencies": {

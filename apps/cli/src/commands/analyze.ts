@@ -22,7 +22,7 @@ import { writeJson, fileExists } from '../utils/file-utils';
 
 // ── 常量 ──
 const POB_ROOT = 'D:\\PathOfBuilding-PoE2-dev\\PathOfBuilding-PoE2-dev';
-const DRIVER_PATH = path.resolve(__dirname, '../../../packages/pob2-worker/python/driver.py');
+const DRIVER_PATH = path.resolve(__dirname, '../../../../packages/pob2-worker/python/driver.py');
 
 // ── 适配器：Pob2WorkerPool → Pob2WorkerClient ──
 class Pob2PoolBaselineAdapter implements Pob2WorkerClient {
@@ -100,12 +100,35 @@ class Pob2PoolVariantAdapter implements VariantWorkerClient {
   }
 }
 
-// ── 简化的 PassiveTreeProvider（从 baseline 推断） ──
+// ── 简化的 PassiveTreeProvider（从 tree.json 加载节点连接，支持动态 tree 版本） ──
 class SimplePassiveTreeProvider implements PassiveTreeProvider {
+  private linked: Record<number, number[]> = {};
+  private treeVersion: string;
+
+  constructor(treeVersion?: string) {
+    this.treeVersion = treeVersion || '0_1';
+    const treeJsonPath = `D:/PathOfBuilding-PoE2-dev/PathOfBuilding-PoE2-dev/src/TreeData/${this.treeVersion}/tree.json`;
+    try {
+      const treeData = JSON.parse(require('fs').readFileSync(treeJsonPath, 'utf-8'));
+      const nodes = treeData.nodes || {};
+      const validNodeIds = new Set(Object.keys(nodes).map((id) => parseInt(id, 10)));
+      for (const [nodeIdStr, node] of Object.entries(nodes)) {
+        const nodeId = parseInt(nodeIdStr, 10);
+        const connections = (node as any).connections || [];
+        // Filter out linked nodes that don't exist in this tree version
+        this.linked[nodeId] = connections
+          .map((c: any) => c.id)
+          .filter((id: any) => typeof id === 'number' && validNodeIds.has(id));
+      }
+    } catch (e) {
+      console.warn(`Failed to load tree.json for version ${this.treeVersion}, passive add candidates will be empty:`, e);
+    }
+  }
+
   async getTree(baseline: any): Promise<PassiveTreeNode[]> {
     return baseline.passiveNodes.map((id: number) => ({
       id,
-      linked: [],
+      linked: this.linked[id] || [],
       isAscendancyStart: false,
       isMultipleChoice: false,
     }));
@@ -162,7 +185,7 @@ export async function analyzeCommand(inputPath: string, options: AnalyzeOptions)
   const timeout = parseInt(options.timeout, 10);
 
   const pool = new Pob2WorkerPool({
-    pythonPath: 'python',
+    pythonPath: 'C:\\Users\\Administrator\\AppData\\Local\\Programs\\Python\\Python310\\python.exe',
     driverPath: DRIVER_PATH,
     pobRoot: POB_ROOT,
     maxWorkers,

@@ -65,7 +65,7 @@ export type JewelInfo = z.infer<typeof JewelInfoSchema>;
 export const BaselineSnapshotSchema = z.object({
   id: z.string(),
   baselineHash: z.string(),
-  source: z.enum(['build_xml', 'build_file', 'wegame', 'poe_ninja', 'manual']),
+  source: z.enum(['build_xml', 'build_file', 'wegame', 'poe_ninja', 'manual', 'poe_ninja_json', 'pob2_build_json', 'unknown_json', 'invalid_json']),
   buildXml: z.string(),
   buildXmlCanonicalHash: z.string(),
   pob2Version: z.string(),
@@ -94,6 +94,7 @@ export const BaselineSnapshotSchema = z.object({
   passiveNodes: z.array(z.number()),
   ascendNodes: z.array(z.number()),
   jewels: z.array(JewelInfoSchema),
+  treeVersion: z.string().optional(),
   // conversionReport: ConversionReportSchema, // forward ref
   createdAt: z.number(),
 });
