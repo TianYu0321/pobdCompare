@@ -391,19 +391,19 @@ export class ResultComparator {
 
     let totalPoolDelta = this.buildNumericDelta(bCo, vCo, 'TotalPool');
 
-    // Fallback 1: rawBreakdown
+    // Fallback 1: rawBreakdown — lower priority than calcsOutput, only fills missing fields
     const fromBr = readNumeric(bBr, vBr);
     const brFields: Record<string, NumericDelta | undefined> = {
-      physical: fromBr.physical ?? physicalHitLineDelta,
-      elemental: fromBr.elemental ?? elementalHitLineDelta,
-      fire: fromBr.fire ?? fireHitLineDelta,
-      cold: fromBr.cold ?? coldHitLineDelta,
-      lightning: fromBr.lightning ?? lightningHitLineDelta,
-      chaos: fromBr.chaos ?? chaosHitLineDelta,
+      physical: physicalHitLineDelta ?? fromBr.physical,
+      elemental: elementalHitLineDelta ?? fromBr.elemental,
+      fire: fireHitLineDelta ?? fromBr.fire,
+      cold: coldHitLineDelta ?? fromBr.cold,
+      lightning: lightningHitLineDelta ?? fromBr.lightning,
+      chaos: chaosHitLineDelta ?? fromBr.chaos,
     };
-    // Derive elemental from breakdown parts if not already set
+    // Derive elemental from per-element breakdown values (preferring higher-priority existing)
     if (!brFields.elemental) {
-      const derived = deriveElemental(fromBr.fire ?? fireHitLineDelta, fromBr.cold ?? coldHitLineDelta, fromBr.lightning ?? lightningHitLineDelta);
+      const derived = deriveElemental(fireHitLineDelta ?? fromBr.fire, coldHitLineDelta ?? fromBr.cold, lightningHitLineDelta ?? fromBr.lightning);
       if (derived) brFields.elemental = derived;
     }
     // Per-field legacy fallback for rawBreakdown
@@ -432,15 +432,15 @@ export class ResultComparator {
         const vMo = (variant.mainOutput as Record<string, unknown>) || {};
         const fromMo = readNumeric(bMo, vMo);
         const moFields: Record<string, NumericDelta | undefined> = {
-          physical: fromMo.physical ?? physicalHitLineDelta,
-          elemental: fromMo.elemental ?? elementalHitLineDelta,
-          fire: fromMo.fire ?? fireHitLineDelta,
-          cold: fromMo.cold ?? coldHitLineDelta,
-          lightning: fromMo.lightning ?? lightningHitLineDelta,
-          chaos: fromMo.chaos ?? chaosHitLineDelta,
+          physical: physicalHitLineDelta ?? fromMo.physical,
+          elemental: elementalHitLineDelta ?? fromMo.elemental,
+          fire: fireHitLineDelta ?? fromMo.fire,
+          cold: coldHitLineDelta ?? fromMo.cold,
+          lightning: lightningHitLineDelta ?? fromMo.lightning,
+          chaos: chaosHitLineDelta ?? fromMo.chaos,
         };
         if (!moFields.elemental) {
-          const derived = deriveElemental(fromMo.fire ?? fireHitLineDelta, fromMo.cold ?? coldHitLineDelta, fromMo.lightning ?? lightningHitLineDelta);
+          const derived = deriveElemental(fireHitLineDelta ?? fromMo.fire, coldHitLineDelta ?? fromMo.cold, lightningHitLineDelta ?? fromMo.lightning);
           if (derived) moFields.elemental = derived;
         }
         fillLegacy(moFields, bMo, vMo);

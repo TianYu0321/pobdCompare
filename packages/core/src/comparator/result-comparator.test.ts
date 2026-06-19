@@ -409,6 +409,73 @@ describe('ResultComparator', () => {
     expect(result.hitLineDelta?.source).toBe('panel_fallback');
   });
 
+  it('should preserve calcsOutput physical when rawBreakdown has conflicting physical but supplies missing elemental', () => {
+    const baseline = createBaseline(1000);
+    (baseline.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 777;
+    baseline.rawBreakdown = { PhysicalMaximumHitTaken: 111, ElementalHitDamage: 200 };
+
+    const variant = createVariant(baseline, 1200);
+    (variant.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 888;
+    variant.rawBreakdown = { PhysicalMaximumHitTaken: 222, ElementalHitDamage: 250 };
+
+    const result = comparator.compare(baseline, variant);
+
+    // Physical must come from calcsOutput (777-888), not rawBreakdown (111-222)
+    expect(result.hitLineDelta?.physicalHitLineDelta?.baseline).toBe(777);
+    expect(result.hitLineDelta?.physicalHitLineDelta?.variant).toBe(888);
+    expect(result.hitLineDelta?.physicalHitLineDelta?.delta).toBe(111);
+    // Elemental filled from rawBreakdown legacy
+    expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(50);
+    expect(result.hitLineDelta?.source).toBe('normalized_breakdown');
+  });
+
+  it('should preserve calcsOutput values when mainOutput has conflicting values but supplies a missing field', () => {
+    const baseline = createBaseline(1000);
+    (baseline.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 777;
+    baseline.mainOutput = { PhysicalMaximumHitTaken: 111, ElementalHitDamage: 200 };
+
+    const variant = createVariant(baseline, 1200);
+    (variant.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 888;
+    variant.mainOutput = { PhysicalMaximumHitTaken: 222, ElementalHitDamage: 250 };
+
+    const result = comparator.compare(baseline, variant);
+
+    // Physical must come from calcsOutput (777-888), not mainOutput (111-222)
+    expect(result.hitLineDelta?.physicalHitLineDelta?.baseline).toBe(777);
+    expect(result.hitLineDelta?.physicalHitLineDelta?.variant).toBe(888);
+    expect(result.hitLineDelta?.physicalHitLineDelta?.delta).toBe(111);
+    // Elemental filled from mainOutput legacy since calcsOutput and breakdown lack it
+    expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(50);
+    expect(result.hitLineDelta?.source).toBe('panel_fallback');
+  });
+
+  it('should preserve calcsOutput physical and rawBreakdown per-element values when mainOutput has conflicting values but derives from elemental parts', () => {
+    const baseline = createBaseline(1000);
+    (baseline.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 777;
+    baseline.rawBreakdown = { FireMaximumHitTaken: 300, ColdMaximumHitTaken: 250 };
+    baseline.mainOutput = { PhysicalMaximumHitTaken: 111, FireMaximumHitTaken: 1, ColdMaximumHitTaken: 1, ElementalHitDamage: 200 };
+
+    const variant = createVariant(baseline, 1200);
+    (variant.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 888;
+    variant.rawBreakdown = { FireMaximumHitTaken: 350, ColdMaximumHitTaken: 300 };
+    variant.mainOutput = { PhysicalMaximumHitTaken: 222, FireMaximumHitTaken: 2, ColdMaximumHitTaken: 2, ElementalHitDamage: 250 };
+
+    const result = comparator.compare(baseline, variant);
+
+    // Physical from calcsOutput (777-888), not rawBreakdown/mainOutput
+    expect(result.hitLineDelta?.physicalHitLineDelta?.baseline).toBe(777);
+    expect(result.hitLineDelta?.physicalHitLineDelta?.variant).toBe(888);
+    // Fire from rawBreakdown (300-350), cold from rawBreakdown (250-300), not mainOutput
+    expect(result.hitLineDelta?.fireHitLineDelta?.baseline).toBe(300);
+    expect(result.hitLineDelta?.coldHitLineDelta?.baseline).toBe(250);
+    // Elemental derived from rawBreakdown fire+cold (no lightning): min(300,250)=250 -> min(350,300)=300
+    expect(result.hitLineDelta?.elementalHitLineDelta?.baseline).toBe(250);
+    expect(result.hitLineDelta?.elementalHitLineDelta?.variant).toBe(300);
+    expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(50);
+    // Source reflects lowest source that contributed any new value (rawBreakdown)
+    expect(result.hitLineDelta?.source).toBe('normalized_breakdown');
+  });
+
   it('should include warnings when calc output is missing', () => {
     const baseline = createBaseline(1000);
     const variant = createVariant(baseline, 1200, {
