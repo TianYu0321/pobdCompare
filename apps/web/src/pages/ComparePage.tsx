@@ -11,9 +11,12 @@ import {
   revisionAction,
   waitForJob,
   type GearCandidate,
+  type GearSwapOutcome,
   type ImportResult,
   type PassiveRankings,
   type WorkspaceResult,
+  type WorkspaceView,
+  type WorkspaceSideView,
 } from '@/api';
 import type { BuildDiffResult, EquipmentSlot, NormalizedBuild } from '@/types';
 import { extractHitLines, computeHitLinesDelta, safePercentDelta } from '@/lib/hit-lines';
@@ -37,6 +40,7 @@ interface SideState {
   result?: ImportResult;
   label?: string;
   loading: boolean;
+  workspace?: WorkspaceSideView;
 }
 
 const emptySide = (): SideState => ({ loading: false });
@@ -55,6 +59,9 @@ export default function ComparePage() {
   const [candidates, setCandidates] = useState<GearCandidate[]>([]);
   const [drawer, setDrawer] = useState<{ side: Side; slot: EquipmentSlot }>();
   const [mutationMessage, setMutationMessage] = useState('');
+  const [disableUndo, setDisableUndo] = useState(true);
+  const [disableRedo, setDisableRedo] = useState(true);
+  const [disableReset, setDisableReset] = useState(true);
   const dual = Boolean(sides.a.result && sides.b.result);
 
   useEffect(() => {
@@ -77,6 +84,19 @@ export default function ComparePage() {
 
   const setSide = (side: Side, patch: Partial<SideState>) =>
     setSides((current) => ({ ...current, [side]: { ...current[side], ...patch } }));
+
+  const updateWorkspaceState = (side: Side, workspace: WorkspaceView) => {
+    const sideView = side === 'a' ? workspace.a : workspace.b;
+    if (sideView) {
+      setSide(side, { workspace: sideView });
+      setDisableUndo(sideView.session.cursor <= 0);
+      setDisableRedo(sideView.session.cursor >= sideView.session.revisions.length - 1);
+      setDisableReset(sideView.session.cursor <= 0);
+    }
+    if (workspace.diff) {
+      setDiff(workspace.diff);
+    }
+  };
 
   const runImport = async (side: Side, source: File | string) => {
     setError('');
@@ -131,6 +151,18 @@ export default function ComparePage() {
       setDiff(result.diff);
       setPassives(result.passives ?? {});
       setStage('对比结果已就绪');
+
+      // Initialize workspace state for sides
+      const workspace = result.workspace as unknown as WorkspaceView;
+      if (workspace.a) {
+        setSide('a', { workspace: workspace.a });
+        setDisableUndo(true);
+        setDisableRedo(true);
+        setDisableReset(true);
+      }
+      if (workspace.b && dual) {
+        setSide('b', { workspace: workspace.b });
+      }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : String(caught));
     }
@@ -155,13 +187,20 @@ export default function ComparePage() {
     if (!workspaceId || !drawer) return;
     setMutationMessage('PoB2 正在重算...');
     try {
-      const jobId = await applyGearCandidate(workspaceId, drawer.side, candidate.id);
-      const result = await waitForJob<{ revision: { result?: { resultKind: string; dpsDeltaPercent: number; errorMessage?: string } } }>(jobId);
-      const simulation = result.revision.result;
-      if (simulation?.resultKind === 'incompatible') {
-        setMutationMessage(`不兼容：${simulation.errorMessage ?? 'weapon_type_mismatch'}`);
+      const jobId = await applyGearCandidate(workspaceId, drawer.side, candidate.id, drawer.slot.slotName);
+      const outcome = await waitForJob<GearSwapOutcome>(jobId);
+      if (outcome.applied && outcome.workspace) {
+        updateWorkspaceState(drawer.side, outcome.workspace);
+        const simulation = outcome.result;
+        if (simulation?.resultKind === 'normal_gain' || simulation?.resultKind === 'normal_loss' || simulation?.resultKind === 'neutral') {
+          setMutationMessage(`创建 Variant：DPS ${formatDelta(simulation.dpsDeltaPercent)}`);
+        }
+      } else if (outcome.result?.resultKind === 'incompatible') {
+        setMutationMessage(`不兼容：${outcome.result.resultKind}`);
+      } else if (outcome.result?.resultKind === 'calc_failed') {
+        setMutationMessage(`计算失败：${outcome.result.resultKind}`);
       } else {
-        setMutationMessage(`已创建临时 Variant：DPS ${formatDelta(simulation?.dpsDeltaPercent)}`);
+        setMutationMessage(outcome.result ? `结果：${outcome.result.resultKind}` : '操作未生效');
       }
     } catch (caught) {
       setMutationMessage(caught instanceof Error ? caught.message : String(caught));
@@ -170,8 +209,13 @@ export default function ComparePage() {
 
   const doRevision = async (side: Side, action: 'undo' | 'redo' | 'reset') => {
     if (!workspaceId) return;
-    await revisionAction(workspaceId, side, action);
-    setMutationMessage(action === 'undo' ? '已撤销' : action === 'redo' ? '已重做' : '已重置到 baseline');
+    try {
+      const workspace = await revisionAction(workspaceId, side, action);
+      updateWorkspaceState(side, workspace);
+      setMutationMessage(action === 'undo' ? '已撤销' : action === 'redo' ? '已重做' : '已重置到 baseline');
+    } catch (caught) {
+      setMutationMessage(caught instanceof Error ? caught.message : String(caught));
+    }
   };
 
   return (
@@ -200,10 +244,14 @@ export default function ComparePage() {
           <BuildPanel
             side="a"
             result={sides.a.result}
+            workspace={sides.a.workspace}
             workspaceReady={Boolean(workspaceId)}
             onItem={openItem}
             onRevision={doRevision}
             passives={passives.a}
+            disableUndo={disableUndo}
+            disableRedo={disableRedo}
+            disableReset={disableReset}
           />
         ) : (
           <EmptyDrop side="a" onImport={runImport} />
@@ -224,10 +272,14 @@ export default function ComparePage() {
           <BuildPanel
             side="b"
             result={sides.b.result}
+            workspace={sides.b.workspace}
             workspaceReady={Boolean(workspaceId)}
             onItem={openItem}
             onRevision={doRevision}
             passives={passives.b}
+            disableUndo={disableUndo}
+            disableRedo={disableRedo}
+            disableReset={disableReset}
           />
         ) : (
           <EmptyDrop side="b" onImport={runImport} compact={Boolean(sides.a.result)} />
@@ -319,20 +371,28 @@ function EmptyDrop({
 function BuildPanel({
   side,
   result,
+  workspace,
   workspaceReady,
   onItem,
   onRevision,
   passives,
+  disableUndo,
+  disableRedo,
+  disableReset,
 }: {
   side: Side;
   result: ImportResult;
+  workspace?: WorkspaceSideView;
   workspaceReady: boolean;
   onItem: (side: Side, slot: EquipmentSlot) => void;
   onRevision: (side: Side, action: 'undo' | 'redo' | 'reset') => void;
   passives?: PassiveRankings;
+  disableUndo: boolean;
+  disableRedo: boolean;
+  disableReset: boolean;
 }) {
   const [tab, setTab] = useState<Tab>('equipment');
-  const build = result.normalizedBuild;
+  const build = (workspace?.currentNormalizedBuild ?? result.normalizedBuild)!;
   if (!build) return <section className="build-panel missing">构筑数据不可用</section>;
   const selectedSkill = result.baseline?.mainSkillSelection.selectedSkillName ?? build.skillDps[0]?.skillName;
   const dps = result.baseline?.calcsOutput.CombinedDPS ?? build.skillDps.find((skill) => skill.skillName === selectedSkill)?.dps;
@@ -360,9 +420,9 @@ function BuildPanel({
           <button className={tab === 'passives' ? 'active' : ''} onClick={() => setTab('passives')}>天赋</button>
         </div>
         <div className="revision-tools">
-          <button disabled={!workspaceReady} title="撤销" onClick={() => onRevision(side, 'undo')}><Undo2 size={13} /></button>
-          <button disabled={!workspaceReady} title="重做" onClick={() => onRevision(side, 'redo')}><Redo2 size={13} /></button>
-          <button disabled={!workspaceReady} title="重置" onClick={() => onRevision(side, 'reset')}><RotateCcw size={13} /></button>
+          <button disabled={!workspaceReady || disableUndo} title="撤销" onClick={() => onRevision(side, 'undo')}><Undo2 size={13} /></button>
+          <button disabled={!workspaceReady || disableRedo} title="重做" onClick={() => onRevision(side, 'redo')}><Redo2 size={13} /></button>
+          <button disabled={!workspaceReady || disableReset} title="重置" onClick={() => onRevision(side, 'reset')}><RotateCcw size={13} /></button>
         </div>
       </div>
       <div className="tab-content">
@@ -592,7 +652,7 @@ function ItemDrawer({
           ))}
           {candidates.length === 0 && <EmptyState text="该槽位没有来自对方构筑的候选" />}
         </div>
-        {message && <div className={`mutation-message ${message.startsWith('不兼容') ? 'bad' : ''}`}>{message}</div>}
+        {message && <div className={`mutation-message ${message.includes('不兼容') || message.includes('失败') ? 'bad' : ''}`}>{message}</div>}
       </aside>
     </div>
   );

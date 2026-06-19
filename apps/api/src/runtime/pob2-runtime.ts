@@ -64,6 +64,12 @@ export interface BaselineInput {
   preferredSkillName?: string;
 }
 
+export interface ApplyGearSwapOutput {
+  buildXml: string;
+  result: SimulationResult;
+  snapshot?: BaselineSnapshot;
+}
+
 export class Pob2Runtime {
   private pool?: Pob2WorkerPool;
   private manager?: BaselineManager;
@@ -209,7 +215,7 @@ export class Pob2Runtime {
     baseline: BaselineSnapshot;
     currentBuildXml: string;
     mutation: BuildMutation;
-  }): Promise<{ buildXml: string; result: SimulationResult }> {
+  }): Promise<ApplyGearSwapOutput> {
     await this.ensureStarted();
     const startedAt = Date.now();
     const response = await this.pool!.submit({
@@ -258,9 +264,28 @@ export class Pob2Runtime {
       calcDurationMs: Date.now() - startedAt,
       createdAt: Date.now(),
     };
+
+    const result = new ResultComparator().compare(input.baseline, variant);
+
+    // Compute a fresh snapshot from the variant XML using the same context as the imported baseline
+    let snapshot: BaselineSnapshot | undefined;
+    try {
+      snapshot = await this.computeBaseline({
+        buildXml,
+        source: input.baseline.source,
+        character: input.baseline.character,
+        league: input.baseline.league,
+        preferredSkillNumber: input.baseline.skillNumber,
+        preferredSkillName: input.baseline.mainSkillSelection.selectedSkillName,
+      });
+    } catch {
+      // Snapshot computation is best-effort; continue without it
+    }
+
     return {
       buildXml,
-      result: new ResultComparator().compare(input.baseline, variant),
+      result,
+      snapshot,
     };
   }
 

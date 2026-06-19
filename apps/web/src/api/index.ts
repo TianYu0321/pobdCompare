@@ -93,6 +93,64 @@ export interface PassiveRankings {
   failures: PassiveResult[];
 }
 
+// ============================================
+// WorkspaceView / Mutation types (frontend mirror)
+// ============================================
+
+export interface WorkspaceSideView {
+  session: {
+    baselineHash: string;
+    revisions: Array<{
+      revisionId: string;
+      parentRevisionId?: string;
+      variantHash: string;
+      createdAt: number;
+    }>;
+    cursor: number;
+  };
+  currentBuildXml: string;
+  currentBaseline: {
+    baselineHash: string;
+    id: string;
+    calcsOutput: Record<string, unknown>;
+  };
+  currentRevision: {
+    revisionId: string;
+    variantHash: string;
+  };
+  currentNormalizedBuild: NormalizedBuild;
+}
+
+export interface WorkspaceView {
+  id: string;
+  a: WorkspaceSideView;
+  b?: WorkspaceSideView;
+  diff?: BuildDiffResult;
+}
+
+export interface GearSwapOutcome {
+  applied: boolean;
+  result?: {
+    resultKind: string;
+    dpsDeltaPercent: number;
+    dpsDelta: number;
+    variantHash: string;
+    outputDiff: {
+      offence: Record<string, { baseline: number; variant: number; delta: number; deltaPercent?: number }>;
+    };
+    hitLineDelta?: {
+      physicalHitLineDelta?: { baseline: number; variant: number; delta: number; deltaPercent?: number };
+      elementalHitLineDelta?: { baseline: number; variant: number; delta: number; deltaPercent?: number };
+    };
+  };
+  revision?: {
+    revisionId: string;
+    parentRevisionId: string;
+    variantHash: string;
+  };
+  workspace: WorkspaceView;
+}
+
 async function json<T>(response: Response): Promise<T> {
   const data = await response.json();
   if (!response.ok) {
@@ -201,11 +259,12 @@ export async function applyGearCandidate(
   workspaceId: string,
   side: 'a' | 'b',
   candidateId: string,
+  targetSlotName: string,
 ): Promise<string> {
   const response = await fetch(`${API_BASE}/workspaces/${workspaceId}/gear-swaps`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ side, candidateId }),
+    body: JSON.stringify({ side, candidateId, targetSlotName }),
   });
   return (await json<{ jobId: string }>(response)).jobId;
 }
@@ -214,12 +273,13 @@ export async function revisionAction(
   workspaceId: string,
   side: 'a' | 'b',
   action: 'undo' | 'redo' | 'reset',
-): Promise<unknown> {
-  return json(
+): Promise<WorkspaceView> {
+  const result = await json<{ applied: boolean; workspace: WorkspaceView }>(
     await fetch(`${API_BASE}/workspaces/${workspaceId}/${action}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ side }),
     }),
   );
+  return result.workspace;
 }
