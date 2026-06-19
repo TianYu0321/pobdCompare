@@ -88,6 +88,34 @@ end
 build.calcsTab:BuildOutput()
 runCallback("OnFrame")
 
+local function buildCalcsOutput(co)
+    return {
+        CombinedDPS = co.CombinedDPS or 0,
+        Speed = co.Speed or 0,
+        CritChance = co.CritChance or 0,
+        CritMultiplier = co.CritMultiplier or 0,
+        HitChance = co.HitChance or 0,
+        AverageDamage = co.AverageDamage or 0,
+        MainHand_AverageHit = (co.MainHand and co.MainHand.AverageHit) or 0,
+        Life = co.Life or 0,
+        Mana = co.Mana or 0,
+        Armour = co.Armour or 0,
+        PhysicalMaximumHitTaken = co.PhysicalMaximumHitTaken or 0,
+        FireMaximumHitTaken = co.FireMaximumHitTaken or 0,
+        ColdMaximumHitTaken = co.ColdMaximumHitTaken or 0,
+        LightningMaximumHitTaken = co.LightningMaximumHitTaken or 0,
+        ChaosMaximumHitTaken = co.ChaosMaximumHitTaken or 0,
+        EnergyShield = co.EnergyShield or 0,
+        Evasion = co.Evasion or 0,
+        BlockChance = co.BlockChance or 0,
+        FireResist = co.FireResist or 0,
+        ColdResist = co.ColdResist or 0,
+        LightningResist = co.LightningResist or 0,
+        ChaosResist = co.ChaosResist or 0,
+        TotalEHP = co.TotalEHP or 0,
+    }
+end
+
 -- Capture baseline result
 local result = {
     success = true,
@@ -99,19 +127,7 @@ local result = {
 }
 
 if build.calcsTab and build.calcsTab.calcsOutput then
-    local co = build.calcsTab.calcsOutput
-    result.calcsOutput = {
-        CombinedDPS = co.CombinedDPS or 0,
-        Speed = co.Speed or 0,
-        CritChance = co.CritChance or 0,
-        CritMultiplier = co.CritMultiplier or 0,
-        HitChance = co.HitChance or 0,
-        AverageDamage = co.AverageDamage or 0,
-        MainHand_AverageHit = (co.MainHand and co.MainHand.AverageHit) or 0,
-        Life = co.Life or 0,
-        Mana = co.Mana or 0,
-        Armour = co.Armour or 0,
-    }
+    result.calcsOutput = buildCalcsOutput(build.calcsTab.calcsOutput)
 end
 
 local env = build.calcsTab and build.calcsTab.calcsEnv

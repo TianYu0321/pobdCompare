@@ -219,7 +219,56 @@ describe('ResultComparator', () => {
     });
   });
 
-  it('should build hitLineDelta from calcsOutput when available', () => {
+  it('should build hitLineDelta from real MaximumHitTaken keys in calcsOutput', () => {
+    const baseline = createBaseline(1000);
+    (baseline.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 400;
+    (baseline.calcsOutput as Record<string, unknown>).FireMaximumHitTaken = 300;
+    (baseline.calcsOutput as Record<string, unknown>).ColdMaximumHitTaken = 250;
+    (baseline.calcsOutput as Record<string, unknown>).LightningMaximumHitTaken = 200;
+    (baseline.calcsOutput as Record<string, unknown>).ChaosMaximumHitTaken = 150;
+
+    const variant = createVariant(baseline, 1200);
+    (variant.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 500;
+    (variant.calcsOutput as Record<string, unknown>).FireMaximumHitTaken = 400;
+    (variant.calcsOutput as Record<string, unknown>).ColdMaximumHitTaken = 350;
+    (variant.calcsOutput as Record<string, unknown>).LightningMaximumHitTaken = 300;
+    (variant.calcsOutput as Record<string, unknown>).ChaosMaximumHitTaken = 250;
+
+    const result = comparator.compare(baseline, variant);
+
+    expect(result.hitLineDelta?.source).toBe('pob2_output');
+    expect(result.hitLineDelta?.physicalHitLineDelta?.delta).toBe(100);
+    expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(100); // min of fire(400)/cold(350)/lightning(300) = 300, delta = 300-200 = 100
+    expect(result.hitLineDelta?.fireHitLineDelta?.delta).toBe(100);
+    expect(result.hitLineDelta?.coldHitLineDelta?.delta).toBe(100);
+    expect(result.hitLineDelta?.lightningHitLineDelta?.delta).toBe(100);
+    expect(result.hitLineDelta?.chaosHitLineDelta?.delta).toBe(100);
+  });
+
+  it('should derive elementalHitLineDelta as min of fire/cold/lightning when direct ElementalMaximumHitTaken is absent', () => {
+    const baseline = createBaseline(1000);
+    (baseline.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 400;
+    (baseline.calcsOutput as Record<string, unknown>).FireMaximumHitTaken = 300;
+    (baseline.calcsOutput as Record<string, unknown>).ColdMaximumHitTaken = 250;
+    (baseline.calcsOutput as Record<string, unknown>).LightningMaximumHitTaken = 200;
+    (baseline.calcsOutput as Record<string, unknown>).ChaosMaximumHitTaken = 150;
+
+    const variant = createVariant(baseline, 1200);
+    (variant.calcsOutput as Record<string, unknown>).PhysicalMaximumHitTaken = 500;
+    (variant.calcsOutput as Record<string, unknown>).FireMaximumHitTaken = 350;
+    (variant.calcsOutput as Record<string, unknown>).ColdMaximumHitTaken = 300;
+    (variant.calcsOutput as Record<string, unknown>).LightningMaximumHitTaken = 250;
+    (variant.calcsOutput as Record<string, unknown>).ChaosMaximumHitTaken = 200;
+
+    const result = comparator.compare(baseline, variant);
+
+    // elemental = min(350, 300, 250) = 250
+    expect(result.hitLineDelta?.elementalHitLineDelta?.baseline).toBe(200);
+    expect(result.hitLineDelta?.elementalHitLineDelta?.variant).toBe(250);
+    expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(50);
+  });
+
+  it('should fallback to old PhysicalHitDamage/ElementalHitDamage keys when MaximumHitTaken keys are absent', () => {
     const baseline = createBaseline(1000);
     (baseline.calcsOutput as Record<string, unknown>).PhysicalHitDamage = 400;
     (baseline.calcsOutput as Record<string, unknown>).ElementalHitDamage = 200;
@@ -235,18 +284,18 @@ describe('ResultComparator', () => {
     expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(50);
   });
 
-  it('should fallback to rawBreakdown when calcsOutput missing hit lines', () => {
+  it('should fallback to rawBreakdown when calcsOutput missing all hit line keys', () => {
     const baseline = createBaseline(1000);
-    baseline.rawBreakdown = { PhysicalHitDamage: 400, ElementalHitDamage: 200 };
+    baseline.rawBreakdown = { PhysicalMaximumHitTaken: 400, FireMaximumHitTaken: 300, ColdMaximumHitTaken: 250, LightningMaximumHitTaken: 200, ChaosMaximumHitTaken: 150 };
 
     const variant = createVariant(baseline, 1200);
-    variant.rawBreakdown = { PhysicalHitDamage: 500, ElementalHitDamage: 250 };
+    variant.rawBreakdown = { PhysicalMaximumHitTaken: 500, FireMaximumHitTaken: 400, ColdMaximumHitTaken: 350, LightningMaximumHitTaken: 300, ChaosMaximumHitTaken: 250 };
 
     const result = comparator.compare(baseline, variant);
 
     expect(result.hitLineDelta?.source).toBe('normalized_breakdown');
     expect(result.hitLineDelta?.physicalHitLineDelta?.delta).toBe(100);
-    expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(50);
+    expect(result.hitLineDelta?.elementalHitLineDelta?.delta).toBe(100);
   });
 
   it('should include warnings when calc output is missing', () => {

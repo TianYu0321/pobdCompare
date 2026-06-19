@@ -292,23 +292,90 @@ export class ResultComparator {
     const warnings: string[] = [];
     let source: HitLineDelta['source'] = 'pob2_output';
 
+    const attemptSource = (
+      sourceMap: Record<string, unknown>,
+      targetMap: Record<string, unknown>
+    ): {
+      physical: NumericDelta | undefined;
+      fire: NumericDelta | undefined;
+      cold: NumericDelta | undefined;
+      lightning: NumericDelta | undefined;
+      chaos: NumericDelta | undefined;
+    } => ({
+      physical: this.buildNumericDelta(sourceMap, targetMap, 'PhysicalMaximumHitTaken'),
+      fire: this.buildNumericDelta(sourceMap, targetMap, 'FireMaximumHitTaken'),
+      cold: this.buildNumericDelta(sourceMap, targetMap, 'ColdMaximumHitTaken'),
+      lightning: this.buildNumericDelta(sourceMap, targetMap, 'LightningMaximumHitTaken'),
+      chaos: this.buildNumericDelta(sourceMap, targetMap, 'ChaosMaximumHitTaken'),
+    });
+
+    const deriveElemental = (
+      fire: NumericDelta | undefined,
+      cold: NumericDelta | undefined,
+      lightning: NumericDelta | undefined
+    ): NumericDelta | undefined => {
+      const b = [fire?.baseline, cold?.baseline, lightning?.baseline].filter(
+        (v): v is number => typeof v === 'number' && Number.isFinite(v) && v > 0
+      );
+      const v = [fire?.variant, cold?.variant, lightning?.variant].filter(
+        (v): v is number => typeof v === 'number' && Number.isFinite(v) && v > 0
+      );
+      if (b.length === 0 || v.length === 0) return undefined;
+      const baselineMin = Math.min(...b);
+      const variantMin = Math.min(...v);
+      const delta = variantMin - baselineMin;
+      return {
+        baseline: baselineMin,
+        variant: variantMin,
+        delta,
+        deltaPercent: baselineMin !== 0 ? (delta / baselineMin) * 100 : 0,
+      };
+    };
+
+    const hasAnyDelta = (d: NumericDelta | undefined): boolean => d !== undefined;
+
+    let { physical: physicalHitLineDelta, fire: fireHitLineDelta, cold: coldHitLineDelta, lightning: lightningHitLineDelta, chaos: chaosHitLineDelta } = attemptSource(bCo, vCo);
+    const hasPrimary = physicalHitLineDelta !== undefined;
+    const hasElementalParts = hasAnyDelta(fireHitLineDelta) || hasAnyDelta(coldHitLineDelta) || hasAnyDelta(lightningHitLineDelta);
+    let elementalHitLineDelta = hasPrimary || hasElementalParts
+      ? deriveElemental(fireHitLineDelta, coldHitLineDelta, lightningHitLineDelta)
+      : undefined;
+
     let totalPoolDelta = this.buildNumericDelta(bCo, vCo, 'TotalPool');
-    let physicalHitLineDelta = this.buildNumericDelta(bCo, vCo, 'PhysicalHitDamage');
-    let elementalHitLineDelta = this.buildNumericDelta(bCo, vCo, 'ElementalHitDamage');
-    let fireHitLineDelta = this.buildNumericDelta(bCo, vCo, 'FireHitDamage');
-    let coldHitLineDelta = this.buildNumericDelta(bCo, vCo, 'ColdHitDamage');
-    let lightningHitLineDelta = this.buildNumericDelta(bCo, vCo, 'LightningHitDamage');
-    let chaosHitLineDelta = this.buildNumericDelta(bCo, vCo, 'ChaosHitDamage');
+
+    // Backward-compatible fallback: try old keys if new keys are not in calcsOutput
+    if (!hasPrimary && !hasElementalParts) {
+      physicalHitLineDelta = this.buildNumericDelta(bCo, vCo, 'PhysicalHitDamage');
+      elementalHitLineDelta = this.buildNumericDelta(bCo, vCo, 'ElementalHitDamage');
+      fireHitLineDelta = this.buildNumericDelta(bCo, vCo, 'FireHitDamage');
+      coldHitLineDelta = this.buildNumericDelta(bCo, vCo, 'ColdHitDamage');
+      lightningHitLineDelta = this.buildNumericDelta(bCo, vCo, 'LightningHitDamage');
+      chaosHitLineDelta = this.buildNumericDelta(bCo, vCo, 'ChaosHitDamage');
+    }
 
     // Fallback 1: rawBreakdown
     if (!physicalHitLineDelta && !elementalHitLineDelta) {
-      physicalHitLineDelta = this.buildNumericDelta(bBr, vBr, 'PhysicalHitDamage');
-      elementalHitLineDelta = this.buildNumericDelta(bBr, vBr, 'ElementalHitDamage');
-      fireHitLineDelta = this.buildNumericDelta(bBr, vBr, 'FireHitDamage');
-      coldHitLineDelta = this.buildNumericDelta(bBr, vBr, 'ColdHitDamage');
-      lightningHitLineDelta = this.buildNumericDelta(bBr, vBr, 'LightningHitDamage');
-      chaosHitLineDelta = this.buildNumericDelta(bBr, vBr, 'ChaosHitDamage');
+      const fromBr = attemptSource(bBr, vBr);
+      physicalHitLineDelta = fromBr.physical;
+      fireHitLineDelta = fromBr.fire;
+      coldHitLineDelta = fromBr.cold;
+      lightningHitLineDelta = fromBr.lightning;
+      chaosHitLineDelta = fromBr.chaos;
+      if (hasAnyDelta(fromBr.fire) || hasAnyDelta(fromBr.cold) || hasAnyDelta(fromBr.lightning)) {
+        elementalHitLineDelta = deriveElemental(fromBr.fire, fromBr.cold, fromBr.lightning);
+      }
       totalPoolDelta = this.buildNumericDelta(bBr, vBr, 'TotalPool');
+
+      // Backward-compatible fallback in breakdown
+      if (!fromBr.physical) {
+        physicalHitLineDelta = this.buildNumericDelta(bBr, vBr, 'PhysicalHitDamage');
+        elementalHitLineDelta = this.buildNumericDelta(bBr, vBr, 'ElementalHitDamage');
+        fireHitLineDelta = this.buildNumericDelta(bBr, vBr, 'FireHitDamage');
+        coldHitLineDelta = this.buildNumericDelta(bBr, vBr, 'ColdHitDamage');
+        lightningHitLineDelta = this.buildNumericDelta(bBr, vBr, 'LightningHitDamage');
+        chaosHitLineDelta = this.buildNumericDelta(bBr, vBr, 'ChaosHitDamage');
+      }
+
       source = 'normalized_breakdown';
 
       // Fallback 2: panel (mainOutput)
@@ -318,12 +385,19 @@ export class ResultComparator {
         );
         const bMo = (baseline.mainOutput as Record<string, unknown>) || {};
         const vMo = (variant.mainOutput as Record<string, unknown>) || {};
-        physicalHitLineDelta = this.buildNumericDelta(bMo, vMo, 'PhysicalHitDamage');
-        elementalHitLineDelta = this.buildNumericDelta(bMo, vMo, 'ElementalHitDamage');
-        fireHitLineDelta = this.buildNumericDelta(bMo, vMo, 'FireHitDamage');
-        coldHitLineDelta = this.buildNumericDelta(bMo, vMo, 'ColdHitDamage');
-        lightningHitLineDelta = this.buildNumericDelta(bMo, vMo, 'LightningHitDamage');
-        chaosHitLineDelta = this.buildNumericDelta(bMo, vMo, 'ChaosHitDamage');
+        const fromMo = attemptSource(bMo, vMo);
+        physicalHitLineDelta = fromMo.physical;
+        fireHitLineDelta = fromMo.fire;
+        coldHitLineDelta = fromMo.cold;
+        lightningHitLineDelta = fromMo.lightning;
+        chaosHitLineDelta = fromMo.chaos;
+        if (hasAnyDelta(fromMo.fire) || hasAnyDelta(fromMo.cold) || hasAnyDelta(fromMo.lightning)) {
+          elementalHitLineDelta = deriveElemental(fromMo.fire, fromMo.cold, fromMo.lightning);
+        }
+        if (!fromMo.physical) {
+          physicalHitLineDelta = this.buildNumericDelta(bMo, vMo, 'PhysicalHitDamage');
+          elementalHitLineDelta = this.buildNumericDelta(bMo, vMo, 'ElementalHitDamage');
+        }
         source = 'panel_fallback';
       }
     }

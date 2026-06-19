@@ -16,6 +16,7 @@ import {
   type WorkspaceResult,
 } from '@/api';
 import type { BuildDiffResult, EquipmentSlot, NormalizedBuild } from '@/types';
+import { extractHitLines, computeHitLinesDelta } from '@/lib/hit-lines';
 
 type Side = 'a' | 'b';
 type Tab = 'equipment' | 'skills' | 'passives';
@@ -214,8 +215,8 @@ export default function ComparePage() {
             stage={stage}
             view={view}
             onView={setView}
-            buildA={sides.a.result?.normalizedBuild}
-            buildB={sides.b.result?.normalizedBuild}
+            resultA={sides.a.result}
+            resultB={sides.b.result}
           />
         )}
 
@@ -348,8 +349,8 @@ function BuildPanel({
       <div className="summary-grid">
         <Summary label="主技能" value={selectedSkill ?? '待选择'} wide />
         <Summary label="DPS" value={formatNumber(dps)} accent />
-        <Summary label="物理一击线" value={metric(result, 'PhysicalHitDamage')} />
-        <Summary label="元素一击线" value={metric(result, 'ElementalHitDamage')} />
+        <Summary label="物理一击线" value={hitLineSummary(result).physical} />
+        <Summary label="元素一击线" value={hitLineSummary(result).elemental} />
         <Summary label="转换状态" value={result.status === 'calculable' ? 'PoB2 原生' : '映射未完成'} />
       </div>
       <div className="panel-tools">
@@ -472,18 +473,45 @@ function DiffRail({
   stage,
   view,
   onView,
-  buildA,
-  buildB,
+  resultA,
+  resultB,
 }: {
   diff?: BuildDiffResult;
   stage: string;
   view: 'offence' | 'defence';
   onView: (view: 'offence' | 'defence') => void;
-  buildA?: NormalizedBuild;
-  buildB?: NormalizedBuild;
+  resultA?: ImportResult;
+  resultB?: ImportResult;
 }) {
-  const dpsA = diff?.dpsDiff?.myDps ?? buildA?.skillDps[0]?.dps;
-  const dpsB = diff?.dpsDiff?.targetDps ?? buildB?.skillDps[0]?.dps;
+  const coDps = (r: ImportResult | undefined): number | undefined => {
+    const co = r?.baseline?.calcsOutput;
+    if (!co) return undefined;
+    const d = co.CombinedDPS;
+    return typeof d === 'number' ? d : undefined;
+  };
+  const dpsA = diff?.dpsDiff?.myDps ?? coDps(resultA) ?? resultA?.normalizedBuild?.skillDps[0]?.dps;
+  const dpsB = diff?.dpsDiff?.targetDps ?? coDps(resultB) ?? resultB?.normalizedBuild?.skillDps[0]?.dps;
+  const hitDelta = resultA && resultB ? computeHitLinesDelta(resultA, resultB) : undefined;
+  const avgVal = (r: ImportResult | undefined): number | undefined => {
+    const co = r?.baseline?.calcsOutput;
+    if (!co) return undefined;
+    const ad = co.AverageDamage;
+    if (typeof ad === 'number') return ad;
+    const mh = co.MainHand_AverageHit;
+    if (typeof mh === 'number') return mh;
+    return undefined;
+  };
+  const critVal = (r: ImportResult | undefined): number | undefined => {
+    const co = r?.baseline?.calcsOutput;
+    if (!co) return undefined;
+    const c = co.CritChance;
+    return typeof c === 'number' ? c : undefined;
+  };
+  const avgA = avgVal(resultA);
+  const avgB = avgVal(resultB);
+  const critA = critVal(resultA);
+  const critB = critVal(resultB);
+
   return (
     <aside className="diff-rail">
       <div className="rail-title">DIFF RAIL</div>
@@ -496,9 +524,19 @@ function DiffRail({
       ) : (
         <>
           <div className="rail-skill">当前对比技能<strong>{diff.mainSkill}</strong></div>
-          <CompareMetric label="DPS" a={dpsA} b={dpsB} delta={diff.dpsDiff?.diffPercent} />
-          <CompareMetric label="物理一击线" a={undefined} b={undefined} />
-          <CompareMetric label="元素一击线" a={undefined} b={undefined} />
+          {view === 'offence' ? (
+            <>
+              <CompareMetric label="DPS" a={dpsA} b={dpsB} delta={diff.dpsDiff?.diffPercent} />
+              <CompareMetric label="平均击中" a={typeof avgA === 'number' ? avgA : undefined} b={typeof avgB === 'number' ? avgB : undefined} delta={typeof avgA === 'number' && typeof avgB === 'number' ? avgA !== 0 ? ((avgB - avgA) / avgA) * 100 : 0 : undefined} />
+              <CompareMetric label="暴击率" a={typeof critA === 'number' ? critA : undefined} b={typeof critB === 'number' ? critB : undefined} delta={typeof critA === 'number' && typeof critB === 'number' ? critA !== 0 ? ((critB - critA) / critA) * 100 : 0 : undefined} />
+            </>
+          ) : (
+            <>
+              <CompareMetric label="物理一击线" a={hitDelta?.physical.a} b={hitDelta?.physical.b} delta={hitDelta?.physical.deltaPercent} />
+              <CompareMetric label="元素一击线" a={hitDelta?.elemental.a} b={hitDelta?.elemental.b} delta={hitDelta?.elemental.deltaPercent} />
+              <CompareMetric label="生命" a={hitDelta?.life.a} b={hitDelta?.life.b} delta={hitDelta?.life.deltaPercent} />
+            </>
+          )}
           <div className="top-diffs"><h3>关键差异 TOP 3</h3>
             {diff.ruleWarnings.slice(0, 3).map((warning) => <p key={warning.ruleId}>{warning.title}</p>)}
             {diff.ruleWarnings.length === 0 && diff.equipmentDiff.slotDiffs.filter((slot) => slot.myItem !== slot.targetItem).slice(0, 3).map((slot) => <p key={slot.slotName}>{slot.slotName}<small>{slot.myItem ?? '空'} → {slot.targetItem ?? '空'}</small></p>)}
@@ -572,9 +610,9 @@ function EmptyState({ text }: { text: string }) {
   return <div className="empty-state">{text}</div>;
 }
 
-function metric(result: ImportResult, key: string): string {
-  const value = result.baseline?.calcsOutput[key] ?? result.baseline?.rawBreakdown[key];
-  return formatNumber(value);
+function hitLineSummary(result: ImportResult): { physical: string; elemental: string } {
+  const h = extractHitLines(result);
+  return { physical: formatNumber(h.physical), elemental: formatNumber(h.elemental) };
 }
 
 function formatNumber(value: unknown): string {

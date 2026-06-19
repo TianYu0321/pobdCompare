@@ -50,5 +50,46 @@ describeIntegration('convert_wegame native bridge', () => {
       roundTripValid: true,
       baselineValid: true,
     });
+
+    // Assert real MaximumHitTaken keys are present in calcsOutput
+    expect(response.calcsOutput).toBeDefined();
+    const co = response.calcsOutput!;
+    expect(co.PhysicalMaximumHitTaken).toBeDefined();
+    expect(typeof co.PhysicalMaximumHitTaken).toBe('number');
+    expect(Number.isFinite(co.PhysicalMaximumHitTaken)).toBe(true);
+
+    expect(co.FireMaximumHitTaken).toBeDefined();
+    expect(typeof co.FireMaximumHitTaken).toBe('number');
+    expect(Number.isFinite(co.FireMaximumHitTaken)).toBe(true);
+
+    expect(co.ColdMaximumHitTaken).toBeDefined();
+    expect(typeof co.ColdMaximumHitTaken).toBe('number');
+    expect(Number.isFinite(co.ColdMaximumHitTaken)).toBe(true);
+
+    expect(co.LightningMaximumHitTaken).toBeDefined();
+    expect(typeof co.LightningMaximumHitTaken).toBe('number');
+    expect(Number.isFinite(co.LightningMaximumHitTaken)).toBe(true);
+
+    expect(co.ChaosMaximumHitTaken).toBeDefined();
+    expect(typeof co.ChaosMaximumHitTaken).toBe('number');
+    expect(Number.isFinite(co.ChaosMaximumHitTaken)).toBe(true);
+
+    // Validate derived ElementalMaximumHitTaken as min of finite positive fire/cold/lightning
+    const elements = [co.FireMaximumHitTaken, co.ColdMaximumHitTaken, co.LightningMaximumHitTaken]
+      .filter((v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && v > 0);
+    const coElemental = co.ElementalMaximumHitTaken;
+    if (elements.length === 3) {
+      const expectedElemental = Math.min(...elements);
+      if (coElemental !== undefined) {
+        expect(coElemental).toBe(expectedElemental);
+      }
+    }
+
+    // Verify defence keys are present
+    const defenceKeys = ['EnergyShield', 'Evasion', 'BlockChance', 'FireResist', 'ColdResist', 'LightningResist', 'ChaosResist', 'TotalEHP'];
+    for (const key of defenceKeys) {
+      expect(co[key]).toBeDefined();
+      expect(typeof co[key]).toBe('number');
+    }
   });
 });
