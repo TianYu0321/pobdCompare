@@ -17,6 +17,7 @@ import {
   type WorkspaceResult,
   type WorkspaceView,
   type WorkspaceSideView,
+  type RevisionResult,
 } from '@/api';
 import type { BuildDiffResult, EquipmentSlot, NormalizedBuild } from '@/types';
 import { extractHitLines, computeHitLinesDelta, safePercentDelta } from '@/lib/hit-lines';
@@ -45,6 +46,15 @@ interface SideState {
 
 const emptySide = (): SideState => ({ loading: false });
 
+const cursorFlags = (workspace: WorkspaceSideView | undefined) => {
+  if (!workspace) return { disableUndo: true, disableRedo: true, disableReset: true };
+  return {
+    disableUndo: workspace.session.cursor <= 0,
+    disableRedo: workspace.session.cursor >= workspace.session.revisions.length - 1,
+    disableReset: workspace.session.cursor <= 0,
+  };
+};
+
 export default function ComparePage() {
   const [sides, setSides] = useState<Record<Side, SideState>>({
     a: emptySide(),
@@ -59,9 +69,6 @@ export default function ComparePage() {
   const [candidates, setCandidates] = useState<GearCandidate[]>([]);
   const [drawer, setDrawer] = useState<{ side: Side; slot: EquipmentSlot }>();
   const [mutationMessage, setMutationMessage] = useState('');
-  const [disableUndo, setDisableUndo] = useState(true);
-  const [disableRedo, setDisableRedo] = useState(true);
-  const [disableReset, setDisableReset] = useState(true);
   const dual = Boolean(sides.a.result && sides.b.result);
 
   useEffect(() => {
@@ -89,9 +96,6 @@ export default function ComparePage() {
     const sideView = side === 'a' ? workspace.a : workspace.b;
     if (sideView) {
       setSide(side, { workspace: sideView });
-      setDisableUndo(sideView.session.cursor <= 0);
-      setDisableRedo(sideView.session.cursor >= sideView.session.revisions.length - 1);
-      setDisableReset(sideView.session.cursor <= 0);
     }
     if (workspace.diff) {
       setDiff(workspace.diff);
@@ -152,13 +156,9 @@ export default function ComparePage() {
       setPassives(result.passives ?? {});
       setStage('对比结果已就绪');
 
-      // Initialize workspace state for sides
       const workspace = result.workspace as unknown as WorkspaceView;
       if (workspace.a) {
         setSide('a', { workspace: workspace.a });
-        setDisableUndo(true);
-        setDisableRedo(true);
-        setDisableReset(true);
       }
       if (workspace.b && dual) {
         setSide('b', { workspace: workspace.b });
@@ -249,9 +249,6 @@ export default function ComparePage() {
             onItem={openItem}
             onRevision={doRevision}
             passives={passives.a}
-            disableUndo={disableUndo}
-            disableRedo={disableRedo}
-            disableReset={disableReset}
           />
         ) : (
           <EmptyDrop side="a" onImport={runImport} />
@@ -277,9 +274,6 @@ export default function ComparePage() {
             onItem={openItem}
             onRevision={doRevision}
             passives={passives.b}
-            disableUndo={disableUndo}
-            disableRedo={disableRedo}
-            disableReset={disableReset}
           />
         ) : (
           <EmptyDrop side="b" onImport={runImport} compact={Boolean(sides.a.result)} />
@@ -376,9 +370,6 @@ function BuildPanel({
   onItem,
   onRevision,
   passives,
-  disableUndo,
-  disableRedo,
-  disableReset,
 }: {
   side: Side;
   result: ImportResult;
@@ -387,15 +378,13 @@ function BuildPanel({
   onItem: (side: Side, slot: EquipmentSlot) => void;
   onRevision: (side: Side, action: 'undo' | 'redo' | 'reset') => void;
   passives?: PassiveRankings;
-  disableUndo: boolean;
-  disableRedo: boolean;
-  disableReset: boolean;
 }) {
   const [tab, setTab] = useState<Tab>('equipment');
   const build = (workspace?.currentNormalizedBuild ?? result.normalizedBuild)!;
   if (!build) return <section className="build-panel missing">构筑数据不可用</section>;
   const selectedSkill = result.baseline?.mainSkillSelection.selectedSkillName ?? build.skillDps[0]?.skillName;
   const dps = result.baseline?.calcsOutput.CombinedDPS ?? build.skillDps.find((skill) => skill.skillName === selectedSkill)?.dps;
+  const flags = cursorFlags(workspace);
   return (
     <section className="build-panel">
       <div className="panel-kicker">BUILD {side.toUpperCase()} · {sourceLabel(result.source)}</div>
@@ -420,13 +409,13 @@ function BuildPanel({
           <button className={tab === 'passives' ? 'active' : ''} onClick={() => setTab('passives')}>天赋</button>
         </div>
         <div className="revision-tools">
-          <button disabled={!workspaceReady || disableUndo} title="撤销" onClick={() => onRevision(side, 'undo')}><Undo2 size={13} /></button>
-          <button disabled={!workspaceReady || disableRedo} title="重做" onClick={() => onRevision(side, 'redo')}><Redo2 size={13} /></button>
-          <button disabled={!workspaceReady || disableReset} title="重置" onClick={() => onRevision(side, 'reset')}><RotateCcw size={13} /></button>
+          <button disabled={!workspaceReady || flags.disableUndo} title="撤销" onClick={() => onRevision(side, 'undo')}><Undo2 size={13} /></button>
+          <button disabled={!workspaceReady || flags.disableRedo} title="重做" onClick={() => onRevision(side, 'redo')}><Redo2 size={13} /></button>
+          <button disabled={!workspaceReady || flags.disableReset} title="重置" onClick={() => onRevision(side, 'reset')}><RotateCcw size={13} /></button>
         </div>
       </div>
       <div className="tab-content">
-        {tab === 'equipment' && <EquipmentGrid build={build} side={side} onItem={onItem} />}
+        {tab === 'equipment' && <EquipmentGrid build={build} side={side} onItem={onItem} currentRevision={workspace?.currentRevision} />}
         {tab === 'skills' && <Skills build={build} selected={selectedSkill} />}
         {tab === 'passives' && <PassiveRanks calculable={result.status === 'calculable'} rankings={passives} />}
       </div>
@@ -454,7 +443,31 @@ const SLOT_LAYOUT = [
   ['Charm 1', 'Charm 2', 'Charm 3'],
 ];
 
-function EquipmentGrid({ build, side, onItem }: { build: NormalizedBuild; side: Side; onItem: (side: Side, slot: EquipmentSlot) => void }) {
+function slotDeltaText(currentRevision?: { result?: RevisionResult }, _slotName?: string): string {
+  const r = currentRevision?.result;
+  if (!r) return 'DPS Δ 待模拟';
+  if (r.resultKind === 'incompatible' || r.resultKind === 'calc_failed' || r.resultKind === 'invalid_variant') return 'DPS Δ 待模拟';
+  const parts: string[] = [`DPS ${formatDelta(r.dpsDeltaPercent)}`];
+  if (r.hitLineDelta?.physicalHitLineDelta?.deltaPercent !== undefined) {
+    parts.push(`物 ${formatDelta(r.hitLineDelta.physicalHitLineDelta.deltaPercent)}`);
+  }
+  if (r.hitLineDelta?.elementalHitLineDelta?.deltaPercent !== undefined) {
+    parts.push(`元 ${formatDelta(r.hitLineDelta.elementalHitLineDelta.deltaPercent)}`);
+  }
+  return parts.join(' · ');
+}
+
+function EquipmentGrid({
+  build,
+  side,
+  onItem,
+  currentRevision,
+}: {
+  build: NormalizedBuild;
+  side: Side;
+  onItem: (side: Side, slot: EquipmentSlot) => void;
+  currentRevision?: { result?: RevisionResult };
+}) {
   return (
     <div className="equipment-grid">
       {SLOT_LAYOUT.map((row, rowIndex) => (
@@ -467,7 +480,7 @@ function EquipmentGrid({ build, side, onItem }: { build: NormalizedBuild; side: 
                 <span className="item-icon">{slot?.item?.icon ? <img src={slot.item.icon} alt="" /> : '◇'}</span>
                 <b>{slot?.item?.name || '空'}</b>
                 <small>{slot?.item?.baseType || '未装备'}</small>
-                <span className="slot-delta">DPS Δ 待模拟</span>
+                <span className="slot-delta">{slotDeltaText(currentRevision, slotName)}</span>
               </button>
             );
           })}

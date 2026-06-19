@@ -29,8 +29,10 @@ function makeBaseline(hash: string, items: { slotName: string; itemId: number; n
       warnings: [],
     },
     skillNumber: 1,
+    skillPart: undefined,
     weaponSet: 1,
     config: {},
+    customMods: undefined,
     calcsOutput: { CombinedDPS: 100 },
     rawBreakdown: {},
     skillDpsList: [],
@@ -49,15 +51,25 @@ function makeBaseline(hash: string, items: { slotName: string; itemId: number; n
   };
 }
 
-function imported(id: string, hash: string, itemName: string, slotName = 'Weapon 1'): StoredImport {
-  const baseline = makeBaseline(hash, [{ slotName, itemId: 1, name: itemName }]);
+function makeImported(
+  id: string,
+  hash: string,
+  itemName: string,
+  slotName = 'Weapon 1',
+  extraItems?: { slotName: string; itemId: number; name: string }[],
+): StoredImport {
+  const items = extraItems ?? [{ slotName, itemId: 1, name: itemName }];
+  const baseline = makeBaseline(hash, items);
   const normalizedBuild: NormalizedBuild = {
     source: 'build_file',
     meta: { confidence: 1 },
     character: {},
     skills: [],
     skillDps: [],
-    equipments: [{ slotName, item: { name: itemName, baseType: 'Mace' } }],
+    equipments: items.map((item) => ({
+      slotName: item.slotName,
+      item: { name: item.name, baseType: 'Mace' },
+    })),
     weaponSets: [{ id: 1, offhandEmpty: true }],
     passives: [],
     jewels: [],
@@ -146,6 +158,8 @@ const calcFailedResult: SimulationResult = {
   createdAt: Date.now(),
 };
 
+const alwaysSnapshot = () => makeBaseline('snap-fresh', []);
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -159,7 +173,7 @@ describe('WorkspaceStore', () => {
         snapshot: makeBaseline('snap-1', []),
       }),
     });
-    const workspace = store.create(imported('a', 'hash-a', 'Axe'), imported('b', 'hash-b', 'Maul'));
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
     const candidate = store
       .gearCandidates(workspace.id, 'a')
       .find((item) => item.sourceSide === 'b')!;
@@ -185,8 +199,8 @@ describe('WorkspaceStore', () => {
       },
     });
     const workspace = store.create(
-      imported('a', 'hash-a', 'Axe', 'Weapon 1'),
-      imported('b', 'hash-b', 'HelmetItem', 'Helm'),
+      makeImported('a', 'hash-a', 'Axe', 'Weapon 1'),
+      makeImported('b', 'hash-b', 'HelmetItem', 'Helm'),
     );
     const helmCandidate = store
       .gearCandidates(workspace.id, 'a')
@@ -201,10 +215,10 @@ describe('WorkspaceStore', () => {
       applyGearSwap: async () => ({
         buildXml: '',
         result: okResult(),
-        snapshot: makeBaseline('snap', []),
+        snapshot: alwaysSnapshot(),
       }),
     });
-    const workspace = store.create(imported('a', 'hash-a', 'Axe'));
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'));
 
     await expect(
       store.applyGearSwap(workspace.id, 'a', 'b:Weapon 1:999', 'Weapon 1'),
@@ -216,10 +230,10 @@ describe('WorkspaceStore', () => {
       applyGearSwap: async () => ({
         buildXml: '',
         result: okResult(),
-        snapshot: makeBaseline('snap', []),
+        snapshot: alwaysSnapshot(),
       }),
     });
-    const workspace = store.create(imported('a', 'hash-a', 'Axe'), imported('b', 'hash-b', 'Maul'));
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
 
     await expect(
       store.applyGearSwap(workspace.id, 'a', 'b:Weapon 1:1', ''),
@@ -231,12 +245,12 @@ describe('WorkspaceStore', () => {
       applyGearSwap: async () => ({
         buildXml: '',
         result: okResult(),
-        snapshot: makeBaseline('snap', []),
+        snapshot: alwaysSnapshot(),
       }),
     });
     const workspace = store.create(
-      imported('a', 'hash-a', 'Axe', 'Weapon 1'),
-      imported('b', 'hash-b', 'BootsItem', 'Boots'),
+      makeImported('a', 'hash-a', 'Axe', 'Weapon 1'),
+      makeImported('b', 'hash-b', 'BootsItem', 'Boots'),
     );
     const bootsCandidate = store
       .gearCandidates(workspace.id, 'a')
@@ -255,7 +269,7 @@ describe('WorkspaceStore', () => {
         snapshot: makeBaseline('snap-gain', []),
       }),
     });
-    const workspace = store.create(imported('a', 'hash-a', 'Axe'), imported('b', 'hash-b', 'Maul'));
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
     const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
 
     const outcome = await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
@@ -272,7 +286,7 @@ describe('WorkspaceStore', () => {
         snapshot: makeBaseline('snap-loss', []),
       }),
     });
-    const workspace = store.create(imported('a', 'hash-a', 'Axe'), imported('b', 'hash-b', 'Maul'));
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
     const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
 
     const outcome = await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
@@ -285,10 +299,10 @@ describe('WorkspaceStore', () => {
       applyGearSwap: async () => ({
         buildXml: '',
         result: incompatibleResult,
-        snapshot: undefined,
+        snapshot: alwaysSnapshot(),
       }),
     });
-    const workspace = store.create(imported('a', 'hash-a', 'Axe'), imported('b', 'hash-b', 'Maul'));
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
     const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
 
     const outcome = await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
@@ -302,14 +316,44 @@ describe('WorkspaceStore', () => {
       applyGearSwap: async () => ({
         buildXml: '',
         result: calcFailedResult,
-        snapshot: undefined,
+        snapshot: alwaysSnapshot(),
       }),
     });
-    const workspace = store.create(imported('a', 'hash-a', 'Axe'), imported('b', 'hash-b', 'Maul'));
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
     const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
 
     const outcome = await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
     expect(outcome.applied).toBe(false);
+    expect(store.get(workspace.id)?.a.session.cursor).toBe(0);
+  });
+
+  it('snapshot is mandatory: executor must return snapshot on success', async () => {
+    const store = new WorkspaceStore({
+      applyGearSwap: async () => ({
+        buildXml: '<PathOfBuilding variant="1"/>',
+        result: okResult(),
+        snapshot: makeBaseline('snap-mandatory', []),
+      }),
+    });
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
+    const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
+    const outcome = await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
+    expect(outcome.applied).toBe(true);
+    const savedSnapshot = store.get(workspace.id)?.a.currentBaseline;
+    expect(savedSnapshot?.id).toBe('snap-mandatory');
+  });
+
+  it('snapshot recomputation failure does NOT produce normal result — must throw', async () => {
+    const store = new WorkspaceStore({
+      applyGearSwap: async () => {
+        throw new Error('snapshot failed');
+      },
+    });
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
+    const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
+    await expect(
+      store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName),
+    ).rejects.toThrow('snapshot failed');
     expect(store.get(workspace.id)?.a.session.cursor).toBe(0);
   });
 
@@ -325,17 +369,14 @@ describe('WorkspaceStore', () => {
         };
       },
     });
-    const workspace = store.create(imported('a', 'hash-a', 'Axe'), imported('b', 'hash-b', 'Maul'));
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
     const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
 
-    // First swap
     const o1 = await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
     expect(o1.applied).toBe(true);
-    expect(o1.revision!.revisionId).not.toBe('rev-0');
     expect(o1.revision!.parentRevisionId).toBe('rev-0');
     expect(callCount).toBe(1);
 
-    // Second swap uses the first revision's XML
     const o2 = await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
     expect(o2.applied).toBe(true);
     expect(o2.revision!.parentRevisionId).toBe(o1.revision!.revisionId);
@@ -350,24 +391,21 @@ describe('WorkspaceStore', () => {
         snapshot: makeBaseline('snap-1', []),
       }),
     });
-    const workspace = store.create(imported('a', 'hash-a', 'Axe'), imported('b', 'hash-b', 'Maul'));
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
     const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
 
     await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
 
-    // Undo back to rev-0
     store.undo(workspace.id, 'a');
     const viewAfterUndo = store.get(workspace.id)!;
     expect(viewAfterUndo.a.currentBuildXml).toBe('<PathOfBuilding/>');
     expect(viewAfterUndo.a.currentBaseline).toBeDefined();
 
-    // Redo back to rev-1
     store.redo(workspace.id, 'a');
     const viewAfterRedo = store.get(workspace.id)!;
     expect(viewAfterRedo.a.currentBuildXml).toBe('<PathOfBuilding variant="1"/>');
     expect(viewAfterRedo.a.currentBaseline!.id).toBe('snap-1');
 
-    // Reset to rev-0
     store.reset(workspace.id, 'a');
     const viewAfterReset = store.get(workspace.id)!;
     expect(viewAfterReset.a.currentBuildXml).toBe('<PathOfBuilding/>');
@@ -381,13 +419,12 @@ describe('WorkspaceStore', () => {
         snapshot: makeBaseline('snap-1', []),
       }),
     });
-    const workspace = store.create(imported('a', 'hash-a', 'Axe'), imported('b', 'hash-b', 'Maul'));
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
     const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
 
     await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
 
     const undoPayload = store.undoWithPayload(workspace.id, 'a');
-    expect(undoPayload.workspace).toBeDefined();
     expect(undoPayload.workspace.a.currentBaseline).toBeDefined();
     expect(undoPayload.workspace.a.session.cursor).toBe(0);
 
@@ -406,10 +443,9 @@ describe('WorkspaceStore', () => {
         snapshot: makeBaseline('snap-1', []),
       }),
     });
-    const workspace = store.create(imported('a', 'hash-a', 'Axe'), imported('b', 'hash-b', 'Maul'));
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
     let view = store.get(workspace.id)!;
-    expect(view.a.currentBaseline).toBeDefined();
-    expect(view.a.currentBaseline!.baselineHash).toBe('hash-a');
+    expect(view.a.currentBaseline.baselineHash).toBe('hash-a');
     expect(view.a.currentRevision.revisionId).toBe('rev-0');
 
     const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
@@ -417,10 +453,44 @@ describe('WorkspaceStore', () => {
 
     view = store.get(workspace.id)!;
     expect(view.a.currentRevision.revisionId).not.toBe('rev-0');
-    expect(view.a.currentBaseline!.id).toBe('snap-1');
+    expect(view.a.currentBaseline.id).toBe('snap-1');
   });
 
-  it('gearSwaps API requires targetSlotName, returns workspace and diff', async () => {
+  it('display build uses candidate sourceSide normalized build', async () => {
+    const store = new WorkspaceStore({
+      applyGearSwap: async () => ({
+        buildXml: '<PathOfBuilding variant="1"/>',
+        result: okResult(),
+        snapshot: makeBaseline('snap-display', []),
+      }),
+    });
+    const importA = makeImported('a', 'hash-a', 'Axe', 'Weapon 1');
+    const importB = makeImported(
+      'b',
+      'hash-b',
+      'RichBoots',
+      'Boots',
+      [{ slotName: 'Boots', itemId: 99, name: 'RichBoots' }],
+    );
+    importB.normalizedBuild!.equipments = [
+      {
+        slotName: 'Boots',
+        item: { name: 'RichBoots', baseType: 'Leather Boots', icon: 'https://icon.url/boots.png', rarity: 'rare' },
+      },
+    ];
+    const workspace = store.create(importA, importB);
+    const bootsCandidate = store
+      .gearCandidates(workspace.id, 'a')
+      .find((item) => item.sourceSide === 'b' && item.slotName === 'Boots')!;
+
+    await store.applyGearSwap(workspace.id, 'a', bootsCandidate.id, 'Boots');
+    const display = store.get(workspace.id)!.a.currentNormalizedBuild;
+    const slot = display.equipments.find((s) => s.slotName === 'Boots');
+    expect(slot?.item?.name).toBe('RichBoots');
+    expect(slot?.item?.icon).toBe('https://icon.url/boots.png');
+  });
+
+  it('gearSwaps outcome returns workspace and current diff', async () => {
     const store = new WorkspaceStore({
       applyGearSwap: async () => ({
         buildXml: '<PathOfBuilding variant="1"/>',
@@ -428,11 +498,11 @@ describe('WorkspaceStore', () => {
         snapshot: makeBaseline('snap-1', []),
       }),
     });
-    const workspace = store.create(imported('a', 'hash-a', 'Axe'), imported('b', 'hash-b', 'Maul'));
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
     const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
 
     const outcome = await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
-    expect(outcome.workspace).toBeDefined();
-    expect(outcome.workspace!.a.currentNormalizedBuild).toBeDefined();
+    expect(outcome.workspace.a.currentNormalizedBuild).toBeDefined();
+    expect(outcome.workspace.diff).toBeDefined();
   });
 });

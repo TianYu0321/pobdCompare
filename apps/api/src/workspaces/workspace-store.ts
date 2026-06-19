@@ -80,7 +80,7 @@ export interface GearSwapExecutorInput {
 export interface GearSwapExecutorOutput {
   buildXml: string;
   result: SimulationResult;
-  snapshot?: BaselineSnapshot;
+  snapshot: BaselineSnapshot;
 }
 
 export interface GearSwapExecutor {
@@ -176,7 +176,6 @@ export class WorkspaceStore {
       };
     }
 
-    const snapshot = applied.snapshot ?? baseline;
     const revision: VariantRevision = {
       revisionId: `rev-${randomUUID()}`,
       parentRevisionId: current.revisionId,
@@ -187,14 +186,15 @@ export class WorkspaceStore {
     };
     target.session.append(revision);
     target.xmlByRevision.set(revision.revisionId, applied.buildXml);
-    target.snapshotByRevision.set(revision.revisionId, snapshot);
+    target.snapshotByRevision.set(revision.revisionId, applied.snapshot);
 
+    const sourceSide = this.requireSide(workspace, candidate.sourceSide);
     const parentDisplay = target.displayBuildByRevision.get(current.revisionId) ?? target.imported.normalizedBuild!;
     const displayBuild: NormalizedBuild = this.cloneBuildAndReplaceSlot(
       parentDisplay,
       targetSlotName,
       candidate.slotName,
-      target.imported.normalizedBuild!,
+      sourceSide.imported.normalizedBuild!,
     );
     target.displayBuildByRevision.set(revision.revisionId, displayBuild);
 
@@ -304,15 +304,20 @@ export class WorkspaceStore {
     );
     if (!sourceSlot) return { ...parent, equipments: [...parent.equipments] };
 
+    const canonicalSourceName = toCanonicalSlot(sourceSlotName);
+    let replaced = false;
     const newEquipments = parent.equipments.map((slot) => {
       if (toCanonicalSlot(slot.slotName) === canonicalTarget) {
-        return {
-          ...sourceSlot,
-          slotName: slot.slotName,
-        };
+        replaced = true;
+        return { ...sourceSlot, slotName: slot.slotName };
       }
       return slot;
     });
+
+    // If the parent didn't have this slot, append it
+    if (!replaced) {
+      newEquipments.push({ ...sourceSlot, slotName: canonicalSourceName });
+    }
 
     return { ...parent, equipments: newEquipments };
   }

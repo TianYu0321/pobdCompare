@@ -97,6 +97,20 @@ export interface PassiveRankings {
 // WorkspaceView / Mutation types (frontend mirror)
 // ============================================
 
+export interface RevisionResult {
+  resultKind: string;
+  dpsDeltaPercent: number;
+  dpsDelta: number;
+  variantHash: string;
+  outputDiff: {
+    offence: Record<string, { baseline: number; variant: number; delta: number; deltaPercent?: number }>;
+  };
+  hitLineDelta?: {
+    physicalHitLineDelta?: { baseline: number; variant: number; delta: number; deltaPercent?: number };
+    elementalHitLineDelta?: { baseline: number; variant: number; delta: number; deltaPercent?: number };
+  };
+}
+
 export interface WorkspaceSideView {
   session: {
     baselineHash: string;
@@ -104,6 +118,7 @@ export interface WorkspaceSideView {
       revisionId: string;
       parentRevisionId?: string;
       variantHash: string;
+      result?: RevisionResult;
       createdAt: number;
     }>;
     cursor: number;
@@ -117,6 +132,7 @@ export interface WorkspaceSideView {
   currentRevision: {
     revisionId: string;
     variantHash: string;
+    result?: RevisionResult;
   };
   currentNormalizedBuild: NormalizedBuild;
 }

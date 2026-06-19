@@ -17,6 +17,7 @@ import type {
   BaselineSnapshot,
   BuildMutation,
   BuildVariant,
+  MainSkillSelection,
   SimulationResult,
 } from '@pobd/schemas';
 
@@ -62,12 +63,16 @@ export interface BaselineInput {
   league?: string;
   preferredSkillNumber?: number;
   preferredSkillName?: string;
+  /** Optional context to forward from the source baseline */
+  skillPart?: string;
+  weaponSet?: number;
+  config?: Record<string, unknown>;
 }
 
 export interface ApplyGearSwapOutput {
   buildXml: string;
   result: SimulationResult;
-  snapshot?: BaselineSnapshot;
+  snapshot: BaselineSnapshot;
 }
 
 export class Pob2Runtime {
@@ -137,23 +142,30 @@ export class Pob2Runtime {
   async computeBaseline(input: BaselineInput): Promise<BaselineSnapshot> {
     await this.ensureStarted();
     const manager = this.manager!;
-    const provisional = await manager.createBaseline(input.buildXml, {
+
+    const baseOptions = {
       source: input.source,
       pob2Version: this.version,
       pob2DataVersion: this.version,
       gameVersion: 'poe2',
       league: input.league,
-      character: input.character,
-      skillNumber: input.preferredSkillNumber ?? 1,
-      weaponSet: 1,
+      character: input.character ?? {},
+      skillPart: input.skillPart,
+      weaponSet: input.weaponSet ?? 1,
+      config: input.config ?? {},
       mainSkillSelection: {
         selectedSkillNumber: input.preferredSkillNumber ?? 1,
         selectedSkillName: '待识别',
         selectionMode: input.preferredSkillNumber ? 'user_confirmed' : 'auto_single',
         candidates: [],
         warnings: [],
-      },
+      } as MainSkillSelection,
       normalizerVersion: 'p3-mvp-1',
+    };
+
+    const provisional = await manager.createBaseline(input.buildXml, {
+      ...baseOptions,
+      skillNumber: input.preferredSkillNumber ?? 1,
     });
 
     const enabled = provisional.skillDpsList.filter((skill) => skill.enabled);
@@ -192,14 +204,8 @@ export class Pob2Runtime {
     }
 
     return manager.createBaseline(input.buildXml, {
-      source: input.source,
-      pob2Version: this.version,
-      pob2DataVersion: this.version,
-      gameVersion: 'poe2',
-      league: input.league,
-      character: input.character,
+      ...baseOptions,
       skillNumber: selected.skillNumber,
-      weaponSet: 1,
       mainSkillSelection: {
         selectedSkillNumber: selected.skillNumber,
         selectedSkillName: selected.name,
@@ -207,7 +213,6 @@ export class Pob2Runtime {
         candidates,
         warnings: [],
       },
-      normalizerVersion: 'p3-mvp-1',
     });
   }
 
@@ -231,6 +236,7 @@ export class Pob2Runtime {
         return {
           buildXml: input.currentBuildXml,
           result: this.incompatibleResult(input.baseline, input.mutation, reason, response.error),
+          snapshot: input.baseline,
         };
       }
       throw new Error(response.error ?? 'PoB2 mutation calculation failed');
@@ -267,20 +273,18 @@ export class Pob2Runtime {
 
     const result = new ResultComparator().compare(input.baseline, variant);
 
-    // Compute a fresh snapshot from the variant XML using the same context as the imported baseline
-    let snapshot: BaselineSnapshot | undefined;
-    try {
-      snapshot = await this.computeBaseline({
-        buildXml,
-        source: input.baseline.source,
-        character: input.baseline.character,
-        league: input.baseline.league,
-        preferredSkillNumber: input.baseline.skillNumber,
-        preferredSkillName: input.baseline.mainSkillSelection.selectedSkillName,
-      });
-    } catch {
-      // Snapshot computation is best-effort; continue without it
-    }
+    // Compute a fresh authoritative snapshot from the variant XML
+    const snapshot = await this.computeBaseline({
+      buildXml,
+      source: input.baseline.source,
+      character: input.baseline.character,
+      league: input.baseline.league,
+      preferredSkillNumber: input.baseline.skillNumber,
+      preferredSkillName: input.baseline.mainSkillSelection.selectedSkillName,
+      skillPart: input.baseline.skillPart,
+      weaponSet: input.baseline.weaponSet,
+      config: input.baseline.config,
+    });
 
     return {
       buildXml,
