@@ -35,8 +35,6 @@ export interface PassiveRankings {
 }
 
 export class PassiveAnalysisService {
-  private readonly rankingsCache = new Map<string, PassiveRankings>();
-
   constructor(
     private readonly simulator: PassiveSimulator,
     private readonly candidateProvider: (baseline: BaselineSnapshot) => Promise<PassiveCandidatePools> =
@@ -44,14 +42,7 @@ export class PassiveAnalysisService {
     private readonly limitPerType = 6,
   ) {}
 
-  getCached(baselineHash: string): PassiveRankings | undefined {
-    return this.rankingsCache.get(baselineHash);
-  }
-
   async analyze(baseline: BaselineSnapshot): Promise<PassiveRankings> {
-    const cached = this.rankingsCache.get(baseline.baselineHash);
-    if (cached) return cached;
-
     const pools = await this.candidateProvider(baseline);
     const nextMutations = pools.next.slice(0, this.limitPerType).map((node) =>
       this.mutation('passive_add', baseline.baselineHash, node),
@@ -112,12 +103,7 @@ export class PassiveAnalysisService {
       failures,
     };
 
-    this.rankingsCache.set(baseline.baselineHash, rankings);
     return rankings;
-  }
-
-  invalidateCache(baselineHash: string): void {
-    this.rankingsCache.delete(baselineHash);
   }
 
   private mutation(
@@ -204,6 +190,7 @@ async function defaultCandidates(baseline: BaselineSnapshot): Promise<PassiveCan
       isMultipleChoice: Boolean(raw.isMultipleChoice),
       isJewelSocket: Boolean(raw.isJewelSocket),
       isNotable: Boolean(raw.isNotable),
+      ascendancyName: typeof raw.ascendancyName === 'string' ? raw.ascendancyName : undefined,
       type: typeof raw.type === 'string' ? raw.type : undefined,
       classStartIndex: typeof raw.classStartIndex === 'number' ? raw.classStartIndex : undefined,
     };

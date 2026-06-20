@@ -6,6 +6,7 @@ import { createApp } from './app';
 import { ImportService } from './services/import-service';
 import { JobRegistry } from './jobs/job-registry';
 import { WorkspaceStore } from './workspaces/workspace-store';
+import { PassiveAnalysisService } from './services/passive-analysis';
 
 function stubImport(id: string, hash: string, itemSlot: string, itemName: string) {
   return {
@@ -92,6 +93,50 @@ const okSimResult: SimulationResult = {
   evidence: [],
   createdAt: Date.now(),
 };
+
+async function waitForCompletedJob(app: Awaited<ReturnType<typeof createApp>>, jobId: string) {
+  for (let i = 0; i < 20; i++) {
+    const response = await app.inject({ method: 'GET', url: `/api/jobs/${jobId}` });
+    const job = response.json<{
+      status: string;
+      result?: Record<string, unknown>;
+      error?: string;
+    }>();
+    if (job.status === 'completed' || job.status === 'failed') return job;
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  throw new Error(`job ${jobId} did not finish`);
+}
+
+function passiveService(analyzedHashes: string[], shouldThrow = false) {
+  return new PassiveAnalysisService(
+    {
+      simulatePassive: async ({ baseline, mutation }) => ({
+        ...okSimResult,
+        baselineHash: baseline.baselineHash,
+        mutationId: mutation.mutationId,
+        mutationType: 'passive_add',
+        target: { type: 'passive', id: 10 },
+        passiveAddMeta: {
+          targetNodeId: 10,
+          actuallyAddedNodeIds: [10],
+          pathAutoFilled: false,
+          actualPointCost: 1,
+          gainPerPoint: 10,
+        },
+      }),
+    },
+    async (baseline) => {
+      analyzedHashes.push(baseline.baselineHash);
+      if (shouldThrow) throw new Error('tree catalog unavailable');
+      return {
+        next: [{ id: 10, name: '测试节点' }],
+        path: [],
+        remove: [],
+      };
+    },
+  );
+}
 
 describe('local API', () => {
   it('imports XML asynchronously and exposes the completed job', async () => {
@@ -187,25 +232,18 @@ describe('local API', () => {
     const swapResp = await app.inject({
       method: 'POST',
       url: `/api/workspaces/${ws.id}/gear-swaps`,
-      payload: { side: 'a', candidateId: 'b:Weapon 1:2', targetSlotName: 'Weapon 1' },
+      payload: { side: 'a', candidateId: 'b:Weapon 1:1', targetSlotName: 'Weapon 1' },
     });
     expect(swapResp.statusCode).toBe(202);
     const { jobId } = swapResp.json<{ jobId: string }>();
 
-    // Poll until done
-    for (let i = 0; i < 20; i++) {
-      const jobResp = await app.inject({ method: 'GET', url: `/api/jobs/${jobId}` });
-      const job = jobResp.json<{ status: string; result?: unknown }>();
-      if (job.status === 'completed') {
-        const outcome = job.result as Record<string, unknown>;
-        expect(outcome.applied).toBe(true);
-        expect(outcome.workspace).toBeDefined();
-        const wsResult = outcome.workspace as Record<string, unknown>;
-        expect(wsResult.diff).toBeDefined();
-        break;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 50));
-    }
+    const job = await waitForCompletedJob(app, jobId);
+    expect(job.status).toBe('completed');
+    const outcome = job.result as Record<string, unknown>;
+    expect(outcome.applied).toBe(true);
+    expect(outcome.workspace).toBeDefined();
+    const wsResult = outcome.workspace as Record<string, unknown>;
+    expect(wsResult.diff).toBeDefined();
 
     await app.close();
   });
@@ -238,17 +276,215 @@ describe('local API', () => {
     expect(swapResp.statusCode).toBe(202);
     const { jobId } = swapResp.json<{ jobId: string }>();
 
-    for (let i = 0; i < 20; i++) {
-      const jobResp = await app.inject({ method: 'GET', url: `/api/jobs/${jobId}` });
-      const job = jobResp.json<{ status: string; result?: Record<string, unknown> }>();
-      if (job.status === 'completed') {
-        expect(job.result!.applied).toBe(false);
-        expect((job.result!.result as Record<string, string>)?.resultKind).toBe('calc_failed');
-        break;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 50));
-    }
+    const job = await waitForCompletedJob(app, jobId);
+    expect(job.status).toBe('completed');
+    expect(job.result!.applied).toBe(false);
+    expect((job.result!.result as Record<string, string>)?.resultKind).toBe('calc_failed');
 
+    await app.close();
+  });
+
+  it('successful gear swap analyzes passives for the fresh revision and emits simulate_passives', async () => {
+    const jobs = new JobRegistry();
+    const analyzedHashes: string[] = [];
+    const imports = new ImportService({ computeBaseline: async () => makeSnap('base') });
+    const workspaces = new WorkspaceStore({
+      applyGearSwap: async () => ({
+        buildXml: '<PathOfBuilding variant="1"/>',
+        result: okSimResult,
+        snapshot: makeSnap('snap-v1'),
+      }),
+    });
+    const app = await createApp({
+      imports,
+      workspaces,
+      jobs,
+      passives: passiveService(analyzedHashes),
+    });
+    const workspace = workspaces.create(
+      stubImport('imp-a4', 'hash-a4', 'Weapon 1', 'Axe'),
+      stubImport('imp-b4', 'hash-b4', 'Weapon 1', 'Maul'),
+    );
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/api/workspaces/${workspace.id}/gear-swaps`,
+      payload: { side: 'a', candidateId: 'b:Weapon 1:1', targetSlotName: 'Weapon 1' },
+    });
+    const { jobId } = response.json<{ jobId: string }>();
+    const job = await waitForCompletedJob(app, jobId);
+
+    expect(job.status).toBe('completed');
+    expect(analyzedHashes).toEqual(['snap-v1']);
+    expect((job.result?.passives as { a?: { nextPoint: unknown[] } }).a?.nextPoint).toHaveLength(1);
+    expect(jobs.events(jobId).filter((event) => event.type === 'stage').map((event) => event.stage))
+      .toEqual(['simulate_gear', 'simulate_passives']);
+    await app.close();
+  });
+
+  it('does not analyze passives when a gear swap is incompatible', async () => {
+    const analyzedHashes: string[] = [];
+    const imports = new ImportService({ computeBaseline: async () => makeSnap('base') });
+    const workspaces = new WorkspaceStore({
+      applyGearSwap: async () => ({
+        buildXml: '<PathOfBuilding/>',
+        result: { ...okSimResult, resultKind: 'incompatible' },
+        snapshot: makeSnap('unchanged'),
+      }),
+    });
+    const app = await createApp({
+      imports,
+      workspaces,
+      passives: passiveService(analyzedHashes),
+    });
+    const workspace = workspaces.create(
+      stubImport('imp-a5', 'hash-a5', 'Weapon 1', 'Axe'),
+      stubImport('imp-b5', 'hash-b5', 'Weapon 1', 'Maul'),
+    );
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/api/workspaces/${workspace.id}/gear-swaps`,
+      payload: { side: 'a', candidateId: 'b:Weapon 1:1', targetSlotName: 'Weapon 1' },
+    });
+    const job = await waitForCompletedJob(app, response.json<{ jobId: string }>().jobId);
+
+    expect(job.status).toBe('completed');
+    expect(job.result?.applied).toBe(false);
+    expect(analyzedHashes).toEqual([]);
+    await app.close();
+  });
+
+  it('reuses revision rankings after undo and redo', async () => {
+    const analyzedHashes: string[] = [];
+    const imports = new ImportService({ computeBaseline: async () => makeSnap('base') });
+    const workspaces = new WorkspaceStore({
+      applyGearSwap: async () => ({
+        buildXml: '<PathOfBuilding variant="1"/>',
+        result: okSimResult,
+        snapshot: makeSnap('snap-v1'),
+      }),
+    });
+    const app = await createApp({
+      imports,
+      workspaces,
+      passives: passiveService(analyzedHashes),
+    });
+    const workspace = workspaces.create(
+      stubImport('imp-a6', 'hash-a6', 'Weapon 1', 'Axe'),
+      stubImport('imp-b6', 'hash-b6', 'Weapon 1', 'Maul'),
+    );
+
+    const swap = await app.inject({
+      method: 'POST',
+      url: `/api/workspaces/${workspace.id}/gear-swaps`,
+      payload: { side: 'a', candidateId: 'b:Weapon 1:1', targetSlotName: 'Weapon 1' },
+    });
+    await waitForCompletedJob(app, swap.json<{ jobId: string }>().jobId);
+    const undo = await app.inject({
+      method: 'POST',
+      url: `/api/workspaces/${workspace.id}/undo`,
+      payload: { side: 'a' },
+    });
+    const redo = await app.inject({
+      method: 'POST',
+      url: `/api/workspaces/${workspace.id}/redo`,
+      payload: { side: 'a' },
+    });
+
+    expect(undo.json().passives.a.nextPoint).toHaveLength(1);
+    expect(redo.json().passives.a.nextPoint).toHaveLength(1);
+    expect(analyzedHashes).toEqual(['snap-v1', 'hash-a6']);
+    await app.close();
+  });
+
+  it('keeps a successful gear revision when passive candidate generation fails', async () => {
+    const analyzedHashes: string[] = [];
+    const imports = new ImportService({ computeBaseline: async () => makeSnap('base') });
+    const workspaces = new WorkspaceStore({
+      applyGearSwap: async () => ({
+        buildXml: '<PathOfBuilding variant="1"/>',
+        result: okSimResult,
+        snapshot: makeSnap('snap-v1'),
+      }),
+    });
+    const app = await createApp({
+      imports,
+      workspaces,
+      passives: passiveService(analyzedHashes, true),
+    });
+    const workspace = workspaces.create(
+      stubImport('imp-a7', 'hash-a7', 'Weapon 1', 'Axe'),
+      stubImport('imp-b7', 'hash-b7', 'Weapon 1', 'Maul'),
+    );
+
+    const response = await app.inject({
+      method: 'POST',
+      url: `/api/workspaces/${workspace.id}/gear-swaps`,
+      payload: { side: 'a', candidateId: 'b:Weapon 1:1', targetSlotName: 'Weapon 1' },
+    });
+    const job = await waitForCompletedJob(app, response.json<{ jobId: string }>().jobId);
+
+    expect(job.status).toBe('completed');
+    expect(job.result?.applied).toBe(true);
+    expect(job.result?.passives).toBeUndefined();
+    expect((job.result?.passiveWarnings as { a?: string }).a).toContain('tree catalog unavailable');
+    expect((job.result?.workspace as { a: { session: { cursor: number } } }).a.session.cursor).toBe(1);
+    await app.close();
+  });
+
+  it('deduplicates concurrent passive analysis for identical A and B baselines', async () => {
+    const analyzedHashes: string[] = [];
+    const imports = new ImportService({ computeBaseline: async () => makeSnap('same-hash') });
+    const workspaces = new WorkspaceStore({
+      applyGearSwap: async () => {
+        throw new Error('unused');
+      },
+    });
+    const app = await createApp({
+      imports,
+      workspaces,
+      passives: passiveService(analyzedHashes),
+    });
+    const imported = await imports.importBuildXml('<PathOfBuilding><Build/></PathOfBuilding>');
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/comparisons',
+      payload: { importAId: imported.id, importBId: imported.id },
+    });
+    const job = await waitForCompletedJob(app, response.json<{ jobId: string }>().jobId);
+
+    expect(job.status).toBe('completed');
+    expect(analyzedHashes).toEqual(['same-hash']);
+    await app.close();
+  });
+
+  it('completes a comparison with a side-specific warning when passive analysis fails', async () => {
+    const analyzedHashes: string[] = [];
+    const imports = new ImportService({ computeBaseline: async () => makeSnap('comparison-hash') });
+    const workspaces = new WorkspaceStore({
+      applyGearSwap: async () => {
+        throw new Error('unused');
+      },
+    });
+    const app = await createApp({
+      imports,
+      workspaces,
+      passives: passiveService(analyzedHashes, true),
+    });
+    const imported = await imports.importBuildXml('<PathOfBuilding><Build/></PathOfBuilding>');
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/comparisons',
+      payload: { importAId: imported.id },
+    });
+    const job = await waitForCompletedJob(app, response.json<{ jobId: string }>().jobId);
+
+    expect(job.status).toBe('completed');
+    expect((job.result?.passiveWarnings as { a?: string }).a).toContain('tree catalog unavailable');
+    expect(job.result?.workspace).toBeDefined();
     await app.close();
   });
 });

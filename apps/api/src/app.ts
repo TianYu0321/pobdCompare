@@ -3,11 +3,16 @@ import multipart from '@fastify/multipart';
 import Fastify, { type FastifyInstance } from 'fastify';
 
 import { computeBuildDiff } from '@pobd/core';
+import type { BaselineSnapshot } from '@pobd/schemas';
 
 import { JobRegistry } from './jobs/job-registry.js';
 import { ImportService } from './services/import-service.js';
 import { PassiveAnalysisService, type PassiveRankings } from './services/passive-analysis.js';
-import { WorkspaceStore, type WorkspaceSide } from './workspaces/workspace-store.js';
+import {
+  WorkspaceStore,
+  type ApplyGearSwapOutcome,
+  type WorkspaceSide,
+} from './workspaces/workspace-store.js';
 
 export interface AppDependencies {
   imports: ImportService;
@@ -19,6 +24,40 @@ export interface AppDependencies {
 export async function createApp(dependencies: AppDependencies): Promise<FastifyInstance> {
   const app = Fastify({ logger: false });
   const jobs = dependencies.jobs ?? new JobRegistry();
+  const passiveRankingsCache = new Map<string, Promise<PassiveRankings>>();
+
+  const analyzePassives = async (baseline: BaselineSnapshot | undefined) => {
+    if (!dependencies.passives || !baseline) return {};
+    let pending = passiveRankingsCache.get(baseline.baselineHash);
+    if (!pending) {
+      pending = dependencies.passives.analyze(baseline);
+      passiveRankingsCache.set(baseline.baselineHash, pending);
+    }
+    try {
+      const rankings = await pending;
+      return { rankings };
+    } catch (error) {
+      if (passiveRankingsCache.get(baseline.baselineHash) === pending) {
+        passiveRankingsCache.delete(baseline.baselineHash);
+      }
+      return {
+        warning: error instanceof Error ? error.message : String(error),
+      };
+    }
+  };
+
+  const enrichRevisionOutcome = async (
+    outcome: ApplyGearSwapOutcome,
+    side: WorkspaceSide,
+  ) => {
+    const sideView = side === 'a' ? outcome.workspace.a : outcome.workspace.b;
+    const analyzed = await analyzePassives(sideView?.currentBaseline);
+    return {
+      ...outcome,
+      ...(analyzed.rankings ? { passives: { [side]: analyzed.rankings } } : {}),
+      ...(analyzed.warning ? { passiveWarnings: { [side]: analyzed.warning } } : {}),
+    };
+  };
   await app.register(cors, { origin: true });
   await app.register(multipart, { limits: { fileSize: 12 * 1024 * 1024 } });
 
@@ -105,6 +144,7 @@ export async function createApp(dependencies: AppDependencies): Promise<FastifyI
           });
         }
         let passives: { a?: PassiveRankings; b?: PassiveRankings } | undefined;
+        let passiveWarnings: { a?: string; b?: string } | undefined;
         if (dependencies.passives) {
           jobs.emit(job.id, {
             type: 'stage',
@@ -113,16 +153,21 @@ export async function createApp(dependencies: AppDependencies): Promise<FastifyI
             timestamp: Date.now(),
           });
           const [a, b] = await Promise.all([
-            dependencies.passives.analyze(importA.baseline!),
-            importB?.baseline ? dependencies.passives.analyze(importB.baseline) : undefined,
+            analyzePassives(workspace.a.currentBaseline),
+            analyzePassives(workspace.b?.currentBaseline),
           ]);
-          passives = { a, b };
-          jobs.emit(job.id, {
-            type: 'result',
-            module: 'passives',
-            data: passives,
-            timestamp: Date.now(),
-          });
+          if (a.rankings || b.rankings) {
+            passives = { a: a.rankings, b: b.rankings };
+            jobs.emit(job.id, {
+              type: 'result',
+              module: 'passives',
+              data: passives,
+              timestamp: Date.now(),
+            });
+          }
+          if (a.warning || b.warning) {
+            passiveWarnings = { a: a.warning, b: b.warning };
+          }
         }
         jobs.emit(job.id, {
           type: 'stage',
@@ -130,7 +175,7 @@ export async function createApp(dependencies: AppDependencies): Promise<FastifyI
           message: '工作区已就绪',
           timestamp: Date.now(),
         });
-        jobs.complete(job.id, { workspace, diff, passives });
+        jobs.complete(job.id, { workspace, diff, passives, passiveWarnings });
       } catch (error) {
         jobs.fail(job.id, error instanceof Error ? error : new Error(String(error)));
       }
@@ -196,21 +241,32 @@ export async function createApp(dependencies: AppDependencies): Promise<FastifyI
           message: 'PoB2 正在验证装备替换',
           timestamp: Date.now(),
         });
+        const side = sideFrom(body.side);
         const outcome = await dependencies.workspaces.applyGearSwap(
           id,
-          sideFrom(body.side),
+          side,
           body.candidateId!,
           body.targetSlotName!,
         );
-        if (outcome.passives) {
+        let completedOutcome = outcome;
+        if (outcome.applied && dependencies.passives) {
+          jobs.emit(job.id, {
+            type: 'stage',
+            stage: 'simulate_passives',
+            message: 'PoB2 正在重新计算当前 revision 的天赋收益',
+            timestamp: Date.now(),
+          });
+          completedOutcome = await enrichRevisionOutcome(outcome, side);
+        }
+        if ('passives' in completedOutcome && completedOutcome.passives) {
           jobs.emit(job.id, {
             type: 'result',
             module: 'passives',
-            data: outcome.passives,
+            data: completedOutcome.passives,
             timestamp: Date.now(),
           });
         }
-        jobs.complete(job.id, outcome);
+        jobs.complete(job.id, completedOutcome);
       } catch (error) {
         jobs.fail(job.id, error instanceof Error ? error : new Error(String(error)));
       }
@@ -223,8 +279,13 @@ export async function createApp(dependencies: AppDependencies): Promise<FastifyI
     app.post(`/api/workspaces/:id/${action}`, async (request) => {
       const { id } = request.params as { id: string };
       const side = sideFrom((request.body as { side?: string })?.side);
-      const result = await (dependencies.workspaces[withPayload] as (id: string, side: WorkspaceSide) => Promise<unknown>)(id, side);
-      return result;
+      const result = await (
+        dependencies.workspaces[withPayload] as (
+          id: string,
+          side: WorkspaceSide,
+        ) => Promise<ApplyGearSwapOutcome>
+      )(id, side);
+      return dependencies.passives ? enrichRevisionOutcome(result, side) : result;
     });
   }
 

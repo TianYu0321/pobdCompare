@@ -37,6 +37,7 @@ export function buildCandidatePools(
 
   function isExcludedFromAdd(node: TreeNodeRecord): boolean {
     if (node.isAscendancyStart) return true;
+    if (node.ascendancyName) return true;
     if (node.classStartIndex !== undefined && node.classStartIndex >= 0) return true;
     return false;
   }
@@ -45,6 +46,7 @@ export function buildCandidatePools(
     if (node.type === 'ClassStart') return true;
     if (node.type === 'AscendClassStart') return true;
     if (node.type === 'Keystone') return true;
+    if (node.isKeystone) return true;
     if (node.isMastery) return true;
     if (node.isMultipleChoice) return true;
     if (node.classStartIndex !== undefined && node.classStartIndex >= 0) return true;
@@ -64,7 +66,7 @@ export function buildCandidatePools(
       nextSet.set(linkedId, { id: linkedId, name: linkedNode.name });
     }
   }
-  const next = [...nextSet.values()];
+  const next = [...nextSet.values()].sort((a, b) => a.id - b.id);
 
   // ---- path candidates: distance >= 2 by BFS from allocated nodes ----
   const pathSet = new Map<number, { id: number; distance: number; isNotableOrKeystone: boolean }>();
@@ -80,6 +82,8 @@ export function buildCandidatePools(
     if (!allocNode) continue;
     for (const linkedId of allocNode.connections) {
       if (!allocatedSet.has(linkedId)) {
+        const linkedNode = nodeById.get(linkedId);
+        if (!linkedNode || isExcludedFromAdd(linkedNode)) continue;
         queue.push({ nodeId: linkedId, dist: 1 });
         localVisited.add(linkedId);
       }
@@ -97,7 +101,9 @@ export function buildCandidatePools(
               pathSet.set(nodeId, {
                 id: nodeId,
                 distance: dist,
-                isNotableOrKeystone: Boolean(node.isNotable || node.type === 'Keystone'),
+                isNotableOrKeystone: Boolean(
+                  node.isNotable || node.isKeystone || node.type === 'Keystone',
+                ),
               });
             }
           }
@@ -105,10 +111,12 @@ export function buildCandidatePools(
       }
       if (dist >= maxBfsDepth) continue;
       const node = nodeById.get(nodeId);
-      if (!node) continue;
+      if (!node || isExcludedFromAdd(node)) continue;
       for (const nextId of node.connections) {
         if (allocatedSet.has(nextId)) continue;
         if (localVisited.has(nextId)) continue;
+        const nextNode = nodeById.get(nextId);
+        if (!nextNode || isExcludedFromAdd(nextNode)) continue;
         localVisited.add(nextId);
         queue.push({ nodeId: nextId, dist: dist + 1 });
       }

@@ -67,6 +67,10 @@ export interface WorkspaceResult {
     a?: PassiveRankings;
     b?: PassiveRankings;
   };
+  passiveWarnings?: {
+    a?: string;
+    b?: string;
+  };
 }
 
 export interface PassiveResult {
@@ -154,6 +158,10 @@ export interface GearSwapOutcome {
   passives?: {
     a?: PassiveRankings;
     b?: PassiveRankings;
+  };
+  passiveWarnings?: {
+    a?: string;
+    b?: string;
   };
 }
 

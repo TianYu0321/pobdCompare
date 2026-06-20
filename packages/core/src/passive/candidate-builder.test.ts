@@ -169,6 +169,48 @@ describe('buildCandidatePools', () => {
     expect(notableFirst.id).toBe(32);
   });
 
+  it('recognizes the real TreeData isKeystone flag when prioritizing path targets', () => {
+    const nodes = [
+      node(11, '已分配', [20, 21]),
+      node(20, '普通中间点', [11, 30]),
+      node(21, '基石中间点', [11, 31]),
+      node(30, '普通目标', [20]),
+      node(31, '基石目标', [21], { isKeystone: true }),
+    ];
+
+    const pools = buildCandidatePools([11], nodes);
+
+    expect(pools.path[0]?.id).toBe(31);
+  });
+
+  it('does not expose or traverse through ascendancy-only nodes', () => {
+    const nodes = [
+      node(11, '已分配', [20, 21]),
+      node(20, '普通相邻', [11, 30]),
+      node(21, '升华相邻', [11, 31], { ascendancyName: 'Chronomancer' }),
+      node(30, '普通目标', [20]),
+      node(31, '升华后方目标', [21]),
+    ];
+
+    const pools = buildCandidatePools([11], nodes);
+
+    expect(pools.next.map((candidate) => candidate.id)).not.toContain(21);
+    expect(pools.path.map((candidate) => candidate.id)).not.toContain(31);
+  });
+
+  it('sorts next candidates deterministically by node id', () => {
+    const nodes = [
+      node(11, '已分配', [30, 20, 25]),
+      node(20, '二十', [11]),
+      node(25, '二十五', [11]),
+      node(30, '三十', [11]),
+    ];
+
+    const pools = buildCandidatePools([11], nodes);
+
+    expect(pools.next.map((candidate) => candidate.id)).toEqual([20, 25, 30]);
+  });
+
   it('caps BFS depth at 4', () => {
     const nodes = [
       node(11, '已分配', [20]),
@@ -217,6 +259,17 @@ describe('buildCandidatePools', () => {
     ];
     const pools = buildCandidatePools([10, 11], nodes);
     expect(pools.remove.map((c) => c.id)).toEqual([11]);
+  });
+
+  it('protects allocated keystones represented by the real TreeData isKeystone flag', () => {
+    const nodes = [
+      node(10, '基石', [], { isKeystone: true }),
+      node(11, '普通', []),
+    ];
+
+    const pools = buildCandidatePools([10, 11], nodes);
+
+    expect(pools.remove.map((candidate) => candidate.id)).toEqual([11]);
   });
 
   it('remove candidates sort deterministically: leaf-like first, then id', () => {

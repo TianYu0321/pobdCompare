@@ -299,50 +299,6 @@ describe('PassiveAnalysisService', () => {
     expect(result.nextPoint[0]?.gainPerPoint).toBe(5);
   });
 
-  it('caches and retrieves rankings by baselineHash', async () => {
-    let simulateCount = 0;
-    const service = new PassiveAnalysisService(
-      {
-        simulatePassive: async () => {
-          simulateCount++;
-          return mockResult({
-            mutationId: `passive_add_${simulateCount}`,
-            mutationType: 'passive_add',
-            resultKind: 'normal_gain',
-            dpsDeltaPercent: 1,
-            passiveAddMeta: {
-              targetNodeId: simulateCount,
-              actuallyAddedNodeIds: [simulateCount],
-              pathAutoFilled: false,
-              actualPointCost: 1,
-              gainPerPoint: 1,
-            },
-          });
-        },
-      },
-      async () => ({
-        next: [{ id: 1, name: 'Cached' }],
-        path: [],
-        remove: [],
-      }),
-    );
-
-    const first = await service.analyze({ baselineHash: 'cache-test', passiveNodes: [] } as unknown as BaselineSnapshot);
-    expect(simulateCount).toBe(1);
-
-    const cached = service.getCached('cache-test');
-    expect(cached).toBeDefined();
-    expect(cached!.nextPoint).toHaveLength(1);
-
-    const second = await service.analyze({ baselineHash: 'cache-test', passiveNodes: [] } as unknown as BaselineSnapshot);
-    expect(simulateCount).toBe(1); // should not re-simulate
-    expect(second.nextPoint).toHaveLength(1);
-
-    service.invalidateCache('cache-test');
-    const third = await service.analyze({ baselineHash: 'cache-test', passiveNodes: [] } as unknown as BaselineSnapshot);
-    expect(simulateCount).toBe(2); // re-simulated
-  });
-
   it('removeLoss preserves cascade metadata', async () => {
     const service = new PassiveAnalysisService(
       {

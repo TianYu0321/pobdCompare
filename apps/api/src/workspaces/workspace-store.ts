@@ -15,7 +15,6 @@ import type {
 } from '@pobd/schemas';
 
 import type { StoredImport } from '../services/import-service.js';
-import type { PassiveAnalysisService, PassiveRankings } from '../services/passive-analysis.js';
 
 export type WorkspaceSide = 'a' | 'b';
 
@@ -56,7 +55,6 @@ export interface ApplyGearSwapOutcome {
   result?: SimulationResult;
   revision?: VariantRevision;
   workspace: WorkspaceView;
-  passives?: { a?: PassiveRankings; b?: PassiveRankings };
 }
 
 interface SideState {
@@ -95,10 +93,7 @@ export class WorkspaceStore {
   private readonly workspaces = new Map<string, WorkspaceState>();
   private readonly mutationFactory = new MutationFactory(noTreeProvider);
 
-  constructor(
-    private readonly executor: GearSwapExecutor,
-    private readonly passivesService?: PassiveAnalysisService,
-  ) {}
+  constructor(private readonly executor: GearSwapExecutor) {}
 
   create(importA: StoredImport, importB?: StoredImport): WorkspaceView {
     if (!importA.baseline) throw new Error('Build A 不可计算，不能创建工作区');
@@ -212,29 +207,11 @@ export class WorkspaceStore {
     const displayBuild = this.syncDisplayBuildWithSnapshot(swappedDisplay, applied.snapshot);
     target.displayBuildByRevision.set(revision.revisionId, displayBuild);
 
-    // Recompute passive rankings for the changed side's currentBaseline
-    let passives: { a?: PassiveRankings; b?: PassiveRankings } | undefined;
-    if (this.passivesService) {
-      try {
-        const sideKey = targetSide as 'a' | 'b';
-        const sideSnapshot = this.requireRevisionValue(
-          target.snapshotByRevision,
-          revision.revisionId,
-          'snapshot',
-        );
-        const rankings = await this.passivesService.analyze(sideSnapshot);
-        passives = { [sideKey]: rankings };
-      } catch {
-        // Passive analysis failure must not corrupt the workspace revision
-      }
-    }
-
     return {
       applied: true,
       result: applied.result,
       revision,
       workspace: this.view(workspace),
-      passives,
     };
   }
 
@@ -244,7 +221,7 @@ export class WorkspaceStore {
 
   async undoWithPayload(id: string, side: WorkspaceSide): Promise<ApplyGearSwapOutcome> {
     this.undo(id, side);
-    return this.withPassives(id, side);
+    return this.revisionPayload(id);
   }
 
   redo(id: string, side: WorkspaceSide): VariantRevision {
@@ -253,7 +230,7 @@ export class WorkspaceStore {
 
   async redoWithPayload(id: string, side: WorkspaceSide): Promise<ApplyGearSwapOutcome> {
     this.redo(id, side);
-    return this.withPassives(id, side);
+    return this.revisionPayload(id);
   }
 
   reset(id: string, side: WorkspaceSide): VariantRevision {
@@ -262,25 +239,12 @@ export class WorkspaceStore {
 
   async resetWithPayload(id: string, side: WorkspaceSide): Promise<ApplyGearSwapOutcome> {
     this.reset(id, side);
-    return this.withPassives(id, side);
+    return this.revisionPayload(id);
   }
 
-  private async withPassives(id: string, side: WorkspaceSide): Promise<ApplyGearSwapOutcome> {
+  private async revisionPayload(id: string): Promise<ApplyGearSwapOutcome> {
     const workspace = this.view(this.requireWorkspace(id));
-    let passives: { a?: PassiveRankings; b?: PassiveRankings } | undefined;
-    if (this.passivesService) {
-      try {
-        const sideView = side === 'a' ? workspace.a : workspace.b;
-        if (sideView) {
-          const rankings = this.passivesService.getCached(sideView.currentBaseline.baselineHash)
-            ?? await this.passivesService.analyze(sideView.currentBaseline as Parameters<PassiveAnalysisService['analyze']>[0]);
-          passives = { [side]: rankings };
-        }
-      } catch {
-        // passive analysis failure does not corrupt revision
-      }
-    }
-    return { applied: true, workspace, passives };
+    return { applied: true, workspace };
   }
 
   private sideState(imported: StoredImport): SideState {

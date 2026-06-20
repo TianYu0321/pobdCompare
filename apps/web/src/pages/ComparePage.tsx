@@ -28,6 +28,7 @@ import {
   type BaselineLike,
 } from '@/lib/hit-lines';
 import { slotDeltaText } from '@/lib/slot-delta';
+import { replaceSidePassives } from '@/state/passive-state';
 
 type Side = 'a' | 'b';
 type Tab = 'equipment' | 'skills' | 'passives';
@@ -159,7 +160,12 @@ export default function ComparePage() {
       setWorkspaceId(result.workspace.id);
       setDiff(result.diff);
       setPassives(result.passives ?? {});
-      setStage('对比结果已就绪');
+      const passiveWarning = result.passiveWarnings?.a ?? result.passiveWarnings?.b;
+      setStage(
+        passiveWarning
+          ? `对比结果已就绪；天赋收益暂不可用：${passiveWarning}`
+          : '对比结果已就绪',
+      );
 
       const workspace = result.workspace;
       if (workspace.a) {
@@ -196,12 +202,15 @@ export default function ComparePage() {
       const outcome = await waitForJob<GearSwapOutcome>(jobId);
       if (outcome.applied && outcome.workspace) {
         updateWorkspaceState(drawer.side, outcome.workspace);
-        if (outcome.passives) {
-          setPassives((prev) => ({ ...prev, ...outcome.passives }));
-        }
+        setPassives((prev) => replaceSidePassives(prev, drawer.side, outcome.passives));
         const rk = outcome.result?.resultKind;
         if (rk === 'normal_gain' || rk === 'normal_loss' || rk === 'neutral') {
-          setMutationMessage(`创建 Variant：DPS ${formatDelta(outcome.result!.dpsDeltaPercent)}`);
+          const passiveWarning = outcome.passiveWarnings?.[drawer.side];
+          setMutationMessage(
+            passiveWarning
+              ? `创建 Variant：DPS ${formatDelta(outcome.result!.dpsDeltaPercent)}；天赋收益暂不可用：${passiveWarning}`
+              : `创建 Variant：DPS ${formatDelta(outcome.result!.dpsDeltaPercent)}`,
+          );
         }
       } else {
         const rk = outcome.result?.resultKind;
@@ -219,13 +228,14 @@ export default function ComparePage() {
     try {
       const outcome = await revisionAction(workspaceId, side, action);
       updateWorkspaceState(side, outcome.workspace);
-      if (outcome.passives) {
-        setPassives((prev) => ({ ...prev, ...outcome.passives }));
-      } else {
-        // Clear the changed side's passives when new rankings are unavailable
-        setPassives((prev) => ({ ...prev, [side]: undefined }));
-      }
-      setMutationMessage(action === 'undo' ? '已撤销' : action === 'redo' ? '已重做' : '已重置到 baseline');
+      setPassives((prev) => replaceSidePassives(prev, side, outcome.passives));
+      const actionMessage = action === 'undo' ? '已撤销' : action === 'redo' ? '已重做' : '已重置到 baseline';
+      const passiveWarning = outcome.passiveWarnings?.[side];
+      setMutationMessage(
+        passiveWarning
+          ? `${actionMessage}；天赋收益暂不可用：${passiveWarning}`
+          : actionMessage,
+      );
     } catch (caught) {
       setMutationMessage(caught instanceof Error ? caught.message : String(caught));
     }
