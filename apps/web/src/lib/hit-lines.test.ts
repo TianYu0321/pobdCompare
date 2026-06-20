@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { extractHitLines, computeHitLinesDelta, safePercentDelta } from './hit-lines';
+import { extractHitLines, extractBaselineHitLines, computeBaselineDelta, computeHitLinesDelta, safePercentDelta } from './hit-lines';
 import type { ImportResult } from '@/api';
 
 function mockResult(overrides: Partial<ImportResult> = {}): ImportResult {
@@ -270,5 +270,68 @@ describe('computeHitLinesDelta', () => {
     const d = computeHitLinesDelta(buildA, buildB);
     expect(d.physical.delta).toBe(100);
     expect(d.physical.deltaPercent).toBeUndefined();
+  });
+});
+
+describe('extractBaselineHitLines', () => {
+  it('extracts hit lines from a bare baseline-like object (calcsOutput only)', () => {
+    const h = extractBaselineHitLines({
+      calcsOutput: {
+        PhysicalMaximumHitTaken: 5000,
+        FireMaximumHitTaken: 3000,
+        ColdMaximumHitTaken: 2500,
+        LightningMaximumHitTaken: 2000,
+        ElementalMaximumHitTaken: 2500,
+        Life: 4500,
+      },
+    });
+    expect(h.physical).toBe(5000);
+    expect(h.elemental).toBe(2500);
+    expect(h.life).toBe(4500);
+  });
+
+  it('derives elemental from per-element min when direct key absent', () => {
+    const h = extractBaselineHitLines({
+      calcsOutput: {
+        PhysicalMaximumHitTaken: 4000,
+        FireMaximumHitTaken: 3500,
+        ColdMaximumHitTaken: 3000,
+        LightningMaximumHitTaken: 2800,
+        Life: 5000,
+      },
+    });
+    expect(h.elemental).toBe(2800);
+  });
+
+  it('returns undefined for missing values', () => {
+    const h = extractBaselineHitLines({ calcsOutput: {} });
+    expect(h.physical).toBeUndefined();
+    expect(h.elemental).toBeUndefined();
+    expect(h.life).toBeUndefined();
+  });
+});
+
+describe('computeBaselineDelta', () => {
+  it('computes physical/elemental/life delta and deltaPercent between two baseline objects', () => {
+    const d = computeBaselineDelta(
+      { calcsOutput: { PhysicalMaximumHitTaken: 10000, ElementalMaximumHitTaken: 8000, Life: 5000 } },
+      { calcsOutput: { PhysicalMaximumHitTaken: 10500, ElementalMaximumHitTaken: 7600, Life: 5100 } },
+    );
+    expect(d.physical.delta).toBe(500);
+    expect(d.physical.deltaPercent).toBe(5);
+    expect(d.elemental.delta).toBe(-400);
+    expect(d.elemental.deltaPercent).toBe(-5);
+    expect(d.life.delta).toBe(100);
+    expect(d.life.deltaPercent).toBe(2);
+  });
+
+  it('returns undefined deltaPercent when baseline is 0', () => {
+    const d = computeBaselineDelta(
+      { calcsOutput: { PhysicalMaximumHitTaken: 0, ElementalMaximumHitTaken: 0, Life: 5000 } },
+      { calcsOutput: { PhysicalMaximumHitTaken: 100, ElementalMaximumHitTaken: 100, Life: 5100 } },
+    );
+    expect(d.physical.deltaPercent).toBeUndefined();
+    expect(d.elemental.deltaPercent).toBeUndefined();
+    expect(d.life.deltaPercent).toBe(2);
   });
 });

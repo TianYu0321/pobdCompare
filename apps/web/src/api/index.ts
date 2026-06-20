@@ -60,7 +60,7 @@ export interface GearCandidate {
 }
 
 export interface WorkspaceResult {
-  workspace: { id: string };
+  workspace: WorkspaceView;
   diff?: BuildDiffResult;
   passives?: {
     a?: PassiveRankings;

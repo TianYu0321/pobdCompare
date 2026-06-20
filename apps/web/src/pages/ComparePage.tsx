@@ -21,7 +21,7 @@ import {
 import type { SimulationResult } from '@pobd/schemas';
 import { toCanonicalSlotKey } from '@pobd/schemas';
 import type { BuildDiffResult, EquipmentSlot, NormalizedBuild } from '@/types';
-import { computeHitLinesDelta, safePercentDelta, type HitLinesValues } from '@/lib/hit-lines';
+import { computeBaselineDelta, safePercentDelta, type HitLinesValues, type BaselineLike } from '@/lib/hit-lines';
 import { slotDeltaText } from '@/lib/slot-delta';
 
 type Side = 'a' | 'b';
@@ -156,7 +156,7 @@ export default function ComparePage() {
       setPassives(result.passives ?? {});
       setStage('对比结果已就绪');
 
-      const workspace = result.workspace as unknown as WorkspaceView;
+      const workspace = result.workspace;
       if (workspace.a) {
         setSide('a', { workspace: workspace.a });
       }
@@ -259,8 +259,8 @@ export default function ComparePage() {
             stage={stage}
             view={view}
             onView={setView}
-            resultA={sides.a.result}
-            resultB={sides.b.result}
+            baselineA={sides.a.workspace?.currentBaseline ?? sides.a.result?.baseline}
+            baselineB={sides.b.workspace?.currentBaseline ?? sides.b.result?.baseline}
           />
         )}
 
@@ -540,44 +540,27 @@ function DiffRail({
   stage,
   view,
   onView,
-  resultA,
-  resultB,
+  baselineA,
+  baselineB,
 }: {
   diff?: BuildDiffResult;
   stage: string;
   view: 'offence' | 'defence';
   onView: (view: 'offence' | 'defence') => void;
-  resultA?: ImportResult;
-  resultB?: ImportResult;
+  baselineA?: BaselineLike;
+  baselineB?: BaselineLike;
 }) {
-  const coDps = (r: ImportResult | undefined): number | undefined => {
-    const co = r?.baseline?.calcsOutput;
-    if (!co) return undefined;
-    const d = co.CombinedDPS;
-    return typeof d === 'number' ? d : undefined;
+  const coVal = (baseline: BaselineLike | undefined, key: string): number | undefined => {
+    const v = baseline?.calcsOutput?.[key];
+    return typeof v === 'number' ? v : undefined;
   };
-  const dpsA = diff?.dpsDiff?.myDps ?? coDps(resultA) ?? resultA?.normalizedBuild?.skillDps[0]?.dps;
-  const dpsB = diff?.dpsDiff?.targetDps ?? coDps(resultB) ?? resultB?.normalizedBuild?.skillDps[0]?.dps;
-  const hitDelta = resultA && resultB ? computeHitLinesDelta(resultA, resultB) : undefined;
-  const avgVal = (r: ImportResult | undefined): number | undefined => {
-    const co = r?.baseline?.calcsOutput;
-    if (!co) return undefined;
-    const ad = co.AverageDamage;
-    if (typeof ad === 'number') return ad;
-    const mh = co.MainHand_AverageHit;
-    if (typeof mh === 'number') return mh;
-    return undefined;
-  };
-  const critVal = (r: ImportResult | undefined): number | undefined => {
-    const co = r?.baseline?.calcsOutput;
-    if (!co) return undefined;
-    const c = co.CritChance;
-    return typeof c === 'number' ? c : undefined;
-  };
-  const avgA = avgVal(resultA);
-  const avgB = avgVal(resultB);
-  const critA = critVal(resultA);
-  const critB = critVal(resultB);
+  const dpsA = diff?.dpsDiff?.myDps ?? coVal(baselineA, 'CombinedDPS');
+  const dpsB = diff?.dpsDiff?.targetDps ?? coVal(baselineB, 'CombinedDPS');
+  const hitDelta = baselineA && baselineB ? computeBaselineDelta(baselineA, baselineB) : undefined;
+  const avgA = coVal(baselineA, 'AverageDamage') ?? coVal(baselineA, 'MainHand_AverageHit');
+  const avgB = coVal(baselineB, 'AverageDamage') ?? coVal(baselineB, 'MainHand_AverageHit');
+  const critA = coVal(baselineA, 'CritChance');
+  const critB = coVal(baselineB, 'CritChance');
 
   return (
     <aside className="diff-rail">
