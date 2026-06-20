@@ -1,4 +1,4 @@
-import { toCanonicalSlotKey } from '../../../../packages/schemas/src/canonical-slots.js';
+import { toCanonicalSlotKey } from '@pobd/schemas';
 
 /** Client-side revision result shape (loose type, mirrors SimulationResult). */
 interface RevisionResult {

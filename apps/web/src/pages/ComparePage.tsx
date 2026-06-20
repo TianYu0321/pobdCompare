@@ -19,7 +19,7 @@ import {
   type WorkspaceSideView,
 } from '@/api';
 import type { SimulationResult } from '@pobd/schemas';
-import { toCanonicalSlotKey } from '../../../../packages/schemas/src/canonical-slots.js';
+import { toCanonicalSlotKey } from '@pobd/schemas';
 import type { BuildDiffResult, EquipmentSlot, NormalizedBuild } from '@/types';
 import { computeHitLinesDelta, safePercentDelta, type HitLinesValues } from '@/lib/hit-lines';
 import { slotDeltaText } from '@/lib/slot-delta';

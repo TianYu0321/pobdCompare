@@ -7,6 +7,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@pobd/schemas': path.resolve(__dirname, '../../packages/schemas/src'),
     },
   },
   server: {
