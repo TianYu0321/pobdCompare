@@ -434,14 +434,14 @@ describe('WorkspaceStore', () => {
 
     await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
 
-    const undoPayload = store.undoWithPayload(workspace.id, 'a');
+    const undoPayload = await store.undoWithPayload(workspace.id, 'a');
     expect(undoPayload.workspace.a.currentBaseline).toBeDefined();
     expect(undoPayload.workspace.a.session.cursor).toBe(0);
 
-    const redoPayload = store.redoWithPayload(workspace.id, 'a');
+    const redoPayload = await store.redoWithPayload(workspace.id, 'a');
     expect(redoPayload.workspace.a.session.cursor).toBe(1);
 
-    const resetPayload = store.resetWithPayload(workspace.id, 'a');
+    const resetPayload = await store.resetWithPayload(workspace.id, 'a');
     expect(resetPayload.workspace.a.session.cursor).toBe(0);
   });
 

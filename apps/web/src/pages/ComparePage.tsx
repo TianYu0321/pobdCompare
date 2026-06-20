@@ -28,6 +28,7 @@ import {
   type BaselineLike,
 } from '@/lib/hit-lines';
 import { slotDeltaText } from '@/lib/slot-delta';
+import { replaceSidePassives } from '@/state/passive-state';
 
 type Side = 'a' | 'b';
 type Tab = 'equipment' | 'skills' | 'passives';
@@ -159,7 +160,12 @@ export default function ComparePage() {
       setWorkspaceId(result.workspace.id);
       setDiff(result.diff);
       setPassives(result.passives ?? {});
-      setStage('对比结果已就绪');
+      const passiveWarning = result.passiveWarnings?.a ?? result.passiveWarnings?.b;
+      setStage(
+        passiveWarning
+          ? `对比结果已就绪；天赋收益暂不可用：${passiveWarning}`
+          : '对比结果已就绪',
+      );
 
       const workspace = result.workspace;
       if (workspace.a) {
@@ -196,9 +202,15 @@ export default function ComparePage() {
       const outcome = await waitForJob<GearSwapOutcome>(jobId);
       if (outcome.applied && outcome.workspace) {
         updateWorkspaceState(drawer.side, outcome.workspace);
+        setPassives((prev) => replaceSidePassives(prev, drawer.side, outcome.passives));
         const rk = outcome.result?.resultKind;
         if (rk === 'normal_gain' || rk === 'normal_loss' || rk === 'neutral') {
-          setMutationMessage(`创建 Variant：DPS ${formatDelta(outcome.result!.dpsDeltaPercent)}`);
+          const passiveWarning = outcome.passiveWarnings?.[drawer.side];
+          setMutationMessage(
+            passiveWarning
+              ? `创建 Variant：DPS ${formatDelta(outcome.result!.dpsDeltaPercent)}；天赋收益暂不可用：${passiveWarning}`
+              : `创建 Variant：DPS ${formatDelta(outcome.result!.dpsDeltaPercent)}`,
+          );
         }
       } else {
         const rk = outcome.result?.resultKind;
@@ -214,9 +226,16 @@ export default function ComparePage() {
   const doRevision = async (side: Side, action: 'undo' | 'redo' | 'reset') => {
     if (!workspaceId) return;
     try {
-      const workspace = await revisionAction(workspaceId, side, action);
-      updateWorkspaceState(side, workspace);
-      setMutationMessage(action === 'undo' ? '已撤销' : action === 'redo' ? '已重做' : '已重置到 baseline');
+      const outcome = await revisionAction(workspaceId, side, action);
+      updateWorkspaceState(side, outcome.workspace);
+      setPassives((prev) => replaceSidePassives(prev, side, outcome.passives));
+      const actionMessage = action === 'undo' ? '已撤销' : action === 'redo' ? '已重做' : '已重置到 baseline';
+      const passiveWarning = outcome.passiveWarnings?.[side];
+      setMutationMessage(
+        passiveWarning
+          ? `${actionMessage}；天赋收益暂不可用：${passiveWarning}`
+          : actionMessage,
+      );
     } catch (caught) {
       setMutationMessage(caught instanceof Error ? caught.message : String(caught));
     }
@@ -509,33 +528,76 @@ function Skills({ build, selected }: { build: NormalizedBuild; selected?: string
 }
 
 function PassiveRanks({ calculable, rankings }: { calculable: boolean; rankings?: PassiveRankings }) {
+  const failures = rankings?.failures ?? [];
   const groups = [
-    ['下一点收益榜', '单个相邻节点', rankings?.nextPoint ?? []],
-    ['路径包收益榜', 'pathAutoFilled · 按实际点数', rankings?.pathPackage ?? []],
-    ['移除损失榜', 'cascadeRemoved · 级联总损失', rankings?.removeLoss ?? []],
+    ['下一点收益', '单点收益 · 1 点', rankings?.nextPoint ?? [], 'next'] as const,
+    ['路径包收益', '路径包总收益 · pathAutoFilled · N 点', rankings?.pathPackage ?? [], 'path'] as const,
+    ['移除损失', '级联总损失 · cascadeRemoved · N 节点', rankings?.removeLoss ?? [], 'remove'] as const,
   ] as const;
   return (
-    <div className="passive-columns">
-      {groups.map(([title, note, results]) => (
-        <section className="rank-card" key={title}>
-          <h3>{title}</h3><p>{note}</p>
-          {results.length === 0 ? (
-            <EmptyState text={calculable ? '等待渐进模拟结果' : '需要 PoB2 可计算构筑'} />
-          ) : results.slice(0, 6).map((result) => (
-            <article className="rank-row" key={`${title}-${result.target.id}`}>
-              <div><b>{result.target.name ?? `节点 ${result.target.id}`}</b>
-                <small>
-                  {result.passiveAddMeta?.pathAutoFilled && `pathAutoFilled · ${result.passiveAddMeta.actualPointCost} 点`}
-                  {result.passiveRemoveMeta?.cascadeRemoved && `cascadeRemoved · ${result.passiveRemoveMeta.cascadeNodeCount + 1} 节点`}
-                  {!result.passiveAddMeta?.pathAutoFilled && !result.passiveRemoveMeta?.cascadeRemoved && '独立变更'}
-                </small>
+    <div>
+      {failures.length > 0 && (
+        <div className="text-[10px] text-poe-textDim mb-2 px-1">
+          {failures.length} 个模拟失败（首例：{failures[0]?.errorMessage ?? failures[0]?.warnings?.[0] ?? '未知'}）
+        </div>
+      )}
+      <div className="space-y-1.5">
+        {groups.map(([title, note, results, kind]) => (
+          <section key={title}>
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-xs font-semibold text-poe-text">{title}</h3>
+              <span className="text-[9px] text-poe-textDim">{note}</span>
+            </div>
+            {results.length === 0 ? (
+              <div className="text-center py-4 text-[10px] text-poe-textDim">
+                {calculable ? '等待渐进模拟结果' : '需要 PoB2 可计算构筑'}
               </div>
-              <strong className={result.dpsDeltaPercent >= 0 ? 'positive' : 'negative'}>{formatDelta(result.dpsDeltaPercent)}</strong>
-            </article>
-          ))}
-        </section>
-      ))}
-      <div className="tree-paused">完整天赋树 UI 已暂停：P3 仅展示可追溯的收益榜，不展示 raw node 散点图。</div>
+            ) : results.slice(0, 6).map((result) => {
+              const dpsPct = result.dpsDeltaPercent;
+              const pointCost = result.passiveAddMeta?.actualPointCost ?? result.pointCost ?? 1;
+              const gpp = result.gainPerPoint ?? result.passiveAddMeta?.gainPerPoint ?? 0;
+              const phy = result.hitLineDelta?.physicalHitLineDelta?.deltaPercent;
+              const ele = result.hitLineDelta?.elementalHitLineDelta?.deltaPercent;
+              return (
+                <div key={`${title}-${result.target.id}`}
+                  className="bg-poe-surface rounded border border-poe-border p-2 mb-1"
+                >
+                  <div className="flex items-start justify-between mb-1">
+                    <span className="text-xs font-medium text-poe-text">
+                      {result.target.name ?? `节点 ${result.target.id}`}
+                    </span>
+                    <span className={`text-xs font-mono font-semibold ${dpsPct >= 0 ? 'text-poe-positive' : 'text-poe-negative'}`}>
+                      {formatDelta(dpsPct)}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1 text-[10px] font-mono">
+                    <div>
+                      <span className="text-poe-textDim">消耗</span>
+                      <span className="text-poe-text ml-1">
+                        {kind === 'next' ? '1 点' : kind === 'path' ? `${pointCost} 点` : kind === 'remove' ? (result.passiveRemoveMeta?.cascadeRemoved ? `${(result.passiveRemoveMeta.cascadeNodeCount ?? 0) + 1} 节点` : '1 节点') : ''}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-poe-textDim">每点</span>
+                      <span className={`ml-1 ${gpp >= 0 ? 'text-poe-positive' : 'text-poe-negative'}`}>
+                        {gpp >= 0 ? '+' : ''}{typeof gpp === 'number' ? gpp.toFixed(1) : '0'} dps
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-poe-textDim">一击线</span>
+                      <span className="ml-1 text-poe-text">
+                        {phy !== undefined || ele !== undefined
+                          ? `${phy !== undefined ? `物${phy >= 0 ? '+' : ''}${phy.toFixed(1)}%` : ''}${phy !== undefined && ele !== undefined ? ' · ' : ''}${ele !== undefined ? `元${ele >= 0 ? '+' : ''}${ele.toFixed(1)}%` : ''}`
+                          : '—'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </section>
+        ))}
+      </div>
     </div>
   );
 }

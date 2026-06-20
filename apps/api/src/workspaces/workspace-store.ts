@@ -169,7 +169,7 @@ export class WorkspaceStore {
 
     const applied = await this.executor.applyGearSwap({ baseline, currentBuildXml, mutation });
 
-    // Incompatible / calc_failed / invalid_variant: do NOT append
+    // Incompatible / calc_failed / invalid_variant: do NOT append and do NOT rerun passives
     if (applied.result.resultKind === 'incompatible'
       || applied.result.resultKind === 'calc_failed'
       || applied.result.resultKind === 'invalid_variant') {
@@ -219,27 +219,32 @@ export class WorkspaceStore {
     return this.requireSide(this.requireWorkspace(id), side).session.undo();
   }
 
-  undoWithPayload(id: string, side: WorkspaceSide): ApplyGearSwapOutcome {
+  async undoWithPayload(id: string, side: WorkspaceSide): Promise<ApplyGearSwapOutcome> {
     this.undo(id, side);
-    return { applied: true, workspace: this.get(id)! };
+    return this.revisionPayload(id);
   }
 
   redo(id: string, side: WorkspaceSide): VariantRevision {
     return this.requireSide(this.requireWorkspace(id), side).session.redo();
   }
 
-  redoWithPayload(id: string, side: WorkspaceSide): ApplyGearSwapOutcome {
+  async redoWithPayload(id: string, side: WorkspaceSide): Promise<ApplyGearSwapOutcome> {
     this.redo(id, side);
-    return { applied: true, workspace: this.get(id)! };
+    return this.revisionPayload(id);
   }
 
   reset(id: string, side: WorkspaceSide): VariantRevision {
     return this.requireSide(this.requireWorkspace(id), side).session.reset();
   }
 
-  resetWithPayload(id: string, side: WorkspaceSide): ApplyGearSwapOutcome {
+  async resetWithPayload(id: string, side: WorkspaceSide): Promise<ApplyGearSwapOutcome> {
     this.reset(id, side);
-    return { applied: true, workspace: this.get(id)! };
+    return this.revisionPayload(id);
+  }
+
+  private async revisionPayload(id: string): Promise<ApplyGearSwapOutcome> {
+    const workspace = this.view(this.requireWorkspace(id));
+    return { applied: true, workspace };
   }
 
   private sideState(imported: StoredImport): SideState {
