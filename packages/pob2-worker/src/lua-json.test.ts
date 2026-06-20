@@ -10,8 +10,10 @@ const scripts = [
   'mutation_passive_remove.lua',
 ];
 
-describe('Lua JSON encoding', () => {
-  it.each(scripts)('%s normalizes non-finite numbers to JSON null', async (script) => {
+describe('Lua static script validation', () => {
+  // This checks source text only, not runtime Lua behavior. Runtime coverage
+  // of these scripts is provided by the bridge/integration tests.
+  it.each(scripts)('%s contains the toJSON non-finite-number guard', async (script) => {
     const content = await readFile(
       path.resolve('packages/pob2-worker/python/scripts', script),
       'utf8',

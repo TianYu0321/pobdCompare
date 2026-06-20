@@ -232,6 +232,11 @@ export class ImportService {
       });
       conversion.report.pobValidation = native.validation;
       onProgress?.('compute_baselines', '读取 PoB2 重算 baseline');
+      // Backfill rawText for all baseline items from the PoB2 SaveDB XML
+      const parsedFromXml = await this.buildAdapter.parseBuildXml(native.buildXml);
+      if (parsedFromXml.items && parsedFromXml.items.length > 0) {
+        this.mergeParsedItems(native.baseline, parsedFromXml.items);
+      }
       conversion.report.status = Object.values(native.validation).every(Boolean)
         ? 'complete'
         : 'validation_failed';
@@ -244,6 +249,9 @@ export class ImportService {
         });
       }
       const normalizedBuild = this.normalizedFromBaseline(native.baseline, 'wegame');
+      if (normalizedBuild.skills.length === 0) {
+        normalizedBuild.skills = this.skillsFromPoB2Dps(native.baseline, displayBuild.skills);
+      }
       this.mergeDisplayEquipments(normalizedBuild, displayEquipments);
       return this.storeWeGameResult({
         id,
@@ -383,6 +391,31 @@ export class ImportService {
 
   private static nonEmpty(value: string | undefined | null): value is string {
     return typeof value === 'string' && value.trim().length > 0;
+  }
+
+  private skillsFromPoB2Dps(
+    baseline: BaselineSnapshot,
+    displaySkills: NormalizedBuild['skills'],
+  ): NormalizedBuild['skills'] {
+    const selectedSkillNumber = baseline.mainSkillSelection.selectedSkillNumber;
+    const selectedSkillName = baseline.mainSkillSelection.selectedSkillName;
+
+    return baseline.skillDpsList.map((skill, index) => {
+      const display = displaySkills[index];
+      const name =
+        skill.skillNumber === selectedSkillNumber && ImportService.nonEmpty(selectedSkillName)
+          ? selectedSkillName
+          : ImportService.nonEmpty(skill.name)
+            ? skill.name
+            : display?.name ?? `技能组 ${index + 1}`;
+      return {
+        ...display,
+        id: String(skill.skillNumber),
+        name,
+        supports: display?.supports ?? [],
+        tags: display?.tags ?? [],
+      };
+    });
   }
 
   private mergeDisplayEquipments(

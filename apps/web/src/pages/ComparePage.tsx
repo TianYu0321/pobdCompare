@@ -77,6 +77,7 @@ export default function ComparePage() {
   const [candidates, setCandidates] = useState<GearCandidate[]>([]);
   const [drawer, setDrawer] = useState<{ side: Side; slot: EquipmentSlot }>();
   const [mutationMessage, setMutationMessage] = useState('');
+  const revisionSeq = useRef<Record<Side, number>>({ a: 0, b: 0 });
   const dual = Boolean(sides.a.result && sides.b.result);
 
   useEffect(() => {
@@ -196,16 +197,20 @@ export default function ComparePage() {
 
   const applyCandidate = async (candidate: GearCandidate) => {
     if (!workspaceId || !drawer) return;
+    const side = drawer.side;
+    const seq = ++revisionSeq.current[side];
     setMutationMessage('PoB2 正在重算...');
     try {
-      const jobId = await applyGearCandidate(workspaceId, drawer.side, candidate.id, drawer.slot.slotName);
+      const jobId = await applyGearCandidate(workspaceId, side, candidate.id, drawer.slot.slotName);
       const outcome = await waitForJob<GearSwapOutcome>(jobId);
+      // Guard: discard stale responses from earlier requests
+      if (revisionSeq.current[side] !== seq) return;
       if (outcome.applied && outcome.workspace) {
-        updateWorkspaceState(drawer.side, outcome.workspace);
-        setPassives((prev) => replaceSidePassives(prev, drawer.side, outcome.passives));
+        updateWorkspaceState(side, outcome.workspace);
+        setPassives((prev) => replaceSidePassives(prev, side, outcome.passives));
         const rk = outcome.result?.resultKind;
         if (rk === 'normal_gain' || rk === 'normal_loss' || rk === 'neutral') {
-          const passiveWarning = outcome.passiveWarnings?.[drawer.side];
+          const passiveWarning = outcome.passiveWarnings?.[side];
           setMutationMessage(
             passiveWarning
               ? `创建 Variant：DPS ${formatDelta(outcome.result!.dpsDeltaPercent)}；天赋收益暂不可用：${passiveWarning}`
@@ -219,6 +224,7 @@ export default function ComparePage() {
         else setMutationMessage(outcome.result ? `结果：${rk}` : '操作未生效');
       }
     } catch (caught) {
+      if (revisionSeq.current[side] !== seq) return;
       setMutationMessage(caught instanceof Error ? caught.message : String(caught));
     }
   };

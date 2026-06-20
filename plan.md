@@ -1,32 +1,32 @@
-# P1.5a 后续计划
+# P3/MVP 收尾与后续路线
 
-## 目标
-P1.5a 对称验证已通过（3 个 build，100% 成功率）。接下来需要：
-1. 修复 Gear Swap 始终为 0 的问题
-2. 扩展验证覆盖更多 build
-3. 性能优化（Worker 复用状态）
-4. 清理 Lua stdout 污染
+> 更新日期：2026-06-20
 
-## 阶段 1：调查与并行修复（当前）
+## 已完成的工程阶段
 
-### 任务 A：Gear Swap 修复
-- 问题：`generateGearSwapCandidates([], baseline)` 第一个参数传了空数组，且 Lua 返回的 `itemSlots` 全是 `empty`
-- 需要：从 `.build` 文件/导入中正确读取装备 XML，或从 PoB2 的 items 数据中提取实际装备信息
-- 关键文件：`baseline.lua`（items 读取逻辑）、`mutation_gear_swap.lua`、`BuildXmlAdapter`（装备解析）
+1. PoB2 baseline、mutation、breakdown 和一击线提取。
+2. Fastify 本地 API、作业状态和 SSE。
+3. `.build/.xml` 与 poe.ninja 导入。
+4. WeGame Profile API、MappingCatalog、原生 PoB2 转换桥和严格阻断。
+5. 双 BD/单 BD 工作台。
+6. 装备 Variant、连续 revision、undo/redo/reset。
+7. 三类天赋收益榜及 revision 后刷新。
+8. 真实 XML 浏览器 E2E 和运行时稳定性修复。
 
-### 任务 B：Worker 性能优化
-- 问题：每个 mutation 都要重新启动 Python 进程（加载 tree/uniques/rares 约 30-40s）
-- 方案：Worker 复用状态，只在 pool 初始化时加载一次，mutations 间不复位
-- 关键文件：`driver.py`（状态加载）、`bridge.ts`（worker 生命周期）、`worker-pool.ts`
+## 发布前证据任务
 
-### 任务 C：Lua stdout 清理
-- 问题：`ConPrintf("missing node "..otherId)` 在 `PassiveTree.lua` 中输出大量污染日志
-- 方案：在 `driver.py` 的 Lua 脚本中设置 `ConPrintf = function() end`，或修改 `PassiveTree.lua`
+1. 已于 2026-06-20 开启 `POB2_INTEGRATION=1`，原生 WeGame bridge 集成测试 1/1 通过。
+2. 已于 2026-06-20 保存真实 WeGame 分享链接验收记录：`calculable`、round-trip、双 BD 对比和三类天赋榜通过。
+3. 保存一条真实 poe.ninja 角色链接的端到端验收记录。
+4. 对 1280×720 再做一次布局回归。
+5. 如需团队共享，将本地 `main` 推送到远端；当前不自动执行 push。
 
-## 阶段 2：扩展验证
-- 在修复后逐步扩展到 10/20/74 个 build
-- 调整 batch size 和 timeout 以支持更多 build
+## P3.5/P4
 
-## 输出
-- 修复后的 `baseline.lua`、`mutation_gear_swap.lua`、`driver.py`、`bridge.ts` 等
-- 扩展后的 P1.5a 测试报告
+- 游戏级完整天赋树。
+- 装备词条编辑。
+- 技能等级、品质和辅助宝石编辑。
+- 天赋与珠宝编辑。
+- 更完整的 breakdown 辅助抽屉。
+
+所有后续编辑能力必须复用现有 Variant、mutation、revision 和 PoB2 validation 架构。

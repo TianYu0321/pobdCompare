@@ -73,7 +73,7 @@ describe('MutationFactory', () => {
     expect(mut.source).toBe('candidate_list');
   });
 
-  it('createGearSwapMutation returns correct mutation', () => {
+  it('createGearSwapMutation returns rawText-only mutation (no itemId)', () => {
     const factory = new MutationFactory(mockTreeProvider);
     const mut = factory.createGearSwapMutation('Weapon 1', 'Some Item\nBase', 'hash-abc');
 
@@ -83,17 +83,21 @@ describe('MutationFactory', () => {
       itemRaw: 'Some Item\nBase',
       preserveLinks: true,
     });
+    const payload = mut.payload as Record<string, unknown>;
+    expect('itemId' in payload).toBe(false);
+    expect(payload.itemId).toBeUndefined();
     expect(mut.source).toBe('target_bd_import');
   });
 
   it('createGearSwapMutation accepts and stores sourceSlotName', () => {
     const factory = new MutationFactory(mockTreeProvider);
-    const mut = factory.createGearSwapMutation('Helm', 'Item\nBase', 'hash', 42, 'Helmet');
+    const mut = factory.createGearSwapMutation('Helm', 'Item\nBase', 'hash', 'Helmet');
 
     expect(mut.type).toBe('item_swap');
     expect((mut.payload as Record<string, unknown>).slotName).toBe('Helm');
     expect((mut.payload as Record<string, unknown>).sourceSlotName).toBe('Helmet');
-    expect((mut.payload as Record<string, unknown>).itemId).toBe(42);
+    // itemId must never appear in cross-build gear swap payloads
+    expect('itemId' in (mut.payload as Record<string, unknown>)).toBe(false);
   });
 
   it('createGearComboMutation returns correct mutation', () => {
@@ -201,5 +205,21 @@ describe('MutationFactory', () => {
     expect((candidates[0].payload as Record<string, unknown>).slotName).toBe('Weapon 1');
     expect(candidates[1].type).toBe('item_swap');
     expect((candidates[1].payload as Record<string, unknown>).slotName).toBe('Body Armour');
+  });
+
+  it('generateGearSwapCandidates does NOT include source itemId (cross-build safe)', () => {
+    const factory = new MutationFactory(mockTreeProvider);
+    const items: ItemInfo[] = [
+      { slotName: 'Weapon 1', itemId: 1, name: 'Sword', baseType: 'Sword', rawText: 'Sword\nBase' },
+      { slotName: 'Body Armour', itemId: 2, name: 'Armour', baseType: 'Armour', rawText: 'Armour\nBase' },
+    ];
+    const candidates = factory.generateGearSwapCandidates(items, mockBaseline);
+
+    for (const candidate of candidates) {
+      const payload = candidate.payload as Record<string, unknown>;
+      // itemId must NOT be present in the payload for cross-build safety
+      expect(payload.itemId).toBeUndefined();
+      expect('itemId' in payload).toBe(false);
+    }
   });
 });

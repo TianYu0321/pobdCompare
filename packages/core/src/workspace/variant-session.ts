@@ -15,6 +15,10 @@ export class VariantSessionManager {
   }
 
   append(revision: VariantRevision): VariantRevision {
+    const head = this.revisions[this.cursor];
+    if (revision.parentRevisionId && revision.parentRevisionId !== head.revisionId) {
+      throw new Error(`stale_revision: parent ${revision.parentRevisionId} !== head ${head.revisionId}`);
+    }
     this.revisions = this.revisions.slice(0, this.cursor + 1);
     this.revisions.push(revision);
     this.cursor = this.revisions.length - 1;

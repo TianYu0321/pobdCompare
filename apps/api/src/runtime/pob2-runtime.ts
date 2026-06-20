@@ -21,6 +21,14 @@ import type {
 } from '@pobd/schemas';
 import { resolveRepoPath } from './runtime-paths.js';
 
+// Lua encodes empty tables as {} rather than []. Normalize to a
+// real JS array so callers can safely use .find(), .map(), etc.
+function normalizeArray<T>(value: unknown): T[] {
+  if (Array.isArray(value)) return value as T[];
+  if (value && typeof value === 'object') return Object.values(value) as T[];
+  return [];
+}
+
 class PoolBaselineClient implements Pob2WorkerClient {
   constructor(private readonly pool: Pob2WorkerPool) {}
 
@@ -46,10 +54,10 @@ class PoolBaselineClient implements Pob2WorkerClient {
     return {
       calcsOutput: response.calcsOutput ?? {},
       rawBreakdown: response.breakdown ?? {},
-      skillDpsList: response.skillDpsList ?? [],
+      skillDpsList: normalizeArray<BaselineComputeResult['skillDpsList'][number]>(response.skillDpsList),
       skillGroups: [],
-      items: response.itemSlots ?? [],
-      passiveNodes: response.passiveNodes ?? [],
+      items: normalizeArray<BaselineComputeResult['items'][number]>(response.itemSlots),
+      passiveNodes: normalizeArray<number>(response.passiveNodes),
       ascendNodes: [],
       jewels: [],
     };
@@ -156,7 +164,7 @@ export class Pob2Runtime {
       mainSkillSelection: {
         selectedSkillNumber: input.preferredSkillNumber ?? 1,
         selectedSkillName: '待识别',
-        selectionMode: input.preferredSkillNumber ? 'user_confirmed' : 'auto_single',
+        selectionMode: 'auto_single',
         candidates: [],
         warnings: [],
       } as MainSkillSelection,
@@ -175,43 +183,51 @@ export class Pob2Runtime {
         reason: ['PoB2 skill list'],
       }))
       .sort((a, b) => b.dps - a.dps);
-    const selected = candidates[0];
+    const topEnabled = enabled.length > 0
+      ? enabled.reduce((best, s) => (s.dps > best.dps ? s : best))
+      : undefined;
+
     if (input.preferredSkillNumber) {
       const preferred = candidates.find(
         (candidate) => candidate.skillNumber === input.preferredSkillNumber,
       );
-      provisional.mainSkillSelection = {
-        selectedSkillNumber: input.preferredSkillNumber,
-        selectedSkillName:
-          input.preferredSkillName
-          ?? preferred?.name
-          ?? `Skill ${input.preferredSkillNumber}`,
-        selectionMode: 'user_confirmed',
-        candidates,
-        warnings: preferred ? [] : ['PoB2 did not return the validated main skill in its skill list.'],
-      };
-      return provisional;
+      const preferredValid = preferred && Number.isFinite(preferred.dps) && preferred.dps > 0;
+      if (preferredValid) {
+        provisional.mainSkillSelection = {
+          selectedSkillNumber: input.preferredSkillNumber,
+          selectedSkillName: input.preferredSkillName ?? preferred.name ?? `Skill ${input.preferredSkillNumber}`,
+          selectionMode: 'auto_highest_dps',
+          candidates,
+          warnings: [],
+        };
+        return provisional;
+      }
+      // Preferred skill is invalid (0 DPS) – fall through to auto-select
     }
-    if (!selected || selected.skillNumber === 1) {
+
+    if (!topEnabled) {
+      const fallback = candidates[0];
       provisional.mainSkillSelection = {
-        selectedSkillNumber: selected?.skillNumber ?? 1,
-        selectedSkillName: selected?.name ?? '待选择',
+        selectedSkillNumber: fallback?.skillNumber ?? 1,
+        selectedSkillName: fallback?.name ?? '待选择',
         selectionMode: candidates.length <= 1 ? 'auto_single' : 'auto_highest_dps',
         candidates,
-        warnings: selected ? [] : ['PoB2 未返回可用技能，请手动选择主技能。'],
+        warnings: fallback ? ['PoB2 中所有技能 DPS 均为 0。'] : ['PoB2 未返回可用技能，请手动选择主技能。'],
       };
       return provisional;
     }
 
     return manager.createBaseline(input.buildXml, {
       ...baseOptions,
-      skillNumber: selected.skillNumber,
+      skillNumber: topEnabled.skillNumber,
       mainSkillSelection: {
-        selectedSkillNumber: selected.skillNumber,
-        selectedSkillName: selected.name,
-        selectionMode: 'auto_highest_dps',
+        selectedSkillNumber: topEnabled.skillNumber,
+        selectedSkillName: topEnabled.name,
+        selectionMode: candidates.length <= 1 ? 'auto_single' : 'auto_highest_dps',
         candidates,
-        warnings: [],
+        warnings: input.preferredSkillNumber
+          ? [`Preferred skill ${input.preferredSkillNumber} has 0 DPS; using ${topEnabled.skillNumber} instead.`]
+          : [],
       },
     });
   }
@@ -231,6 +247,15 @@ export class Pob2Runtime {
       mutation: input.mutation,
     });
     if (!response.success) {
+      // Check build-level errors (missing itemRaw, unparseable, slot errors) first
+      const itemError = this.invalidVariantReason(response.error);
+      if (itemError) {
+        return {
+          buildXml: input.currentBuildXml,
+          result: this.invalidVariantResult(input.baseline, input.mutation, itemError, response.error ?? ''),
+          snapshot: input.baseline,
+        };
+      }
       const reason = this.compatibilityReason(response.error);
       if (reason) {
         return {
@@ -255,6 +280,13 @@ export class Pob2Runtime {
       };
     }
     const buildXml = response.variantXml;
+    const skillDpsList = normalizeArray<{ skillNumber: number; name: string; dps: number; enabled: boolean }>(response.skillDpsList);
+    const selectedSkillNum = input.baseline.mainSkillSelection.selectedSkillNumber;
+    const skillEntry = skillDpsList.find((s) => s.skillNumber === selectedSkillNum);
+    const combinedDps = response.calcsOutput?.CombinedDPS;
+    const mainSkillStillValid = Boolean(skillEntry && skillEntry.enabled && Number.isFinite(skillEntry.dps) && skillEntry.dps > 0);
+    const dpsIsValid = typeof combinedDps === 'number' && Number.isFinite(combinedDps) && combinedDps > 0;
+
     const variant: BuildVariant & { mutation: BuildMutation } = {
       variantId: randomUUID(),
       variantHash: createHash('sha256')
@@ -276,8 +308,8 @@ export class Pob2Runtime {
         success: true,
         hasCalcsOutput: Boolean(response.calcsOutput),
         hasBreakdown: Boolean(response.breakdown),
-        mainSkillStillValid: true,
-        dpsIsValid: true,
+        mainSkillStillValid,
+        dpsIsValid,
       },
       calcDurationMs: Date.now() - startedAt,
       createdAt: Date.now(),
@@ -333,6 +365,13 @@ export class Pob2Runtime {
       throw new Error(response.error ?? 'PoB2 passive mutation failed');
     }
     const buildXml = response.variantXml ?? input.baseline.buildXml;
+    const combinedDps = response.calcsOutput?.CombinedDPS;
+    // Passive mutations never invalidate the main skill; the mutation
+    // response may have an empty skillDpsList which should not trigger
+    // incompatible classification.  Only item swaps can break a skill.
+    const mainSkillStillValid = true;
+    const dpsIsValid = typeof combinedDps === 'number' && Number.isFinite(combinedDps);
+
     const variant: BuildVariant & {
       mutation: BuildMutation;
       actuallyAddedNodeIds?: number[];
@@ -362,8 +401,8 @@ export class Pob2Runtime {
         success: true,
         hasCalcsOutput: Boolean(response.calcsOutput),
         hasBreakdown: Boolean(response.breakdown),
-        mainSkillStillValid: true,
-        dpsIsValid: true,
+        mainSkillStillValid,
+        dpsIsValid,
       },
       actuallyAddedNodeIds: response.actuallyAddedNodeIds,
       actuallyRemovedNodeIds: response.actuallyRemovedNodeIds,
@@ -417,6 +456,23 @@ export class Pob2Runtime {
     if (normalized.includes('weapon') || normalized.includes('main skill')) {
       return normalized.includes('weapon') ? 'weapon_type_mismatch' : 'main_skill_invalid';
     }
+    return undefined;
+  }
+
+  private invalidVariantReason(error?: string):
+    | 'missing_item_raw'
+    | 'unparseable_item_raw'
+    | 'item_creation_failed'
+    | 'slot_not_found'
+    | 'invalid_payload'
+    | 'variant_xml_missing'
+    | undefined {
+    const normalized = error?.toLowerCase() ?? '';
+    if (normalized.includes('missing itemraw')) return 'missing_item_raw';
+    if (normalized.includes('could not parse') || normalized.includes('unparseable')) return 'unparseable_item_raw';
+    if (normalized.includes('failed to create target-build item') || normalized.includes('item creation')) return 'item_creation_failed';
+    if (normalized.includes('slot not found') || normalized.includes('invalid slot')) return 'slot_not_found';
+    if (normalized.includes('missing slotname')) return 'invalid_payload';
     return undefined;
   }
 

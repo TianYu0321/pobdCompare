@@ -1,49 +1,38 @@
-# PoE2 BD 差异比较工具 — 修改后项目范围
+# PoE2 BD 差异比较工具：项目范围
 
-> 修改日期：2026-06-18
-> 原始文档：MVP 详细实现设计方案（第一版"精确实战 DPS 模拟"从"暂不支持的"改为**必须支持的**）
+> 修订日期：2026-06-20
 
-## 修改后的里程碑
+## MVP 必须包含
 
-| 里程碑 | 目标 | 状态 |
-|--------|------|------|
-| **P1.5a 回归** | 真实 Build 回归测试（baseline + mutation 链路），≥90% 成功率 | ✅ 完成 |
-| **M1 WeGame API 探针** | WeGame 分享链接解析，获取角色/装备/技能/DPS/天赋/面板/珠宝 | ⏳ 当前 |
-| **M2 NormalizedBuild** | 将 WeGame 原始数据转成统一模型 | ⏳ 依赖 M1 |
-| **M3 Diff Engine** | 两个 NormalizedBuild 差异对比（技能链、DPS、武器组、天赋） | ⏳ 依赖 M2 |
-| **M4 Rule Engine** | 风险检测（Dance with Death、辅助缺失、版本风险） | ⏳ 依赖 M3 |
-| **M5 Agent Report** | 基于结构化 diff 生成自然语言分析报告 | ⏳ 依赖 M4 |
-| **M6 版本化知识库** | 接入官方天赋树数据，技能/辅助/天赋/规则 JSON | ⏳ 后续 |
-| **M7 前端分析页** | 双 BD 输入 + 结果展示 + Agent 报告 | ⏳ 后续 |
+- `.build/.xml`、WeGame URL、poe.ninja URL 三类输入。
+- 三类输入经本地 PoB2 验证后生成可计算 baseline。
+- 双 BD 游戏化工作台和单 BD 分析模式。
+- 固定装备槽位、技能组和三类天赋收益榜。
+- PoB2 装备替换 Variant。
+- 连续换装及 undo、redo、reset。
+- DPS、Average Hit、物理/元素一击线和基础防御面板。
+- 精确映射失败时明确阻断，不输出假收益。
+- SSE 真实进度、partial failure 和 revision 隔离。
 
-## 已完成交付物
+## MVP 不包含
 
-- `pob2-worker` Python ctypes ↔ Lua 桥接（4 worker，状态复用）
-- `baseline.lua` / `mutation_passive_add.lua` / `mutation_passive_remove.lua` / `mutation_gear_swap.lua`
-- `P1.5a` 回归测试：10 builds × 210 jobs = 100% 成功率，耗时 45.4s
+- 市场价格、交易推荐和性价比。
+- BD、装备、防御或综合评分。
+- 报告页作为主界面。
+- 完整天赋树 UI。
+- 装备词条编辑。
+- 技能等级、品质和辅助编辑。
+- 天赋与珠宝编辑。
 
-## 当前任务：M1 WeGame API 探针
+## 核心不变量
 
-### 目标
-输入 WeGame 分享链接 → 成功获取角色信息、装备、技能、DPS、天赋、面板、珠宝 → 保存原始 JSON → 验证接口稳定性。
+1. PoB2 是唯一计算内核。
+2. 前端与 Agent 不手算 DPS 或一击线。
+3. baseline 永久不可变，用户操作生成 Variant revision。
+4. `incompatible`、`invalid_variant`、`calc_failed` 不得折叠为普通负收益。
+5. `pathAutoFilled` 是路径包收益。
+6. `cascadeRemoved` 是级联总损失。
+7. WeGame 映射只允许精确证据，不允许模糊翻译。
+8. 所有关键数字必须能追溯到 PoB2 output 与 revision。
 
-### 已知接口（从文档）
-- GetRoleInfo
-- GetEquipments
-- GetSkills
-- GetSkillsDps
-- GetTalentTree
-- GetPanelAttr
-- GetJewels
-- GetRoleKeyData
-- GetRoleSummary
-- GetDimensionEvaluation
-
-### 当前状态
-`wegame-adapter.ts` 只有框架（placeholder），没有实际 API 调用。
-
-## 下一步
-1. 研究 WeGame 分享页的真实 API（接口地址、参数、响应格式）
-2. 实现 `fetchWeGameBuild(shareUrl)` 方法
-3. 保存原始 JSON
-4. 验证接口稳定性
+详细规格见 [docs/P3_MVP_SPEC.md](docs/P3_MVP_SPEC.md)。

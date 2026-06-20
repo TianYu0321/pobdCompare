@@ -210,6 +210,43 @@ describe('WorkspaceStore', () => {
     expect(outcome.applied).toBe(true);
   });
 
+  it('uses candidate raw text instead of a source-build-local itemId', async () => {
+    const importA = makeImported('a', 'hash-a', 'Target Axe');
+    const importB = makeImported('b', 'hash-b', 'Source Maul');
+    expect(importA.baseline!.items[0]?.itemId).toBe(1);
+    expect(importB.baseline!.items[0]?.itemId).toBe(1);
+
+    const store = new WorkspaceStore({
+      applyGearSwap: async ({ mutation }) => {
+        expect(mutation.payload).toMatchObject({
+          slotName: 'Weapon 1',
+          itemRaw: 'Rarity: Rare\nSource Maul\nMace',
+        });
+        expect('itemId' in mutation.payload ? mutation.payload.itemId : undefined).toBeUndefined();
+        return {
+          buildXml: '<PathOfBuilding variant="source-maul"/>',
+          result: okResult(),
+          snapshot: makeBaseline('snap-source-maul', [
+            { slotName: 'Weapon 1', itemId: 2, name: 'Source Maul' },
+          ]),
+        };
+      },
+    });
+    const workspace = store.create(importA, importB);
+    const candidate = store.gearCandidates(workspace.id, 'a')
+      .find((item) => item.sourceSide === 'b')!;
+
+    const outcome = await store.applyGearSwap(
+      workspace.id,
+      'a',
+      candidate.id,
+      'Weapon 1',
+    );
+
+    expect(outcome.applied).toBe(true);
+    expect(outcome.workspace.a.currentBaseline.items[0]?.name).toBe('Source Maul');
+  });
+
   it('validates candidate is from opposite side and has rawText', async () => {
     const store = new WorkspaceStore({
       applyGearSwap: async () => ({
@@ -325,6 +362,59 @@ describe('WorkspaceStore', () => {
     const outcome = await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
     expect(outcome.applied).toBe(false);
     expect(store.get(workspace.id)?.a.session.cursor).toBe(0);
+  });
+
+  it('rejects concurrent mutation with stale parentRevisionId (CAS)', async () => {
+    // Two mutations start concurrently, second completes first, first is stale
+    let resolveGo: (() => void) | undefined;
+    const go = new Promise<void>((resolve) => { resolveGo = resolve; });
+    let swapsStarted = 0;
+    const store = new WorkspaceStore({
+      applyGearSwap: async () => {
+        swapsStarted++;
+        if (swapsStarted === 1) {
+          // First mutation blocks until released
+          await go;
+          return {
+            buildXml: '<PathOfBuilding variant="late"/>',
+            result: okResult({ variantHash: 'variant-late' }),
+            snapshot: makeBaseline('snap-late', []),
+          };
+        }
+        // Second mutation completes immediately
+        return {
+          buildXml: '<PathOfBuilding variant="fast"/>',
+          result: okResult({ variantHash: 'variant-fast' }),
+          snapshot: makeBaseline('snap-fast', []),
+        };
+      },
+    });
+    const workspace = store.create(makeImported('a', 'hash-a', 'Axe'), makeImported('b', 'hash-b', 'Maul'));
+    const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
+
+    // Start both concurrently
+    const o1Promise = store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
+    const o2Promise = store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
+
+    // Both started
+    expect(swapsStarted).toBe(2);
+    // Second completes first (fast)
+    const o2 = await o2Promise;
+    expect(o2.applied).toBe(true);
+    expect(o2.revision?.variantHash).toBe('variant-fast');
+
+    // Now release the first (late) mutation
+    resolveGo!();
+    const o1 = await o1Promise;
+
+    // First mutation must be rejected as stale
+    expect(o1.applied).toBe(false);
+    expect(o1.result?.resultKind).toBe('calc_failed');
+    expect(o1.result?.errorCode).toBe('stale_revision');
+
+    // Cursor must still be at rev-1 (the fast mutation)
+    expect(store.get(workspace.id)?.a.session.cursor).toBe(1);
+    expect(store.get(workspace.id)?.a.currentBaseline?.id).toBe('snap-fast');
   });
 
   it('snapshot is mandatory: executor must return snapshot on success', async () => {

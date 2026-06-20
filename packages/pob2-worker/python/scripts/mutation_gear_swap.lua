@@ -87,7 +87,6 @@ end
 
 -- Apply gear swap mutation
 local slotName = _mutation_payload and _mutation_payload.slotName
-local itemId = _mutation_payload and _mutation_payload.itemId
 local itemRaw = _mutation_payload and _mutation_payload.itemRaw
 
 if not slotName then
@@ -102,25 +101,29 @@ end
 -- Save old item reference
 local oldItemId = slot.selItemId
 
--- Swap item: prefer itemId, fallback to itemRaw import, else remove
-if itemId and itemId ~= 0 then
-    slot.selItemId = itemId
-elseif itemRaw and itemRaw ~= "" then
-    -- Try to import item from raw text (if ImportItem is available on itemsTab)
-    local importOk, newItem = pcall(function()
-        if build.itemsTab.ImportItem then
-            return build.itemsTab:ImportItem(itemRaw)
-        end
-        return nil
-    end)
-    if importOk and newItem then
-        slot.selItemId = newItem.id
-    else
-        slot.selItemId = 0
-    end
-else
-    slot.selItemId = 0
+-- Source-build item IDs are not valid in this target build. Parse the
+-- authoritative raw item text and add a fresh item to the target build.
+if not itemRaw or itemRaw == "" then
+    return toJSON({success = false, error = "Missing itemRaw in gear swap payload"})
 end
+
+local importOk, newItemOrError = pcall(function()
+    local newItem = new("Item", itemRaw)
+    if not newItem or not newItem.base then
+        error("PoB2 could not parse candidate item raw text")
+    end
+    newItem:NormaliseQuality()
+    build.itemsTab:AddItem(newItem, true)
+    return newItem
+end)
+if not importOk or not newItemOrError or not newItemOrError.id then
+    return toJSON({
+        success = false,
+        error = "Failed to create target-build item: " .. tostring(newItemOrError),
+    })
+end
+slot:SetSelItemId(newItemOrError.id)
+build.itemsTab:PopulateSlots()
 
 runCallback("OnFrame")
 build.calcsTab:BuildOutput()

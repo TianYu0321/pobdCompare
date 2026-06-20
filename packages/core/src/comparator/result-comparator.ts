@@ -491,6 +491,15 @@ export class ResultComparator {
     if (calcValidation && calcValidation.success === false) {
       return 'calc_failed';
     }
+    // mainSkillStillValid=false means the gear/weapon swap made the selected
+    // main skill unusable – classify as incompatible (not normal_loss).
+    if (calcValidation && calcValidation.mainSkillStillValid === false) {
+      return 'incompatible';
+    }
+    // Non-finite or invalid DPS output → calc_failed
+    if (calcValidation && calcValidation.dpsIsValid === false) {
+      return 'calc_failed';
+    }
     if (dpsDelta > 0) return 'normal_gain';
     if (dpsDelta < 0) return 'normal_loss';
     return 'neutral';

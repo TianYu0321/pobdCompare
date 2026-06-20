@@ -1,101 +1,112 @@
-# PoE2 BD 差异比较工具 — 项目完成状态
+# PoE2 双 BD 可计算工作台：项目状态
 
-> 最后更新：2026-06-18 上午（CLI 已完成）
-> 位置：`D:\pobdCompare`
-> Git 最新提交：`d713269 feat(cli): implement analyze and p1-5a-test commands with adapters`
+> 最后更新：2026-06-20
+>
+> 分支：`main`
+>
+> 当前提交：`4dab0b9 fix: close real runtime and browser E2E gaps`
 
-## 总体完成度
+## 当前结论
 
-| 阶段 | 状态 | 完成度 |
-|---|---|---|
-| 阶段 1：工程骨架 | ✅ 完成 | 100% |
-| 阶段 2：P1.5a 真实 Build 回归 | ⏳ 等待用户 build 文件 | 0% |
+P3/MVP 的本地 Web 工作台、PoB2 baseline、装备 Variant、天赋收益榜和双 BD 浏览器链路已经实现。产品主界面已经从调试面板改为游戏化双 BD 工作台，完整天赋树 UI 已退出 P3。
 
-## 各模块完成状态
+截至本次文档更新前的最近一次完整验证：
 
-### 1. Schemas (`packages/schemas`)
-- ✅ `baseline.ts` — BaselineSnapshot、BaselineHashPayload、SkillDpsInfo、ItemInfo、JewelInfo 等
-- ✅ `mutation.ts` — BuildMutation、MutationType、所有 Payload 类型
-- ✅ `variant.ts` — BuildVariant、VariantValidation、CalcValidation、CompatibilityResult
-- ✅ `simulation.ts` — SimulationResult、OutputDiff、HitLineDelta、EvidenceRef
-- ✅ `comparator.ts` — GearSwapResult、ComparatorOutput
-- ✅ `breakdown.ts` — NormalizedBreakdown、BreakdownDiffGroup、FormulaRole
-- ✅ `agent.ts` — ConversionReport、UnknownMod、UnmappedNode 等
-- ✅ `cache.ts` — SimulationJob、SimulationBatch、FailedJobReport、CacheEntry
-- ✅ `index.ts` — 全量导出 + 组合类型（FullBaselineSnapshot、FullBuildVariant 等）
-- ✅ Zod 验证：所有类型均有 Zod Schema 定义
-- **验证**：`tsc --build` 编译通过
+- `npm run build`：通过。
+- `npm test`：381 项通过，1 项因 `POB2_INTEGRATION` 未开启而跳过。
+- `POB2_INTEGRATION=1` 原生 WeGame bridge：1 项通过。
+- 真实 PoB2 XML 浏览器 E2E：通过。
+- 当前真实 WeGame 分享链接：导入、PoB2 round-trip、双 BD 对比和天赋榜通过。
+- 双 BD、单 BD、装备替换、undo/redo/reset、三类天赋榜：已在 1440×900 浏览器中验证。
 
-### 2. PoB2 Worker (`packages/pob2-worker`)
-- ✅ `protocol.ts` — Pob2WorkerRequest、Pob2WorkerResponse、WorkerPoolConfig、JobInfo
-- ✅ `bridge.ts` — Pob2Bridge 类：spawn Python 子进程、stdin/stdout JSON 通信、超时控制、错误处理
-- ✅ `worker-pool.ts` — Pob2WorkerPool 类：管理多 Worker（默认 4 个）、工作分配、崩溃恢复、队列调度
-- ✅ `python/driver.py` — Python 入口：读取 stdin JSON、加载 lua51.dll、动态生成 Lua 脚本、执行并输出 JSON
-- ✅ `python/scripts/baseline.lua` — 基准线 Lua 模板
-- ✅ `python/scripts/mutation_passive_add.lua` — 被动加点 Lua 模板
-- ✅ `python/scripts/mutation_passive_remove.lua` — 被动减点 Lua 模板
-- ✅ `python/scripts/mutation_gear_swap.lua` — 装备替换 Lua 模板
-- **验证**：`tsc --build` 编译通过
+## 已实现
 
-### 3. Core Engine (`packages/core`)
-- ✅ `baseline/baseline-manager.ts` — BaselineManager：创建 baseline、SHA256 哈希、缓存读写
-- ✅ `variant/variant-generator.ts` — VariantGenerator：生成 variant、调用 Worker、验证前后状态
-- ✅ `mutation/mutation-applier.ts` — MutationFactory：createXxxMutation 工厂 + generateXxxCandidates 候选生成
-- ✅ `comparator/result-comparator.ts` — ResultComparator：baseline vs variant 对比、resultKind 判定、outputDiff 构建、hitLineDelta 计算
-- ✅ `analyzer/passive-marginal-analyzer.ts` — PassiveMarginalAnalyzer：生成所有 passive_add/remove 候选，批量分析，top gains/losses
-- ✅ `analyzer/gear-swap-analyzer.ts` — GearSwapAnalyzer：生成所有 gear_swap 候选，兼容性检查，批量分析
-- ✅ `jobqueue/job-queue.ts` — JobQueue：批量入队、WorkerPool 并行调度、超时重试、失败隔离、进度追踪
-- **验证**：`tsc --build` 编译通过
+### 数据接入与计算
 
-### 4. Adapters (`packages/adapters`)
-- ✅ `build-xml/build-xml-adapter.ts` — BuildXmlAdapter：读取 .build/.xml 文件，轻量解析元数据
-- ✅ `wegame/wegame-adapter.ts` — WeGameAdapter：解析链接、数据转换框架、错误降级处理
-- ✅ `wegame/conversion-report.ts` — ConversionReport 构建工具
-- **验证**：`tsc --build` 编译通过
+- `.build/.xml` 导入，经本地 PoB2 加载并生成 baseline。
+- poe.ninja 角色 URL 解析、动态 snapshot 发现和 `pathOfBuildingExport` 导入。
+- WeGame Profile API 接入。
+- WeGame 版本化精确映射目录：
+  - PoB2 manifest、Gems、Bases、Mods、TreeData 参与 hash。
+  - 中英文交易目录配对。
+  - 基底、暗金、技能、辅助、词条、珠宝和天赋的精确映射及版本化 override。
+  - 未映射内容阻断计算，不做 fuzzy match。
+- WeGame → PoB2 原生导入桥：
+  - `ImportItemsAndSkills`。
+  - `ImportPassiveTreeAndJewels`。
+  - SaveDB 后用全新 Build reload。
+  - round-trip、baseline、主技能验证。
+- PoB2 路径优先使用开发目录，回退安装目录；版本从 `manifest.xml` 读取。
+- PoB2 输出中的 DPS、Average Hit、物理/元素一击线和防御面板进入 baseline。
 
-### 5. CLI (`apps/cli`) ✅ 完成
-- ✅ `index.ts` — Commander.js CLI 入口：注册 `analyze` 和 `p1-5a-test` 命令
-- ✅ `commands/analyze.ts` — analyze 命令实现：读取 build → 创建 baseline → 生成候选 → 并行模拟 → 输出 JSON
-- ✅ `commands/p1-5a-test.ts` — p1-5a-test 命令实现：扫描目录 → 批量回归测试 → 统计成功率
-- ✅ `utils/logger.ts` — 彩色日志工具（info/warn/error/success/title/result/divider）
-- ✅ `utils/file-utils.ts` — 文件读写工具（ensureDir/writeJson/readFile/fileExists/listFiles）
-- **验证**：`tsc --build` 编译通过
+### 本地 API
 
-### 6. 测试
-- ⏳ `tests/p0/p0-verify.test.ts` — 待创建：P0 验证（基础 Lua 调用）
-- ⏳ `tests/p1/p1-runner.test.ts` — 待创建：P1 验证（单 variant 模拟）
-- ⏳ `tests/p1-5/p1-5a-real-build.test.ts` — 待创建：P1.5a 真实 build 回归
-- ⏳ `tests/fixtures/builds/` — 等待用户放入真实 build 文件
+- 导入、对比、作业查询和 SSE 增量事件。
+- Workspace 装备候选、换装、undo、redo、reset。
+- baseline 与 Variant revision 分离；A/B baseline 永久不可变。
+- 新 revision 会刷新摘要、Diff Rail、装备 badge 和天赋收益榜。
+- `incompatible`、`invalid_variant`、`calc_failed` 为独立状态，不伪装成普通负收益。
 
-## 技术债务
+### P3 前端
 
-| 问题 | 影响 | 优先级 |
-|---|---|---|
-| `tsconfig.json` 中 `paths` 映射未生效于 `tsc --noEmit`（需 `--build`） | 开发体验 | 低 |
-| 部分测试文件使用 `any` 类型（gear-swap-analyzer.test.ts 第 316 行） | 类型安全 | 低 |
-| `SimplePassiveTreeProvider` 的 `linked` 为空数组 | `passive_add` 候选生成退化 | 中（需真实 passive tree 数据） |
-| CLI 适配器中的 `mainOutput` 硬编码为 `undefined` | 功能完整度 | 低（后续迭代） |
+- 顶部 A/B 文件与 URL 输入。
+- 双 BD：`42% / 16% / 42%` 三栏。
+- 单 BD：主 Build 面板加轻量第二套 BD dropzone。
+- Diff Rail 覆盖等待、真实进度和结果状态。
+- A/B 面板镜像，固定为装备、技能、天赋三个 Tab。
+- 固定角色装备槽位布局和装备详情抽屉。
+- 候选装备应用、undo、redo、reset。
+- 三类天赋收益榜：
+  - 下一点收益榜。
+  - 路径包收益榜。
+  - 移除损失榜。
+- `pathAutoFilled` 与 `cascadeRemoved` 使用正确产品口径。
+- 攻击端/防御端切换。
+- 不做评分，不以报告页作为主界面。
 
-## 下一步行动
+## 已验证的真实样本
 
-1. ✅ 完成 CLI 入口和命令实现
-2. ✅ 安装 `commander` 依赖
-3. ⏳ 运行集成测试（合成 build mock）
-4. ⏳ 用户放入真实 `.build` 文件 → 运行 P1.5a 回归测试
+### PoB2 XML
 
-## 定版决策（已确认）
+使用 `test_pob_raw.xml` 在本地 PoB2 和浏览器中完成：
 
-- Lua 桥接：保持 Python ctypes 子进程方案
-- Worker 进程：阶段1即并行（4 Worker）
-- 项目结构：Monorepo（npm workspace）
-- 输入范围：`.build` + WeGame Adapter（框架先行，解析后补）
-- Breakdown：阶段1保留 raw，阶段4归一化
-- 技术栈：TS strict + Vitest + Zod + Commander.js
-- 总体范围：先做阶段1+2，3~6后续排
+- 导入状态为 `calculable`。
+- 角色：Lv95 Monk / Martial Artist。
+- 主技能：Hollow Focus。
+- PoB2 baseline：DPS 38.4，物理一击线 4516，元素一击线 6948。
+- A/B 同构筑对比完成。
+- 三类天赋榜返回并展示。
+- 装备详情、应用候选、Variant 创建、undo、redo 可用。
+- 单 BD 模式无大片空白。
 
-## 文件统计
+### WeGame
 
-- 总 TypeScript 文件数：~50+
-- 总行数：~3000+
-- Git 提交数：7
-- 模块数：5 个包 + 1 个 CLI 应用
+使用 2026-06-20 抓取并保存于 `wegame_probe.json` 的真实分享角色完成：
+
+- 角色：Lv96 Martial Artist「不逢时初生铁」。
+- 映射：装备 16/16、技能条目 53/53、词条 99/99、天赋 104/104，blocker 0。
+- PoB2 round-trip、baseline 和主技能验证均通过。
+- 主技能：Spear Throw。
+- PoB2 baseline：DPS 2572.8258，Average Hit 556.8101，物理一击线 5805，元素一击线 9085。
+- 连续导入 3 次的 baseline hash 与数值一致。
+- 同构筑 A/B 对比完成；下一点 5、路径包 6、移除损失 6，失败 0。
+- 修复了 WeGame calculable 结果技能组为空，以及 baseline 返回 113 个内部空槽的问题。
+
+## 尚未取得的验收证据
+
+以下不是“代码不存在”，而是发布前仍应补齐的真实样本证据：
+
+1. 用当前真实 poe.ninja 角色链接完成同等级端到端验证。
+2. 使用两套不同的真实构筑完成一次非同源装备替换；当前 WeGame 验收使用同一构筑 A/B，因此没有适用的异侧候选。
+3. 对后续 PoE2/PoB2 新版本持续刷新映射目录；新内容在目录更新前应明确阻断。
+
+## 明确后置
+
+- 装备词条编辑。
+- 技能等级、品质、辅助宝石编辑。
+- 天赋与珠宝编辑。
+- 游戏级完整天赋树。
+- BD、装备、防御或综合评分。
+- 报告页作为主界面。
+
+后续编辑能力必须复用现有 Variant、mutation 和 PoB2 validation 架构。

@@ -163,7 +163,6 @@ export class WorkspaceStore {
       targetSlotName,
       candidate.rawText,
       baseline.baselineHash,
-      candidate.itemId,
       candidate.slotName,
     );
 
@@ -188,7 +187,21 @@ export class WorkspaceStore {
       result: applied.result,
       createdAt: Date.now(),
     };
-    target.session.append(revision);
+    try {
+      target.session.append(revision);
+    } catch (casError) {
+      return {
+        applied: false,
+        result: {
+          ...applied.result,
+          resultKind: 'calc_failed',
+          errorCode: 'stale_revision',
+          errorMessage: casError instanceof Error ? casError.message : String(casError),
+          warnings: [...(applied.result.warnings ?? []), '并发冲突：revision 已过期'],
+        },
+        workspace: this.view(workspace),
+      };
+    }
     target.xmlByRevision.set(revision.revisionId, applied.buildXml);
     target.snapshotByRevision.set(revision.revisionId, applied.snapshot);
 

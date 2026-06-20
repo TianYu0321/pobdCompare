@@ -299,6 +299,65 @@ describe('PassiveAnalysisService', () => {
     expect(result.nextPoint[0]?.gainPerPoint).toBe(5);
   });
 
+  it('simulates ALL candidates before sorting (7th best enters top 6)', async () => {
+    const candidates = Array.from({ length: 8 }, (_, i) => ({
+      id: 100 + i,
+      name: `Node ${100 + i}`,
+    }));
+    // Node 106 (index 6, the 7th candidate) has the highest gain
+    const dpsValues = [1, 2, 3, 4, 5, 6, 99, 0.5];
+    let callIndex = 0;
+    const service = new PassiveAnalysisService(
+      {
+        simulatePassive: async () => {
+          const idx = callIndex++;
+          return {
+            jobId: '',
+            baselineHash: 'hash',
+            variantHash: 'v',
+            mutationId: `passive_add_${candidates[idx]?.id}`,
+            mutationType: 'passive_add',
+            resultKind: 'normal_gain',
+            affectedSkillNumber: 1,
+            isMainSkillStillValid: true,
+            target: { type: 'passive', id: candidates[idx]?.id, name: candidates[idx]?.name },
+            baselineDps: 100,
+            variantDps: 100 + (dpsValues[idx] ?? 0),
+            dpsDelta: dpsValues[idx] ?? 0,
+            dpsDeltaPercent: dpsValues[idx] ?? 0,
+            outputDiff: { offence: {} },
+            pointCost: 1,
+            gainPerPoint: dpsValues[idx] ?? 0,
+            passiveAddMeta: {
+              targetNodeId: candidates[idx]?.id ?? 0,
+              actuallyAddedNodeIds: [candidates[idx]?.id ?? 0],
+              pathAutoFilled: false,
+              actualPointCost: 1,
+              gainPerPoint: dpsValues[idx] ?? 0,
+            },
+            warnings: [],
+            evidence: [],
+            createdAt: Date.now(),
+          } as SimulationResult;
+        },
+      },
+      async () => ({
+        next: candidates,
+        path: [],
+        remove: [],
+      }),
+      6,
+    );
+
+    const result = await service.analyze({ baselineHash: 'hash', passiveNodes: [] } as unknown as BaselineSnapshot);
+    expect(result.nextPoint).toHaveLength(6);
+    // The top 6 should include Node 106 (99% gain) — the 7th input candidate
+    const topIds = result.nextPoint.map((r) => (r.target as { id: number }).id);
+    expect(topIds).toContain(106);
+    // The lowest gain node (Node 107, idx 7, 0.5%) should NOT be in top 6
+    expect(topIds).not.toContain(107);
+  });
+
   it('removeLoss preserves cascade metadata', async () => {
     const service = new PassiveAnalysisService(
       {

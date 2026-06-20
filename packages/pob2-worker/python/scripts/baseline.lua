@@ -180,20 +180,13 @@ end
 
 if build.itemsTab and build.itemsTab.slots then
     for slotName, slot in pairs(build.itemsTab.slots) do
-        if slot.selItemId and slot.selItemId ~= 0 then
+        if slot.selItemId and slot.selItemId ~= 0 and not slot.nodeId then
             local item = build.itemsTab.items[slot.selItemId]
             table.insert(result.itemSlots, {
                 slotName = slotName,
                 itemId = slot.selItemId,
                 name = item and item.name or "unknown",
                 baseType = item and item.base and item.base.type or "unknown",
-            })
-        else
-            table.insert(result.itemSlots, {
-                slotName = slotName,
-                itemId = 0,
-                name = "empty",
-                baseType = "none",
             })
         end
     end

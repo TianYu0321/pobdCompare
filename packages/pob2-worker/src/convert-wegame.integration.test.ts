@@ -31,7 +31,18 @@ describeIntegration('convert_wegame native bridge', () => {
         level: 10,
         class: 'Huntress',
         league: 'Standard',
-        equipment: [],
+        equipment: [{
+          inventoryId: 'Ring',
+          frameType: 0,
+          name: '',
+          typeLine: 'Amethyst Ring',
+          baseType: 'Amethyst Ring',
+          ilvl: 1,
+          properties: [],
+          requirements: [],
+          implicitMods: [],
+          explicitMods: [],
+        }],
         skills: [],
         jewels: [],
         passives: {
@@ -49,6 +60,10 @@ describeIntegration('convert_wegame native bridge', () => {
     expect(response.pobValidation).toMatchObject({
       roundTripValid: true,
       baselineValid: true,
+    });
+    expect(response.roundTrip).toMatchObject({
+      expectedEquipment: 1,
+      selectedItems: 1,
     });
 
     // Assert real MaximumHitTaken keys are present in calcsOutput
@@ -84,5 +99,20 @@ describeIntegration('convert_wegame native bridge', () => {
       expect(typeof co[key]).toBe('number');
       expect(Number.isFinite(co[key])).toBe(true);
     }
+
+    const baselineResponse = await pool.submit({
+      buildXml: response.variantXml!,
+      skillNumber: response.selectedSkillNumber ?? 1,
+      weaponSet: 1,
+      config: {},
+    });
+    expect(baselineResponse.success).toBe(true);
+    expect(baselineResponse.itemSlots).toEqual([
+      expect.objectContaining({
+        slotName: 'Ring 1',
+        itemId: expect.any(Number),
+      }),
+    ]);
+    expect(baselineResponse.itemSlots?.every((item) => item.itemId > 0)).toBe(true);
   });
 });

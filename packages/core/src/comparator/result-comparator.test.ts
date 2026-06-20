@@ -105,6 +105,49 @@ describe('ResultComparator', () => {
     expect(result.resultKind).toBe('incompatible');
   });
 
+  it('mainSkillStillValid=false from item_swap → incompatible, not normal_loss', () => {
+    const baseline = createBaseline(100);
+    const variant = createVariant(baseline, 0, {
+      calcValidation: {
+        success: true,
+        hasCalcsOutput: true,
+        hasBreakdown: false,
+        mainSkillStillValid: false,
+        dpsIsValid: false,
+      },
+    });
+    // Explicitly set mutation for proper context
+    (variant as Record<string, unknown>).mutation = {
+      mutationId: 'gear_swap_Weapon1',
+      type: 'item_swap',
+      payload: { slotName: 'Weapon 1' },
+    };
+    const result = comparator.compare(baseline, variant);
+
+    // DPS went 100→0 (−100%), but reason is main-skill incompatible → incompatible, NOT normal_loss
+    expect(result.resultKind).toBe('incompatible');
+    expect(result.baselineDps).toBe(100);
+    expect(result.variantDps).toBe(0);
+    expect(result.dpsDelta).toBe(-100);
+  });
+
+  it('dpsIsValid=false → calc_failed even when DPS delta is negative', () => {
+    const baseline = createBaseline(100);
+    const variant = createVariant(baseline, 0, {
+      calcValidation: {
+        success: true,
+        hasCalcsOutput: true,
+        hasBreakdown: false,
+        mainSkillStillValid: true,
+        dpsIsValid: false,
+      },
+    });
+    const result = comparator.compare(baseline, variant);
+
+    // Non-finite/invalid DPS → calc_failed, not normal_loss
+    expect(result.resultKind).toBe('calc_failed');
+  });
+
   it('should classify calc_failed when calc validation fails', () => {
     const baseline = createBaseline(1000);
     const variant = createVariant(baseline, 1000, {

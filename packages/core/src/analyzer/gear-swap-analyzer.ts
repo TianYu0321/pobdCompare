@@ -60,7 +60,6 @@ export class GearSwapAnalyzer {
         payload: {
           slotName: item.slotName,
           itemRaw: item.rawText,
-          itemId: item.itemId,
           sourceBuildHash: baseline.baselineHash,
           sourceSlotName: item.slotName,
         },

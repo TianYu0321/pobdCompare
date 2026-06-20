@@ -44,13 +44,14 @@ export class PassiveAnalysisService {
 
   async analyze(baseline: BaselineSnapshot): Promise<PassiveRankings> {
     const pools = await this.candidateProvider(baseline);
-    const nextMutations = pools.next.slice(0, this.limitPerType).map((node) =>
+    // Simulate ALL candidates, then rank by real PoB2 results
+    const nextMutations = pools.next.map((node) =>
       this.mutation('passive_add', baseline.baselineHash, node),
     );
-    const pathMutations = pools.path.slice(0, this.limitPerType).map((node) =>
+    const pathMutations = pools.path.map((node) =>
       this.mutation('passive_add', baseline.baselineHash, node),
     );
-    const removeMutations = pools.remove.slice(0, this.limitPerType).map((node) =>
+    const removeMutations = pools.remove.map((node) =>
       this.mutation('passive_remove', baseline.baselineHash, node),
     );
     const allCandidates = new Map(
@@ -80,26 +81,30 @@ export class PassiveAnalysisService {
       (r) => r.resultKind === 'normal_gain' || r.resultKind === 'normal_loss' || r.resultKind === 'neutral',
     );
 
+    const allNextPoint = successful
+      .filter((r) =>
+        r.mutationType === 'passive_add'
+        && r.passiveAddMeta
+        && !r.passiveAddMeta.pathAutoFilled
+        && r.passiveAddMeta.actualPointCost === 1,
+      )
+      .sort((a, b) => b.dpsDeltaPercent - a.dpsDeltaPercent);
+    const allPathPackage = successful
+      .filter((r) =>
+        r.mutationType === 'passive_add'
+        && r.passiveAddMeta
+        && r.passiveAddMeta.pathAutoFilled
+        && r.passiveAddMeta.actualPointCost > 1,
+      )
+      .sort((a, b) => (b.gainPerPoint ?? 0) - (a.gainPerPoint ?? 0));
+    const allRemoveLoss = successful
+      .filter((r) => r.mutationType === 'passive_remove')
+      .sort((a, b) => a.dpsDeltaPercent - b.dpsDeltaPercent);
+
     const rankings: PassiveRankings = {
-      nextPoint: successful
-        .filter((r) =>
-          r.mutationType === 'passive_add'
-          && r.passiveAddMeta
-          && !r.passiveAddMeta.pathAutoFilled
-          && r.passiveAddMeta.actualPointCost === 1,
-        )
-        .sort((a, b) => b.dpsDeltaPercent - a.dpsDeltaPercent),
-      pathPackage: successful
-        .filter((r) =>
-          r.mutationType === 'passive_add'
-          && r.passiveAddMeta
-          && r.passiveAddMeta.pathAutoFilled
-          && r.passiveAddMeta.actualPointCost > 1,
-        )
-        .sort((a, b) => (b.gainPerPoint ?? 0) - (a.gainPerPoint ?? 0)),
-      removeLoss: successful
-        .filter((r) => r.mutationType === 'passive_remove')
-        .sort((a, b) => a.dpsDeltaPercent - b.dpsDeltaPercent),
+      nextPoint: allNextPoint.slice(0, this.limitPerType),
+      pathPackage: allPathPackage.slice(0, this.limitPerType),
+      removeLoss: allRemoveLoss.slice(0, this.limitPerType),
       failures,
     };
 

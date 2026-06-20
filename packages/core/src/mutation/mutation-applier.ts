@@ -79,11 +79,10 @@ export class MutationFactory {
     };
   }
 
-  createGearSwapMutation(slotName: string, itemRaw: string, baselineHash: string, itemId?: number, sourceSlotName?: string): BuildMutation {
+  createGearSwapMutation(slotName: string, itemRaw: string, baselineHash: string, sourceSlotName?: string): BuildMutation {
     const payload: ItemSwapPayload = {
       slotName,
       itemRaw,
-      itemId,
       sourceSlotName,
       preserveLinks: true,
     };
@@ -196,7 +195,7 @@ export class MutationFactory {
    */
   generateGearSwapCandidates(targetBuildItems: ItemInfo[], baseline: BaselineSnapshot): BuildMutation[] {
     return targetBuildItems.map((item) =>
-      this.createGearSwapMutation(item.slotName, item.rawText ?? '', baseline.baselineHash, item.itemId)
+      this.createGearSwapMutation(item.slotName, item.rawText ?? '', baseline.baselineHash, item.slotName)
     );
   }
 

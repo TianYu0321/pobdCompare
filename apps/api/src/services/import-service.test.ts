@@ -111,17 +111,108 @@ describe('ImportService', () => {
     expect(result.conversionReport.blockers[0]?.code).toBe('unknown_item');
   });
 
-  it('marks WeGame calculable only after native PoB2 round-trip validation', async () => {
-    const mappedCatalog = new MappingCatalog({
+  it('backfills rawText for WeGame baseline items from PoB2 SaveDB XML', async () => {
+    const catalog = new MappingCatalog({
       hash: 'catalog',
-      baseNames: new Map(),
+      baseNames: new Map([['紫晶戒指', 'Amethyst Ring']]),
       uniqueNames: new Map(),
       assetNames: new Map([['2DItems/Rings/Basetypes/AmethystRing', 'Amethyst Ring']]),
       skillAssets: new Map(),
       modTemplates: new Map(),
       passiveNodeIds: new Set([722]),
     });
-    const convertedBaseline = { ...baseline(), source: 'wegame' as const };
+    const beforeBaseline = baseline();
+    beforeBaseline.source = 'wegame';
+    beforeBaseline.items = [
+      { slotName: 'Ring 1', itemId: 5, name: 'Amethyst Ring', baseType: 'Amethyst Ring' },
+      { slotName: 'Weapon 1', itemId: 1, name: 'Maul', baseType: 'Two Hand Mace' },
+    ];
+    const saveDbXml = `<PathOfBuilding>
+      <Items>
+        <Item id="5">
+Rarity: Rare
+Amethyst Ring
+Ring
+ImplicitMods</Item>
+        <Item id="1">
+Rarity: Rare
+Maul
+Two Hand Mace</Item>
+        <ItemSet id="1">
+          <Slot name="Ring 1" itemId="5"/>
+          <Slot name="Weapon 1" itemId="1"/>
+        </ItemSet>
+      </Items>
+    </PathOfBuilding>`;
+
+    const service = new ImportService({
+      computeBaseline: async () => beforeBaseline,
+      getWeGameCatalog: async () => catalog,
+      convertWeGame: async () => ({
+        buildXml: saveDbXml,
+        baseline: beforeBaseline,
+        validation: { roundTripValid: true, baselineValid: true, mainSkillValid: true },
+      }),
+    }, {
+      wegameAdapter: fakeWeGameAdapter({
+        equipments: [{
+          inventoryId: 'Ring',
+          baseType: '紫晶戒指',
+          typeLine: '紫晶戒指',
+          icon: assetUrl('2DItems/Rings/Basetypes/AmethystRing'),
+        }],
+      }),
+    });
+
+    const result = await service.importUrl('https://www.wegame.com.cn/share/test');
+    expect(result.status).toBe('calculable');
+    expect(result.baseline?.items).toBeDefined();
+    const ringItem = result.baseline!.items.find((item) => item.slotName === 'Ring 1');
+    expect(ringItem).toBeDefined();
+    expect(ringItem!.rawText).toContain('Amethyst Ring');
+    expect(ringItem!.rawText).toContain('ImplicitMods');
+    expect(ringItem!.itemId).toBe(5);
+    const weaponItem = result.baseline!.items.find((item) => item.slotName === 'Weapon 1');
+    expect(weaponItem).toBeDefined();
+    expect(weaponItem!.rawText).toContain('Maul');
+  });
+
+  it('marks WeGame calculable only after native PoB2 round-trip validation', async () => {
+    const skillAsset = '2DItems/SkillIcons/SpearThrow';
+    const mappedCatalog = new MappingCatalog({
+      hash: 'catalog',
+      baseNames: new Map(),
+      uniqueNames: new Map(),
+      assetNames: new Map([['2DItems/Rings/Basetypes/AmethystRing', 'Amethyst Ring']]),
+      skillAssets: new Map([[
+        skillAsset,
+        {
+          name: 'Spear Throw',
+          gameId: 'player_ranged_spear',
+          grantedEffectId: 'SpearThrowPlayer',
+        },
+      ]]),
+      modTemplates: new Map(),
+      passiveNodeIds: new Set([722]),
+    });
+    const convertedBaseline = {
+      ...baseline(),
+      source: 'wegame' as const,
+      mainSkillSelection: {
+        selectedSkillNumber: 1,
+        selectedSkillName: 'Spear Throw',
+        selectionMode: 'auto_single' as const,
+        candidates: [],
+        warnings: [],
+      },
+      skillDpsList: [{
+        skillNumber: 1,
+        name: 'Spear Throw',
+        dps: 7,
+        enabled: true,
+      }],
+      skillGroups: [],
+    };
     const service = new ImportService({
       computeBaseline: async () => convertedBaseline,
       getWeGameCatalog: async () => mappedCatalog,
@@ -144,6 +235,13 @@ describe('ImportService', () => {
           properties: [],
           requirements: [],
         }],
+        skills: [{
+          id: 'player_ranged_spear',
+          inventoryId: 'Skill 1',
+          typeLine: '投矛',
+          gemSkill: assetUrl(skillAsset),
+          socketedItems: [],
+        }],
       }),
     });
 
@@ -151,6 +249,20 @@ describe('ImportService', () => {
 
     expect(result.status).toBe('calculable');
     expect(result.conversionReport.pobValidation?.roundTripValid).toBe(true);
+    expect(result.normalizedBuild?.skills).toEqual([
+      expect.objectContaining({
+        id: '1',
+        name: 'Spear Throw',
+      }),
+    ]);
+    expect(result.normalizedBuild?.skillDps).toEqual([
+      expect.objectContaining({
+        skillId: '1',
+        skillName: 'Spear Throw',
+        dps: 1234,
+        source: 'pob',
+      }),
+    ]);
     expect(service.get(result.id)?.buildXml).toBe('<PathOfBuilding2/>');
   });
 
