@@ -184,8 +184,9 @@ export async function createApp(dependencies: AppDependencies): Promise<FastifyI
 
   app.post('/api/workspaces/:id/gear-swaps', async (request, reply) => {
     const { id } = request.params as { id: string };
-    const body = request.body as { side?: string; candidateId?: string };
+    const body = request.body as { side?: string; candidateId?: string; targetSlotName?: string };
     if (!body.candidateId) return reply.code(400).send({ error: '缺少 candidateId' });
+    if (!body.targetSlotName) return reply.code(400).send({ error: '缺少 targetSlotName' });
     const job = jobs.create('mutation');
     void (async () => {
       try {
@@ -195,12 +196,13 @@ export async function createApp(dependencies: AppDependencies): Promise<FastifyI
           message: 'PoB2 正在验证装备替换',
           timestamp: Date.now(),
         });
-        const revision = await dependencies.workspaces.applyGearSwap(
+        const outcome = await dependencies.workspaces.applyGearSwap(
           id,
           sideFrom(body.side),
           body.candidateId!,
+          body.targetSlotName!,
         );
-        jobs.complete(job.id, { revision, workspace: dependencies.workspaces.get(id) });
+        jobs.complete(job.id, outcome);
       } catch (error) {
         jobs.fail(job.id, error instanceof Error ? error : new Error(String(error)));
       }
@@ -209,11 +211,11 @@ export async function createApp(dependencies: AppDependencies): Promise<FastifyI
   });
 
   for (const action of ['undo', 'redo', 'reset'] as const) {
+    const withPayload = `${action}WithPayload` as 'undoWithPayload' | 'redoWithPayload' | 'resetWithPayload';
     app.post(`/api/workspaces/:id/${action}`, async (request) => {
       const { id } = request.params as { id: string };
       const side = sideFrom((request.body as { side?: string })?.side);
-      const revision = dependencies.workspaces[action](id, side);
-      return { revision, workspace: dependencies.workspaces.get(id) };
+      return dependencies.workspaces[withPayload](id, side);
     });
   }
 

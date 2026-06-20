@@ -1,4 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { BaselineManager } from './baseline-manager';
 import type { BaselineComputeResult, BaselineOptions, Pob2WorkerClient } from './baseline-manager';
 import type { MainSkillSelection, SkillDpsInfo } from '@pobd/schemas';
@@ -106,16 +108,21 @@ describe('BaselineManager', () => {
   });
 
   it('saveBaseline and loadBaseline round-trip', async () => {
-    const manager = new BaselineManager(mockWorker, { enableFileCache: true, cacheDir: '/tmp/pobd-test-baselines' });
-    const snapshot = await manager.createBaseline('<Build/>', baseOptions);
+    const cacheDir = await fs.mkdtemp(path.join(process.cwd(), '.pobd-test-baselines-'));
+    const manager = new BaselineManager(mockWorker, { enableFileCache: true, cacheDir });
+    try {
+      const snapshot = await manager.createBaseline('<Build/>', baseOptions);
 
-    await manager.saveBaseline(snapshot);
-    const loaded = await manager.loadBaseline(snapshot.baselineHash);
+      await manager.saveBaseline(snapshot);
+      const loaded = await manager.loadBaseline(snapshot.baselineHash);
 
-    expect(loaded).not.toBeNull();
-    expect(loaded!.baselineHash).toBe(snapshot.baselineHash);
-    expect(loaded!.buildXml).toBe(snapshot.buildXml);
-    expect(loaded!.id).toBe(snapshot.id);
+      expect(loaded).not.toBeNull();
+      expect(loaded!.baselineHash).toBe(snapshot.baselineHash);
+      expect(loaded!.buildXml).toBe(snapshot.buildXml);
+      expect(loaded!.id).toBe(snapshot.id);
+    } finally {
+      await fs.rm(cacheDir, { recursive: true, force: true });
+    }
   });
 
   it('loadBaseline returns null for unknown hash', async () => {

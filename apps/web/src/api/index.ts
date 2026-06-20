@@ -1,4 +1,5 @@
 import type { BuildDiffResult, NormalizedBuild } from '@/types';
+import type { SimulationResult } from '@pobd/schemas';
 
 const API_BASE = 'http://127.0.0.1:8787/api';
 
@@ -11,6 +12,7 @@ export interface BaselineSummary {
   };
   calcsOutput: Record<string, unknown>;
   rawBreakdown: Record<string, unknown>;
+  mainOutput?: Record<string, unknown>;
 }
 
 export interface ImportResult {
@@ -59,7 +61,7 @@ export interface GearCandidate {
 }
 
 export interface WorkspaceResult {
-  workspace: { id: string };
+  workspace: WorkspaceView;
   diff?: BuildDiffResult;
   passives?: {
     a?: PassiveRankings;
@@ -91,6 +93,59 @@ export interface PassiveRankings {
   pathPackage: PassiveResult[];
   removeLoss: PassiveResult[];
   failures: PassiveResult[];
+}
+
+// ============================================
+// WorkspaceView / Mutation types (frontend mirror)
+// ============================================
+
+export interface WorkspaceSideView {
+  session: {
+    baselineHash: string;
+    revisions: Array<{
+      revisionId: string;
+      parentRevisionId?: string;
+      variantHash: string;
+      result?: SimulationResult;
+      createdAt: number;
+    }>;
+    cursor: number;
+  };
+  currentBuildXml: string;
+  currentBaseline: {
+    baselineHash: string;
+    id: string;
+    calcsOutput: Record<string, unknown>;
+    rawBreakdown: Record<string, unknown>;
+    mainOutput?: Record<string, unknown>;
+    mainSkillSelection?: {
+      selectedSkillName: string;
+    };
+  };
+  currentRevision: {
+    revisionId: string;
+    variantHash: string;
+    result?: SimulationResult;
+  };
+  currentNormalizedBuild: NormalizedBuild;
+}
+
+export interface WorkspaceView {
+  id: string;
+  a: WorkspaceSideView;
+  b?: WorkspaceSideView;
+  diff?: BuildDiffResult;
+}
+
+export interface GearSwapOutcome {
+  applied: boolean;
+  result?: SimulationResult;
+  revision?: {
+    revisionId: string;
+    parentRevisionId: string;
+    variantHash: string;
+  };
+  workspace: WorkspaceView;
 }
 
 async function json<T>(response: Response): Promise<T> {
@@ -201,11 +256,12 @@ export async function applyGearCandidate(
   workspaceId: string,
   side: 'a' | 'b',
   candidateId: string,
+  targetSlotName: string,
 ): Promise<string> {
   const response = await fetch(`${API_BASE}/workspaces/${workspaceId}/gear-swaps`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ side, candidateId }),
+    body: JSON.stringify({ side, candidateId, targetSlotName }),
   });
   return (await json<{ jobId: string }>(response)).jobId;
 }
@@ -214,12 +270,13 @@ export async function revisionAction(
   workspaceId: string,
   side: 'a' | 'b',
   action: 'undo' | 'redo' | 'reset',
-): Promise<unknown> {
-  return json(
+): Promise<WorkspaceView> {
+  const result = await json<{ applied: boolean; workspace: WorkspaceView }>(
     await fetch(`${API_BASE}/workspaces/${workspaceId}/${action}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ side }),
     }),
   );
+  return result.workspace;
 }

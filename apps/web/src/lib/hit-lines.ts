@@ -29,39 +29,60 @@ function minFinitePositive(values: (number | undefined)[]): number | undefined {
   return finite.length > 0 ? Math.min(...finite) : undefined;
 }
 
-function lookupNumeric(key: string, co: Record<string, unknown>, br: Record<string, unknown>): number | undefined {
-  const fromCo = finiteNumber(co[key]);
-  if (fromCo !== undefined) return fromCo;
-  const fromBr = br[key];
-  if (fromBr !== undefined && typeof fromBr === 'object' && fromBr !== null) return undefined;
-  return finiteNumber(fromBr);
-}
-
 export function safePercentDelta(a: number | undefined, b: number | undefined): number | undefined {
   if (a === undefined || b === undefined || a === 0) return undefined;
   return ((b - a) / a) * 100;
 }
 
+/** Legacy — extract hit lines from ImportResult. Delegates to canonical. */
 export function extractHitLines(result: ImportResult): HitLinesValues {
-  const co = result.baseline?.calcsOutput ?? {};
-  const br = result.baseline?.rawBreakdown ?? {};
+  return extractBaselineHitLines(result.baseline ?? {});
+}
 
-  const physical = lookupNumeric('PhysicalMaximumHitTaken', co, br);
-  const fire = lookupNumeric('FireMaximumHitTaken', co, br);
-  const cold = lookupNumeric('ColdMaximumHitTaken', co, br);
-  const lightning = lookupNumeric('LightningMaximumHitTaken', co, br);
-  const chaos = lookupNumeric('ChaosMaximumHitTaken', co, br);
-  const life = lookupNumeric('Life', co, br);
+export interface BaselineLike {
+  calcsOutput?: Record<string, unknown>;
+  rawBreakdown?: Record<string, unknown>;
+  mainOutput?: Record<string, unknown>;
+}
 
-  const derived = lookupNumeric('ElementalMaximumHitTaken', co, br);
+/**
+ * Extract hit lines from a baseline-like object (workspace.currentBaseline shape).
+ * This is the canonical extraction — extractHitLines delegates to it.
+ */
+export function extractBaselineHitLines(baseline: BaselineLike): HitLinesValues {
+  const co = baseline.calcsOutput ?? {};
+  const br = baseline.rawBreakdown ?? {};
+  const mo = baseline.mainOutput ?? {};
+
+  const lookup = (key: string): number | undefined => {
+    const fromCo = finiteNumber(co[key]);
+    if (fromCo !== undefined) return fromCo;
+    const fromBr = br[key];
+    const fromBr2 =
+      fromBr !== undefined && typeof fromBr === 'object' && fromBr !== null
+        ? undefined
+        : finiteNumber(fromBr);
+    if (fromBr2 !== undefined) return fromBr2;
+    return finiteNumber(mo[key]);
+  };
+
+  const physical = lookup('PhysicalMaximumHitTaken');
+  const fire = lookup('FireMaximumHitTaken');
+  const cold = lookup('ColdMaximumHitTaken');
+  const lightning = lookup('LightningMaximumHitTaken');
+  const chaos = lookup('ChaosMaximumHitTaken');
+  const life = lookup('Life');
+
+  const derived = lookup('ElementalMaximumHitTaken');
   const elemental = derived !== undefined ? derived : minFinitePositive([fire, cold, lightning]);
 
   return { physical, fire, cold, lightning, chaos, elemental, life };
 }
 
-export function computeHitLinesDelta(a: ImportResult, b: ImportResult): HitLinesDelta {
-  const av = extractHitLines(a);
-  const bv = extractHitLines(b);
+/** Compute HitLinesDelta from two baseline-like objects (current baselines). */
+export function computeBaselineDelta(a: BaselineLike, b: BaselineLike): HitLinesDelta {
+  const av = extractBaselineHitLines(a);
+  const bv = extractBaselineHitLines(b);
 
   const delta = (aVal: number | undefined, bVal: number | undefined): number | undefined => {
     if (aVal !== undefined && bVal !== undefined) return bVal - aVal;
@@ -81,4 +102,8 @@ export function computeHitLinesDelta(a: ImportResult, b: ImportResult): HitLines
     chaos: { a: av.chaos, b: bv.chaos },
     life: { a: av.life, b: bv.life, delta: lifeDelta, deltaPercent: safePercentDelta(av.life, bv.life) },
   };
+}
+
+export function computeHitLinesDelta(a: ImportResult, b: ImportResult): HitLinesDelta {
+  return computeBaselineDelta(a.baseline ?? {}, b.baseline ?? {});
 }

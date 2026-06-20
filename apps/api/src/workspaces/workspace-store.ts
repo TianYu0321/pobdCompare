@@ -1,12 +1,17 @@
 import { randomUUID } from 'node:crypto';
 
 import { MutationFactory, VariantSessionManager } from '@pobd/core';
+import { toCanonicalSlot, isCanonicalSlotFamily } from '@pobd/core';
+import { computeBuildDiff } from '@pobd/core';
 import type {
   BaselineSnapshot,
   BuildMutation,
+  ItemInfo,
+  NormalizedBuild,
   SimulationResult,
   VariantRevision,
   VariantSession,
+  BuildDiffResult,
 } from '@pobd/schemas';
 
 import type { StoredImport } from '../services/import-service.js';
@@ -28,14 +33,36 @@ export interface WorkspaceView {
   id: string;
   importA: StoredImport;
   importB?: StoredImport;
-  a: { session: VariantSession; currentBuildXml: string };
-  b?: { session: VariantSession; currentBuildXml: string };
+  a: {
+    session: VariantSession;
+    currentBuildXml: string;
+    currentBaseline: BaselineSnapshot;
+    currentRevision: VariantRevision;
+    currentNormalizedBuild: NormalizedBuild;
+  };
+  b?: {
+    session: VariantSession;
+    currentBuildXml: string;
+    currentBaseline: BaselineSnapshot;
+    currentRevision: VariantRevision;
+    currentNormalizedBuild: NormalizedBuild;
+  };
+  diff?: BuildDiffResult;
+}
+
+export interface ApplyGearSwapOutcome {
+  applied: boolean;
+  result?: SimulationResult;
+  revision?: VariantRevision;
+  workspace: WorkspaceView;
 }
 
 interface SideState {
   imported: StoredImport;
   session: VariantSessionManager;
   xmlByRevision: Map<string, string>;
+  snapshotByRevision: Map<string, BaselineSnapshot>;
+  displayBuildByRevision: Map<string, NormalizedBuild>;
 }
 
 interface WorkspaceState {
@@ -44,12 +71,20 @@ interface WorkspaceState {
   b?: SideState;
 }
 
+export interface GearSwapExecutorInput {
+  baseline: BaselineSnapshot;
+  currentBuildXml: string;
+  mutation: BuildMutation;
+}
+
+export interface GearSwapExecutorOutput {
+  buildXml: string;
+  result: SimulationResult;
+  snapshot: BaselineSnapshot;
+}
+
 export interface GearSwapExecutor {
-  applyGearSwap(input: {
-    baseline: BaselineSnapshot;
-    currentBuildXml: string;
-    mutation: BuildMutation;
-  }): Promise<{ buildXml: string; result: SimulationResult }>;
+  applyGearSwap(input: GearSwapExecutorInput): Promise<GearSwapExecutorOutput>;
 }
 
 const noTreeProvider = { getTree: async () => [] };
@@ -82,7 +117,7 @@ export class WorkspaceStore {
     const workspace = this.requireWorkspace(id);
     const sources = [workspace.a, workspace.b].filter((side): side is SideState => Boolean(side));
     return sources.flatMap((source) =>
-      source.imported.baseline!.items.map((item) => ({
+      source.imported.baseline!.items.map((item: ItemInfo) => ({
         id: `${source === workspace.a ? 'a' : 'b'}:${item.slotName}:${item.itemId}`,
         sourceSide: source === workspace.a ? 'a' : 'b',
         slotName: item.slotName,
@@ -99,24 +134,52 @@ export class WorkspaceStore {
     id: string,
     targetSide: WorkspaceSide,
     candidateId: string,
-  ): Promise<VariantRevision> {
+    targetSlotName: string,
+  ): Promise<ApplyGearSwapOutcome> {
     const workspace = this.requireWorkspace(id);
     const target = this.requireSide(workspace, targetSide);
+
+    if (!targetSlotName) {
+      throw new Error('targetSlotName 是必填参数');
+    }
+
     const candidate = this.gearCandidates(id, targetSide).find((item) => item.id === candidateId);
     if (!candidate) throw new Error('装备候选不存在');
     if (!candidate.applicable || !candidate.rawText) {
       throw new Error('该装备缺少 PoB2 原始数据或来自当前侧，不能应用');
     }
+    if (!isCanonicalSlotFamily(candidate.slotName, targetSlotName)) {
+      throw new Error(`装备槽位不匹配：候选 ${candidate.slotName} → 目标 ${targetSlotName}`);
+    }
+
     const baseline = target.imported.baseline!;
     const current = target.session.current();
-    const currentBuildXml = target.xmlByRevision.get(current.revisionId) ?? baseline.buildXml;
+    const currentBuildXml = this.requireRevisionValue(
+      target.xmlByRevision,
+      current.revisionId,
+      'buildXml',
+    );
     const mutation = this.mutationFactory.createGearSwapMutation(
-      candidate.slotName,
+      targetSlotName,
       candidate.rawText,
       baseline.baselineHash,
       candidate.itemId,
+      candidate.slotName,
     );
+
     const applied = await this.executor.applyGearSwap({ baseline, currentBuildXml, mutation });
+
+    // Incompatible / calc_failed / invalid_variant: do NOT append
+    if (applied.result.resultKind === 'incompatible'
+      || applied.result.resultKind === 'calc_failed'
+      || applied.result.resultKind === 'invalid_variant') {
+      return {
+        applied: false,
+        result: applied.result,
+        workspace: this.view(workspace),
+      };
+    }
+
     const revision: VariantRevision = {
       revisionId: `rev-${randomUUID()}`,
       parentRevisionId: current.revisionId,
@@ -127,19 +190,56 @@ export class WorkspaceStore {
     };
     target.session.append(revision);
     target.xmlByRevision.set(revision.revisionId, applied.buildXml);
-    return revision;
+    target.snapshotByRevision.set(revision.revisionId, applied.snapshot);
+
+    const sourceSide = this.requireSide(workspace, candidate.sourceSide);
+    const parentDisplay = this.requireRevisionValue(
+      target.displayBuildByRevision,
+      current.revisionId,
+      'displayBuild',
+    );
+    const swappedDisplay = this.cloneBuildAndReplaceSlot(
+      parentDisplay,
+      targetSlotName,
+      candidate.slotName,
+      sourceSide.imported.normalizedBuild!,
+    );
+    const displayBuild = this.syncDisplayBuildWithSnapshot(swappedDisplay, applied.snapshot);
+    target.displayBuildByRevision.set(revision.revisionId, displayBuild);
+
+    return {
+      applied: true,
+      result: applied.result,
+      revision,
+      workspace: this.view(workspace),
+    };
   }
 
   undo(id: string, side: WorkspaceSide): VariantRevision {
     return this.requireSide(this.requireWorkspace(id), side).session.undo();
   }
 
+  undoWithPayload(id: string, side: WorkspaceSide): ApplyGearSwapOutcome {
+    this.undo(id, side);
+    return { applied: true, workspace: this.get(id)! };
+  }
+
   redo(id: string, side: WorkspaceSide): VariantRevision {
     return this.requireSide(this.requireWorkspace(id), side).session.redo();
   }
 
+  redoWithPayload(id: string, side: WorkspaceSide): ApplyGearSwapOutcome {
+    this.redo(id, side);
+    return { applied: true, workspace: this.get(id)! };
+  }
+
   reset(id: string, side: WorkspaceSide): VariantRevision {
     return this.requireSide(this.requireWorkspace(id), side).session.reset();
+  }
+
+  resetWithPayload(id: string, side: WorkspaceSide): ApplyGearSwapOutcome {
+    this.reset(id, side);
+    return { applied: true, workspace: this.get(id)! };
   }
 
   private sideState(imported: StoredImport): SideState {
@@ -148,6 +248,10 @@ export class WorkspaceStore {
       imported,
       session: new VariantSessionManager(baseline.baselineHash),
       xmlByRevision: new Map([['rev-0', baseline.buildXml]]),
+      snapshotByRevision: new Map([['rev-0', baseline]]),
+      displayBuildByRevision: new Map([
+        ['rev-0', this.syncDisplayBuildWithSnapshot(imported.normalizedBuild!, baseline)],
+      ]),
     };
   }
 
@@ -163,21 +267,127 @@ export class WorkspaceStore {
     return state;
   }
 
+  private requireRevisionValue<T>(map: Map<string, T>, revisionId: string, label: string): T {
+    const value = map.get(revisionId);
+    if (value === undefined) {
+      throw new Error(`WorkspaceStore invariant: ${label} for revision ${revisionId} not found`);
+    }
+    return value;
+  }
+
   private view(workspace: WorkspaceState): WorkspaceView {
     const sideView = (side: SideState) => {
       const current = side.session.current();
+      const buildXml = this.requireRevisionValue(side.xmlByRevision, current.revisionId, 'buildXml');
+      const baseline = this.requireRevisionValue(side.snapshotByRevision, current.revisionId, 'snapshot');
+      const display = this.requireRevisionValue(side.displayBuildByRevision, current.revisionId, 'displayBuild');
       return {
         session: side.session.snapshot(),
-        currentBuildXml:
-          side.xmlByRevision.get(current.revisionId) ?? side.imported.baseline!.buildXml,
+        currentBuildXml: buildXml,
+        currentBaseline: baseline,
+        currentRevision: current,
+        currentNormalizedBuild: display,
       };
     };
+    const viewA = sideView(workspace.a);
+    const viewB = workspace.b ? sideView(workspace.b) : undefined;
+
+    let diff: BuildDiffResult | undefined;
+    if (viewB && workspace.a.imported.normalizedBuild && workspace.b!.imported.normalizedBuild) {
+      const skill =
+        viewA.currentBaseline.mainSkillSelection?.selectedSkillName
+        ?? viewA.currentNormalizedBuild.skillDps[0]?.skillName
+        ?? '待选择';
+      diff = computeBuildDiff(viewA.currentNormalizedBuild, viewB.currentNormalizedBuild, skill);
+    }
+
     return {
       id: workspace.id,
       importA: workspace.a.imported,
       importB: workspace.b?.imported,
-      a: sideView(workspace.a),
-      b: workspace.b ? sideView(workspace.b) : undefined,
+      a: viewA,
+      b: viewB,
+      diff,
+    };
+  }
+
+  private cloneBuildAndReplaceSlot(
+    parent: NormalizedBuild,
+    targetSlotName: string,
+    sourceSlotName: string,
+    sourceBuild: NormalizedBuild,
+  ): NormalizedBuild {
+    const canonicalTarget = toCanonicalSlot(targetSlotName);
+    const sourceSlot = sourceBuild.equipments.find(
+      (slot) => toCanonicalSlot(slot.slotName) === canonicalTarget,
+    );
+    if (!sourceSlot) return { ...parent, equipments: [...parent.equipments] };
+
+    const canonicalSourceName = toCanonicalSlot(sourceSlotName);
+    let replaced = false;
+    const newEquipments = parent.equipments.map((slot) => {
+      if (toCanonicalSlot(slot.slotName) === canonicalTarget) {
+        replaced = true;
+        return { ...sourceSlot, slotName: slot.slotName };
+      }
+      return slot;
+    });
+
+    // If the parent didn't have this slot, append it
+    if (!replaced) {
+      newEquipments.push({ ...sourceSlot, slotName: canonicalSourceName });
+    }
+
+    return { ...parent, equipments: newEquipments };
+  }
+
+  private syncDisplayBuildWithSnapshot(
+    display: NormalizedBuild,
+    snapshot: BaselineSnapshot,
+  ): NormalizedBuild {
+    const output = (key: string): number | undefined => {
+      const calcs = snapshot.calcsOutput[key];
+      if (typeof calcs === 'number' && Number.isFinite(calcs)) return calcs;
+      const main = snapshot.mainOutput?.[key];
+      return typeof main === 'number' && Number.isFinite(main) ? main : undefined;
+    };
+    const selectedSkill = snapshot.mainSkillSelection.selectedSkillName;
+    const dps = output('CombinedDPS');
+    const hitDamage = output('AverageDamage') ?? output('MainHand_AverageHit');
+    const attackSpeed = output('Speed') ?? output('AttackSpeed');
+    const critChance = output('CritChance');
+
+    const nextSkill = {
+      skillName: selectedSkill,
+      dps,
+      hitDamage,
+      attackSpeed,
+      critChance,
+      source: 'pob' as const,
+    };
+    const selectedIndex = display.skillDps.findIndex(
+      (skill) => skill.skillName === selectedSkill,
+    );
+    const skillDps =
+      selectedIndex >= 0
+        ? display.skillDps.map((skill, index) =>
+            index === selectedIndex ? { ...skill, ...nextSkill } : skill,
+          )
+        : [...display.skillDps, nextSkill];
+
+    return {
+      ...display,
+      skillDps,
+      panel: {
+        ...display.panel,
+        life: output('Life') ?? display.panel.life,
+        energyShield: output('EnergyShield') ?? display.panel.energyShield,
+        armour: output('Armour') ?? display.panel.armour,
+        evasion: output('Evasion') ?? display.panel.evasion,
+        blockChance: output('BlockChance') ?? display.panel.blockChance,
+        attackSpeed: attackSpeed ?? display.panel.attackSpeed,
+        critChance: critChance ?? display.panel.critChance,
+      },
     };
   }
 }

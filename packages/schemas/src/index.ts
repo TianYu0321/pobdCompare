@@ -15,6 +15,7 @@ export * from './cache';
 export * from './normalized-build';
 export * from './diff';
 export * from './workspace';
+export * from './canonical-slots';
 
 // ============================================
 // Composed schemas with forward references

@@ -11,12 +11,23 @@ import {
   revisionAction,
   waitForJob,
   type GearCandidate,
+  type GearSwapOutcome,
   type ImportResult,
   type PassiveRankings,
   type WorkspaceResult,
+  type WorkspaceView,
+  type WorkspaceSideView,
 } from '@/api';
+import type { SimulationResult } from '@pobd/schemas';
+import { toCanonicalSlotKey } from '@pobd/schemas';
 import type { BuildDiffResult, EquipmentSlot, NormalizedBuild } from '@/types';
-import { extractHitLines, computeHitLinesDelta, safePercentDelta } from '@/lib/hit-lines';
+import {
+  computeBaselineDelta,
+  extractBaselineHitLines,
+  safePercentDelta,
+  type BaselineLike,
+} from '@/lib/hit-lines';
+import { slotDeltaText } from '@/lib/slot-delta';
 
 type Side = 'a' | 'b';
 type Tab = 'equipment' | 'skills' | 'passives';
@@ -37,9 +48,19 @@ interface SideState {
   result?: ImportResult;
   label?: string;
   loading: boolean;
+  workspace?: WorkspaceSideView;
 }
 
 const emptySide = (): SideState => ({ loading: false });
+
+const cursorFlags = (workspace: WorkspaceSideView | undefined) => {
+  if (!workspace) return { disableUndo: true, disableRedo: true, disableReset: true };
+  return {
+    disableUndo: workspace.session.cursor <= 0,
+    disableRedo: workspace.session.cursor >= workspace.session.revisions.length - 1,
+    disableReset: workspace.session.cursor <= 0,
+  };
+};
 
 export default function ComparePage() {
   const [sides, setSides] = useState<Record<Side, SideState>>({
@@ -77,6 +98,14 @@ export default function ComparePage() {
 
   const setSide = (side: Side, patch: Partial<SideState>) =>
     setSides((current) => ({ ...current, [side]: { ...current[side], ...patch } }));
+
+  const updateWorkspaceState = (side: Side, workspace: WorkspaceView) => {
+    const sideView = side === 'a' ? workspace.a : workspace.b;
+    if (sideView) {
+      setSide(side, { workspace: sideView });
+    }
+    setDiff(workspace.diff);
+  };
 
   const runImport = async (side: Side, source: File | string) => {
     setError('');
@@ -131,6 +160,14 @@ export default function ComparePage() {
       setDiff(result.diff);
       setPassives(result.passives ?? {});
       setStage('对比结果已就绪');
+
+      const workspace = result.workspace;
+      if (workspace.a) {
+        setSide('a', { workspace: workspace.a });
+      }
+      if (workspace.b && dual) {
+        setSide('b', { workspace: workspace.b });
+      }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : String(caught));
     }
@@ -144,7 +181,7 @@ export default function ComparePage() {
       const list = await getGearCandidates(workspaceId, side);
       setCandidates(list.filter((candidate) =>
         candidate.sourceSide !== side &&
-        normalizeSlot(candidate.slotName) === normalizeSlot(slot.slotName),
+        toCanonicalSlotKey(candidate.slotName) === toCanonicalSlotKey(slot.slotName),
       ));
     } catch (caught) {
       setMutationMessage(caught instanceof Error ? caught.message : String(caught));
@@ -155,13 +192,19 @@ export default function ComparePage() {
     if (!workspaceId || !drawer) return;
     setMutationMessage('PoB2 正在重算...');
     try {
-      const jobId = await applyGearCandidate(workspaceId, drawer.side, candidate.id);
-      const result = await waitForJob<{ revision: { result?: { resultKind: string; dpsDeltaPercent: number; errorMessage?: string } } }>(jobId);
-      const simulation = result.revision.result;
-      if (simulation?.resultKind === 'incompatible') {
-        setMutationMessage(`不兼容：${simulation.errorMessage ?? 'weapon_type_mismatch'}`);
+      const jobId = await applyGearCandidate(workspaceId, drawer.side, candidate.id, drawer.slot.slotName);
+      const outcome = await waitForJob<GearSwapOutcome>(jobId);
+      if (outcome.applied && outcome.workspace) {
+        updateWorkspaceState(drawer.side, outcome.workspace);
+        const rk = outcome.result?.resultKind;
+        if (rk === 'normal_gain' || rk === 'normal_loss' || rk === 'neutral') {
+          setMutationMessage(`创建 Variant：DPS ${formatDelta(outcome.result!.dpsDeltaPercent)}`);
+        }
       } else {
-        setMutationMessage(`已创建临时 Variant：DPS ${formatDelta(simulation?.dpsDeltaPercent)}`);
+        const rk = outcome.result?.resultKind;
+        if (rk === 'incompatible') setMutationMessage(`不兼容：${rk}`);
+        else if (rk === 'calc_failed') setMutationMessage(`计算失败：${rk}`);
+        else setMutationMessage(outcome.result ? `结果：${rk}` : '操作未生效');
       }
     } catch (caught) {
       setMutationMessage(caught instanceof Error ? caught.message : String(caught));
@@ -170,8 +213,13 @@ export default function ComparePage() {
 
   const doRevision = async (side: Side, action: 'undo' | 'redo' | 'reset') => {
     if (!workspaceId) return;
-    await revisionAction(workspaceId, side, action);
-    setMutationMessage(action === 'undo' ? '已撤销' : action === 'redo' ? '已重做' : '已重置到 baseline');
+    try {
+      const workspace = await revisionAction(workspaceId, side, action);
+      updateWorkspaceState(side, workspace);
+      setMutationMessage(action === 'undo' ? '已撤销' : action === 'redo' ? '已重做' : '已重置到 baseline');
+    } catch (caught) {
+      setMutationMessage(caught instanceof Error ? caught.message : String(caught));
+    }
   };
 
   return (
@@ -200,6 +248,7 @@ export default function ComparePage() {
           <BuildPanel
             side="a"
             result={sides.a.result}
+            workspace={sides.a.workspace}
             workspaceReady={Boolean(workspaceId)}
             onItem={openItem}
             onRevision={doRevision}
@@ -215,8 +264,8 @@ export default function ComparePage() {
             stage={stage}
             view={view}
             onView={setView}
-            resultA={sides.a.result}
-            resultB={sides.b.result}
+            baselineA={sides.a.workspace?.currentBaseline ?? sides.a.result?.baseline}
+            baselineB={sides.b.workspace?.currentBaseline ?? sides.b.result?.baseline}
           />
         )}
 
@@ -224,6 +273,7 @@ export default function ComparePage() {
           <BuildPanel
             side="b"
             result={sides.b.result}
+            workspace={sides.b.workspace}
             workspaceReady={Boolean(workspaceId)}
             onItem={openItem}
             onRevision={doRevision}
@@ -319,6 +369,7 @@ function EmptyDrop({
 function BuildPanel({
   side,
   result,
+  workspace,
   workspaceReady,
   onItem,
   onRevision,
@@ -326,16 +377,27 @@ function BuildPanel({
 }: {
   side: Side;
   result: ImportResult;
+  workspace?: WorkspaceSideView;
   workspaceReady: boolean;
   onItem: (side: Side, slot: EquipmentSlot) => void;
   onRevision: (side: Side, action: 'undo' | 'redo' | 'reset') => void;
   passives?: PassiveRankings;
 }) {
   const [tab, setTab] = useState<Tab>('equipment');
-  const build = result.normalizedBuild;
+  const build = (workspace?.currentNormalizedBuild ?? result.normalizedBuild)!;
   if (!build) return <section className="build-panel missing">构筑数据不可用</section>;
-  const selectedSkill = result.baseline?.mainSkillSelection.selectedSkillName ?? build.skillDps[0]?.skillName;
-  const dps = result.baseline?.calcsOutput.CombinedDPS ?? build.skillDps.find((skill) => skill.skillName === selectedSkill)?.dps;
+
+  // Use workspace currentBaseline (revision snapshot) after swaps; fall back to imported result
+  const effectiveBaseline = workspace?.currentBaseline ?? result.baseline;
+  const effectiveCalcs = effectiveBaseline?.calcsOutput ?? {};
+  const selectedSkill = effectiveBaseline?.mainSkillSelection?.selectedSkillName ?? build.skillDps[0]?.skillName;
+  const dps = typeof effectiveCalcs.CombinedDPS === 'number'
+    ? effectiveCalcs.CombinedDPS
+    : build.skillDps.find((skill) => skill.skillName === selectedSkill)?.dps;
+
+  const hitLines = extractBaselineHitLines(effectiveBaseline ?? {});
+
+  const flags = cursorFlags(workspace);
   return (
     <section className="build-panel">
       <div className="panel-kicker">BUILD {side.toUpperCase()} · {sourceLabel(result.source)}</div>
@@ -349,8 +411,8 @@ function BuildPanel({
       <div className="summary-grid">
         <Summary label="主技能" value={selectedSkill ?? '待选择'} wide />
         <Summary label="DPS" value={formatNumber(dps)} accent />
-        <Summary label="物理一击线" value={hitLineSummary(result).physical} />
-        <Summary label="元素一击线" value={hitLineSummary(result).elemental} />
+        <Summary label="物理一击线" value={formatNumber(hitLines.physical)} />
+        <Summary label="元素一击线" value={formatNumber(hitLines.elemental)} />
         <Summary label="转换状态" value={result.status === 'calculable' ? 'PoB2 原生' : '映射未完成'} />
       </div>
       <div className="panel-tools">
@@ -360,13 +422,13 @@ function BuildPanel({
           <button className={tab === 'passives' ? 'active' : ''} onClick={() => setTab('passives')}>天赋</button>
         </div>
         <div className="revision-tools">
-          <button disabled={!workspaceReady} title="撤销" onClick={() => onRevision(side, 'undo')}><Undo2 size={13} /></button>
-          <button disabled={!workspaceReady} title="重做" onClick={() => onRevision(side, 'redo')}><Redo2 size={13} /></button>
-          <button disabled={!workspaceReady} title="重置" onClick={() => onRevision(side, 'reset')}><RotateCcw size={13} /></button>
+          <button disabled={!workspaceReady || flags.disableUndo} title="撤销" onClick={() => onRevision(side, 'undo')}><Undo2 size={13} /></button>
+          <button disabled={!workspaceReady || flags.disableRedo} title="重做" onClick={() => onRevision(side, 'redo')}><Redo2 size={13} /></button>
+          <button disabled={!workspaceReady || flags.disableReset} title="重置" onClick={() => onRevision(side, 'reset')}><RotateCcw size={13} /></button>
         </div>
       </div>
       <div className="tab-content">
-        {tab === 'equipment' && <EquipmentGrid build={build} side={side} onItem={onItem} />}
+        {tab === 'equipment' && <EquipmentGrid build={build} side={side} onItem={onItem} currentRevision={workspace?.currentRevision} />}
         {tab === 'skills' && <Skills build={build} selected={selectedSkill} />}
         {tab === 'passives' && <PassiveRanks calculable={result.status === 'calculable'} rankings={passives} />}
       </div>
@@ -394,7 +456,17 @@ const SLOT_LAYOUT = [
   ['Charm 1', 'Charm 2', 'Charm 3'],
 ];
 
-function EquipmentGrid({ build, side, onItem }: { build: NormalizedBuild; side: Side; onItem: (side: Side, slot: EquipmentSlot) => void }) {
+function EquipmentGrid({
+  build,
+  side,
+  onItem,
+  currentRevision,
+}: {
+  build: NormalizedBuild;
+  side: Side;
+  onItem: (side: Side, slot: EquipmentSlot) => void;
+  currentRevision?: { result?: SimulationResult };
+}) {
   return (
     <div className="equipment-grid">
       {SLOT_LAYOUT.map((row, rowIndex) => (
@@ -407,7 +479,7 @@ function EquipmentGrid({ build, side, onItem }: { build: NormalizedBuild; side: 
                 <span className="item-icon">{slot?.item?.icon ? <img src={slot.item.icon} alt="" /> : '◇'}</span>
                 <b>{slot?.item?.name || '空'}</b>
                 <small>{slot?.item?.baseType || '未装备'}</small>
-                <span className="slot-delta">DPS Δ 待模拟</span>
+                <span className="slot-delta">{slotDeltaText(currentRevision, slotName)}</span>
               </button>
             );
           })}
@@ -473,44 +545,27 @@ function DiffRail({
   stage,
   view,
   onView,
-  resultA,
-  resultB,
+  baselineA,
+  baselineB,
 }: {
   diff?: BuildDiffResult;
   stage: string;
   view: 'offence' | 'defence';
   onView: (view: 'offence' | 'defence') => void;
-  resultA?: ImportResult;
-  resultB?: ImportResult;
+  baselineA?: BaselineLike;
+  baselineB?: BaselineLike;
 }) {
-  const coDps = (r: ImportResult | undefined): number | undefined => {
-    const co = r?.baseline?.calcsOutput;
-    if (!co) return undefined;
-    const d = co.CombinedDPS;
-    return typeof d === 'number' ? d : undefined;
+  const coVal = (baseline: BaselineLike | undefined, key: string): number | undefined => {
+    const v = baseline?.calcsOutput?.[key];
+    return typeof v === 'number' ? v : undefined;
   };
-  const dpsA = diff?.dpsDiff?.myDps ?? coDps(resultA) ?? resultA?.normalizedBuild?.skillDps[0]?.dps;
-  const dpsB = diff?.dpsDiff?.targetDps ?? coDps(resultB) ?? resultB?.normalizedBuild?.skillDps[0]?.dps;
-  const hitDelta = resultA && resultB ? computeHitLinesDelta(resultA, resultB) : undefined;
-  const avgVal = (r: ImportResult | undefined): number | undefined => {
-    const co = r?.baseline?.calcsOutput;
-    if (!co) return undefined;
-    const ad = co.AverageDamage;
-    if (typeof ad === 'number') return ad;
-    const mh = co.MainHand_AverageHit;
-    if (typeof mh === 'number') return mh;
-    return undefined;
-  };
-  const critVal = (r: ImportResult | undefined): number | undefined => {
-    const co = r?.baseline?.calcsOutput;
-    if (!co) return undefined;
-    const c = co.CritChance;
-    return typeof c === 'number' ? c : undefined;
-  };
-  const avgA = avgVal(resultA);
-  const avgB = avgVal(resultB);
-  const critA = critVal(resultA);
-  const critB = critVal(resultB);
+  const dpsA = diff?.dpsDiff?.myDps ?? coVal(baselineA, 'CombinedDPS');
+  const dpsB = diff?.dpsDiff?.targetDps ?? coVal(baselineB, 'CombinedDPS');
+  const hitDelta = baselineA && baselineB ? computeBaselineDelta(baselineA, baselineB) : undefined;
+  const avgA = coVal(baselineA, 'AverageDamage') ?? coVal(baselineA, 'MainHand_AverageHit');
+  const avgB = coVal(baselineB, 'AverageDamage') ?? coVal(baselineB, 'MainHand_AverageHit');
+  const critA = coVal(baselineA, 'CritChance');
+  const critB = coVal(baselineB, 'CritChance');
 
   return (
     <aside className="diff-rail">
@@ -592,7 +647,7 @@ function ItemDrawer({
           ))}
           {candidates.length === 0 && <EmptyState text="该槽位没有来自对方构筑的候选" />}
         </div>
-        {message && <div className={`mutation-message ${message.startsWith('不兼容') ? 'bad' : ''}`}>{message}</div>}
+        {message && <div className={`mutation-message ${message.includes('不兼容') || message.includes('失败') ? 'bad' : ''}`}>{message}</div>}
       </aside>
     </div>
   );
@@ -610,11 +665,6 @@ function EmptyState({ text }: { text: string }) {
   return <div className="empty-state">{text}</div>;
 }
 
-function hitLineSummary(result: ImportResult): { physical: string; elemental: string } {
-  const h = extractHitLines(result);
-  return { physical: formatNumber(h.physical), elemental: formatNumber(h.elemental) };
-}
-
 function formatNumber(value: unknown): string {
   return typeof value === 'number' && Number.isFinite(value)
     ? Intl.NumberFormat('zh-CN', { maximumFractionDigits: 1, notation: value > 999999 ? 'compact' : 'standard' }).format(value)
@@ -630,22 +680,6 @@ function sourceLabel(source: ImportResult['source']): string {
 }
 
 function findSlot(slots: EquipmentSlot[], target: string): EquipmentSlot | undefined {
-  const normalized = normalizeSlot(target);
-  return slots.find((slot) => normalizeSlot(slot.slotName) === normalized);
-}
-
-function normalizeSlot(slot: string): string {
-  const value = slot.toLowerCase().replace(/[\s_-]/g, '');
-  const aliases: Record<string, string> = {
-    helmet: 'helm',
-    bodyarmour: 'bodyarmour',
-    body: 'bodyarmour',
-    weapon: 'weapon1',
-    mainhand: 'weapon1',
-    offhand1: 'offhand',
-    ring: 'ring1',
-    ringleft: 'ring1',
-    ringright: 'ring2',
-  };
-  return aliases[value] ?? value;
+  const normalized = toCanonicalSlotKey(target);
+  return slots.find((slot) => toCanonicalSlotKey(slot.slotName) === normalized);
 }
