@@ -21,7 +21,12 @@ import {
 import type { SimulationResult } from '@pobd/schemas';
 import { toCanonicalSlotKey } from '@pobd/schemas';
 import type { BuildDiffResult, EquipmentSlot, NormalizedBuild } from '@/types';
-import { computeBaselineDelta, safePercentDelta, type HitLinesValues, type BaselineLike } from '@/lib/hit-lines';
+import {
+  computeBaselineDelta,
+  extractBaselineHitLines,
+  safePercentDelta,
+  type BaselineLike,
+} from '@/lib/hit-lines';
 import { slotDeltaText } from '@/lib/slot-delta';
 
 type Side = 'a' | 'b';
@@ -390,7 +395,7 @@ function BuildPanel({
     ? effectiveCalcs.CombinedDPS
     : build.skillDps.find((skill) => skill.skillName === selectedSkill)?.dps;
 
-  const hitLines = hitLineValues(effectiveBaseline);
+  const hitLines = extractBaselineHitLines(effectiveBaseline ?? {});
 
   const flags = cursorFlags(workspace);
   return (
@@ -658,24 +663,6 @@ function CompareMetric({ label, a, b, delta }: { label: string; a?: number; b?: 
 
 function EmptyState({ text }: { text: string }) {
   return <div className="empty-state">{text}</div>;
-}
-
-function hitLineValues(baseline: { calcsOutput?: Record<string, unknown>; rawBreakdown?: Record<string, unknown> } | undefined): HitLinesValues {
-  if (!baseline) return { physical: undefined, fire: undefined, cold: undefined, lightning: undefined, chaos: undefined, elemental: undefined, life: undefined };
-  const co = baseline.calcsOutput ?? {};
-  const lookup = (key: string) => {
-    const v = co[key];
-    return typeof v === 'number' ? v : undefined;
-  };
-  const physical = lookup('PhysicalMaximumHitTaken');
-  const fire = lookup('FireMaximumHitTaken');
-  const cold = lookup('ColdMaximumHitTaken');
-  const lightning = lookup('LightningMaximumHitTaken');
-  const chaos = lookup('ChaosMaximumHitTaken');
-  const life = lookup('Life');
-  const derived = lookup('ElementalMaximumHitTaken');
-  const elemental = derived !== undefined ? derived : [fire, cold, lightning].filter((v): v is number => v !== undefined && v > 0).reduce((a, b) => Math.min(a, b), Infinity);
-  return { physical, fire, cold, lightning, chaos, elemental: Number.isFinite(elemental) ? elemental : undefined, life };
 }
 
 function formatNumber(value: unknown): string {

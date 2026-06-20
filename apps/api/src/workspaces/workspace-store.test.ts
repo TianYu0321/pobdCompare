@@ -566,6 +566,44 @@ describe('WorkspaceStore', () => {
     expect(buildXmlsPassed[1]).toBe('<PathOfBuilding variant="1"/>');
   });
 
+  it('syncs PoB2 snapshot DPS into the current display build and diff', async () => {
+    const snapshot = makeBaseline('snap-dps', []);
+    snapshot.calcsOutput = {
+      CombinedDPS: 250,
+      AverageDamage: 80,
+      CritChance: 12,
+      Life: 4500,
+    };
+    snapshot.mainSkillSelection.selectedSkillName = 'Skill';
+
+    const store = new WorkspaceStore({
+      applyGearSwap: async () => ({
+        buildXml: '<PathOfBuilding variant="dps"/>',
+        result: okResult({ variantDps: 250, dpsDelta: 150, dpsDeltaPercent: 150 }),
+        snapshot,
+      }),
+    });
+    const impA = makeImported('a', 'hash-a', 'Axe');
+    const impB = makeImported('b', 'hash-b', 'Maul');
+    const workspace = store.create(impA, impB);
+    const candidate = store.gearCandidates(workspace.id, 'a').find((item) => item.sourceSide === 'b')!;
+
+    const outcome = await store.applyGearSwap(workspace.id, 'a', candidate.id, candidate.slotName);
+
+    expect(outcome.workspace.a.currentNormalizedBuild.skillDps).toContainEqual(
+      expect.objectContaining({
+        skillName: 'Skill',
+        dps: 250,
+        hitDamage: 80,
+        critChance: 12,
+        source: 'pob',
+      }),
+    );
+    expect(outcome.workspace.a.currentNormalizedBuild.panel.life).toBe(4500);
+    expect(outcome.workspace.diff?.dpsDiff?.myDps).toBe(250);
+    expect(outcome.workspace.diff?.dpsDiff?.targetDps).toBe(100);
+  });
+
   it('calc_failed executor makes completed job with applied:false, workspace unchanged', async () => {
     const store = new WorkspaceStore({
       applyGearSwap: async () => ({

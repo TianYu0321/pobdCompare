@@ -12,6 +12,7 @@ export interface BaselineSummary {
   };
   calcsOutput: Record<string, unknown>;
   rawBreakdown: Record<string, unknown>;
+  mainOutput?: Record<string, unknown>;
 }
 
 export interface ImportResult {
@@ -116,6 +117,7 @@ export interface WorkspaceSideView {
     id: string;
     calcsOutput: Record<string, unknown>;
     rawBreakdown: Record<string, unknown>;
+    mainOutput?: Record<string, unknown>;
     mainSkillSelection?: {
       selectedSkillName: string;
     };

@@ -58,8 +58,10 @@ export function extractBaselineHitLines(baseline: BaselineLike): HitLinesValues 
     const fromCo = finiteNumber(co[key]);
     if (fromCo !== undefined) return fromCo;
     const fromBr = br[key];
-    if (fromBr !== undefined && typeof fromBr === 'object' && fromBr !== null) return undefined;
-    const fromBr2 = finiteNumber(br[key]);
+    const fromBr2 =
+      fromBr !== undefined && typeof fromBr === 'object' && fromBr !== null
+        ? undefined
+        : finiteNumber(fromBr);
     if (fromBr2 !== undefined) return fromBr2;
     return finiteNumber(mo[key]);
   };

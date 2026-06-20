@@ -242,7 +242,19 @@ export class Pob2Runtime {
       throw new Error(response.error ?? 'PoB2 mutation calculation failed');
     }
 
-    const buildXml = response.variantXml ?? input.currentBuildXml;
+    if (!response.variantXml) {
+      return {
+        buildXml: input.currentBuildXml,
+        result: this.invalidVariantResult(
+          input.baseline,
+          input.mutation,
+          'variant_xml_missing',
+          'PoB2 mutation succeeded but did not return variant XML',
+        ),
+        snapshot: input.baseline,
+      };
+    }
+    const buildXml = response.variantXml;
     const variant: BuildVariant & { mutation: BuildMutation } = {
       variantId: randomUUID(),
       variantHash: createHash('sha256')
@@ -436,6 +448,47 @@ export class Pob2Runtime {
       dpsDeltaPercent: 0,
       outputDiff: { offence: {} },
       errorCode: 'snapshot_failed',
+      errorMessage,
+      warnings: [errorMessage],
+      evidence: [
+        { type: 'baseline', baselineHash: baseline.baselineHash },
+        { type: 'mutation', mutationId: mutation.mutationId },
+      ],
+      createdAt: Date.now(),
+    };
+  }
+
+  private invalidVariantResult(
+    baseline: BaselineSnapshot,
+    mutation: BuildMutation,
+    errorCode: string,
+    errorMessage: string,
+  ): SimulationResult {
+    const baselineDps =
+      typeof baseline.calcsOutput.CombinedDPS === 'number'
+        ? baseline.calcsOutput.CombinedDPS
+        : 0;
+    return {
+      jobId: `${baseline.baselineHash}_${mutation.mutationId}`,
+      baselineHash: baseline.baselineHash,
+      variantHash: createHash('sha256')
+        .update(`${mutation.mutationId}:invalid_variant`)
+        .digest('hex'),
+      mutationId: mutation.mutationId,
+      mutationType: mutation.type,
+      resultKind: 'invalid_variant',
+      affectedSkillNumber: baseline.skillNumber,
+      isMainSkillStillValid: false,
+      target: {
+        type: 'item',
+        slotName: 'slotName' in mutation.payload ? mutation.payload.slotName : undefined,
+      },
+      baselineDps,
+      variantDps: baselineDps,
+      dpsDelta: 0,
+      dpsDeltaPercent: 0,
+      outputDiff: { offence: {} },
+      errorCode,
       errorMessage,
       warnings: [errorMessage],
       evidence: [

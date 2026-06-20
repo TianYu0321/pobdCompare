@@ -154,7 +154,11 @@ export class WorkspaceStore {
 
     const baseline = target.imported.baseline!;
     const current = target.session.current();
-    const currentBuildXml = target.xmlByRevision.get(current.revisionId) ?? baseline.buildXml;
+    const currentBuildXml = this.requireRevisionValue(
+      target.xmlByRevision,
+      current.revisionId,
+      'buildXml',
+    );
     const mutation = this.mutationFactory.createGearSwapMutation(
       targetSlotName,
       candidate.rawText,
@@ -189,13 +193,18 @@ export class WorkspaceStore {
     target.snapshotByRevision.set(revision.revisionId, applied.snapshot);
 
     const sourceSide = this.requireSide(workspace, candidate.sourceSide);
-    const parentDisplay = target.displayBuildByRevision.get(current.revisionId) ?? target.imported.normalizedBuild!;
-    const displayBuild: NormalizedBuild = this.cloneBuildAndReplaceSlot(
+    const parentDisplay = this.requireRevisionValue(
+      target.displayBuildByRevision,
+      current.revisionId,
+      'displayBuild',
+    );
+    const swappedDisplay = this.cloneBuildAndReplaceSlot(
       parentDisplay,
       targetSlotName,
       candidate.slotName,
       sourceSide.imported.normalizedBuild!,
     );
+    const displayBuild = this.syncDisplayBuildWithSnapshot(swappedDisplay, applied.snapshot);
     target.displayBuildByRevision.set(revision.revisionId, displayBuild);
 
     return {
@@ -240,7 +249,9 @@ export class WorkspaceStore {
       session: new VariantSessionManager(baseline.baselineHash),
       xmlByRevision: new Map([['rev-0', baseline.buildXml]]),
       snapshotByRevision: new Map([['rev-0', baseline]]),
-      displayBuildByRevision: new Map([['rev-0', imported.normalizedBuild!]]),
+      displayBuildByRevision: new Map([
+        ['rev-0', this.syncDisplayBuildWithSnapshot(imported.normalizedBuild!, baseline)],
+      ]),
     };
   }
 
@@ -328,5 +339,55 @@ export class WorkspaceStore {
     }
 
     return { ...parent, equipments: newEquipments };
+  }
+
+  private syncDisplayBuildWithSnapshot(
+    display: NormalizedBuild,
+    snapshot: BaselineSnapshot,
+  ): NormalizedBuild {
+    const output = (key: string): number | undefined => {
+      const calcs = snapshot.calcsOutput[key];
+      if (typeof calcs === 'number' && Number.isFinite(calcs)) return calcs;
+      const main = snapshot.mainOutput?.[key];
+      return typeof main === 'number' && Number.isFinite(main) ? main : undefined;
+    };
+    const selectedSkill = snapshot.mainSkillSelection.selectedSkillName;
+    const dps = output('CombinedDPS');
+    const hitDamage = output('AverageDamage') ?? output('MainHand_AverageHit');
+    const attackSpeed = output('Speed') ?? output('AttackSpeed');
+    const critChance = output('CritChance');
+
+    const nextSkill = {
+      skillName: selectedSkill,
+      dps,
+      hitDamage,
+      attackSpeed,
+      critChance,
+      source: 'pob' as const,
+    };
+    const selectedIndex = display.skillDps.findIndex(
+      (skill) => skill.skillName === selectedSkill,
+    );
+    const skillDps =
+      selectedIndex >= 0
+        ? display.skillDps.map((skill, index) =>
+            index === selectedIndex ? { ...skill, ...nextSkill } : skill,
+          )
+        : [...display.skillDps, nextSkill];
+
+    return {
+      ...display,
+      skillDps,
+      panel: {
+        ...display.panel,
+        life: output('Life') ?? display.panel.life,
+        energyShield: output('EnergyShield') ?? display.panel.energyShield,
+        armour: output('Armour') ?? display.panel.armour,
+        evasion: output('Evasion') ?? display.panel.evasion,
+        blockChance: output('BlockChance') ?? display.panel.blockChance,
+        attackSpeed: attackSpeed ?? display.panel.attackSpeed,
+        critChance: critChance ?? display.panel.critChance,
+      },
+    };
   }
 }

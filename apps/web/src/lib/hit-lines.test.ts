@@ -309,6 +309,19 @@ describe('extractBaselineHitLines', () => {
     expect(h.elemental).toBeUndefined();
     expect(h.life).toBeUndefined();
   });
+
+  it('falls through object breakdown entries to mainOutput', () => {
+    const h = extractBaselineHitLines({
+      calcsOutput: {},
+      rawBreakdown: {
+        PhysicalMaximumHitTaken: { unsupported: true },
+      },
+      mainOutput: {
+        PhysicalMaximumHitTaken: 4321,
+      },
+    });
+    expect(h.physical).toBe(4321);
+  });
 });
 
 describe('computeBaselineDelta', () => {
