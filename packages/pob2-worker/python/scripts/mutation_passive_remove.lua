@@ -2,7 +2,10 @@ function toJSON(obj)
     local t = type(obj)
     if t == "nil" then return "null" end
     if t == "boolean" then return obj and "true" or "false" end
-    if t == "number" then return tostring(obj) end
+    if t == "number" then
+        if obj ~= obj or obj == math.huge or obj == -math.huge then return "null" end
+        return tostring(obj)
+    end
     if t == "string" then
         local s = obj
         s = s:gsub("\\", "\\\\")

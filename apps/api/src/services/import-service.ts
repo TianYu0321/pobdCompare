@@ -309,6 +309,13 @@ export class ImportService {
     source: NormalizedBuild['source'],
   ): NormalizedBuild {
     const dpsByNumber = new Map(baseline.skillDpsList.map((skill) => [skill.skillNumber, skill]));
+    const selectedSkillNumber = baseline.mainSkillSelection.selectedSkillNumber;
+    const selectedSkillName = baseline.mainSkillSelection.selectedSkillName;
+    const combinedDps = baseline.calcsOutput.CombinedDPS;
+    const selectedDps =
+      typeof combinedDps === 'number' && Number.isFinite(combinedDps)
+        ? combinedDps
+        : undefined;
     return {
       source,
       meta: {
@@ -323,18 +330,33 @@ export class ImportService {
         className: baseline.character.className,
         ascendancy: baseline.character.ascendancyName,
       },
-      skills: baseline.skillGroups.map((group, index) => ({
-        id: String(group.groupId ?? index + 1),
-        name: group.label ?? group.skills?.[0] ?? `技能组 ${index + 1}`,
-        supports: (group.skills ?? []).slice(1).map((name) => ({ name })),
-        tags: [],
-      })),
-      skillDps: baseline.skillDpsList.map((skill) => ({
-        skillId: String(skill.skillNumber),
-        skillName: skill.name,
-        dps: skill.dps,
-        source: 'pob',
-      })),
+      skills: baseline.skillGroups.map((group, index) => {
+        const groupNumber = group.groupId ?? index + 1;
+        const listedName = dpsByNumber.get(groupNumber)?.name;
+        const name =
+          ImportService.nonEmpty(group.label)
+            ? group.label
+            : groupNumber === selectedSkillNumber
+              ? selectedSkillName
+              : ImportService.nonEmpty(listedName)
+                ? listedName
+                : group.skills?.[0] ?? `技能组 ${index + 1}`;
+        return {
+          id: String(groupNumber),
+          name,
+          supports: (group.skills ?? []).slice(1).map((supportName) => ({ name: supportName })),
+          tags: [],
+        };
+      }),
+      skillDps: baseline.skillDpsList.map((skill) => {
+        const selected = skill.skillNumber === selectedSkillNumber;
+        return {
+          skillId: String(skill.skillNumber),
+          skillName: selected ? selectedSkillName : skill.name,
+          dps: selected ? selectedDps ?? skill.dps : skill.dps,
+          source: 'pob',
+        };
+      }),
       equipments: baseline.items.map((item) => ({
         slotName: item.slotName,
         item: {

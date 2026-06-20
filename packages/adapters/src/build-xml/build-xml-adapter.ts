@@ -36,10 +36,35 @@ function isJsonFormat(content: string): boolean {
   return content.trim().startsWith("{");
 }
 
+function decodeXmlEntities(value: string): string {
+  const named: Record<string, string> = {
+    amp: "&",
+    lt: "<",
+    gt: ">",
+    quot: '"',
+    apos: "'",
+  };
+  return value.replace(
+    /&(#x[\da-f]+|#\d+|amp|lt|gt|quot|apos);/gi,
+    (entity, token: string) => {
+      const normalized = token.toLowerCase();
+      if (normalized.startsWith("#")) {
+        const radix = normalized.startsWith("#x") ? 16 : 10;
+        const digits = normalized.slice(radix === 16 ? 2 : 1);
+        const codePoint = Number.parseInt(digits, radix);
+        return Number.isInteger(codePoint) && codePoint >= 0 && codePoint <= 0x10ffff
+          ? String.fromCodePoint(codePoint)
+          : entity;
+      }
+      return named[normalized] ?? entity;
+    },
+  );
+}
+
 function extractAttribute(xml: string, tag: string, attr: string): string | undefined {
   const regex = new RegExp(`<${tag}[^>]*\\b${attr}=["']([^"']+)["']`, "i");
   const match = regex.exec(xml);
-  return match?.[1];
+  return match?.[1] ? decodeXmlEntities(match[1]) : undefined;
 }
 
 function parseJsonBuild(content: string): Partial<BaselineSnapshot> {
@@ -148,6 +173,10 @@ function parseItems(xml: string): BuildXmlParseResult["items"] {
     if (!Number.isFinite(itemId)) continue;
     const rawText = blockMatch[2]
       .replace(/<[^>]+>/g, "")
+      .replace(
+        /&(#x[\da-f]+|#\d+|amp|lt|gt|quot|apos);/gi,
+        (entity) => decodeXmlEntities(entity),
+      )
       .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean)

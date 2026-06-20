@@ -1,5 +1,4 @@
 import { createHash, randomUUID } from 'node:crypto';
-import path from 'node:path';
 
 import {
   MappingCatalogProvider,
@@ -20,6 +19,7 @@ import type {
   MainSkillSelection,
   SimulationResult,
 } from '@pobd/schemas';
+import { resolveRepoPath } from './runtime-paths.js';
 
 class PoolBaselineClient implements Pob2WorkerClient {
   constructor(private readonly pool: Pob2WorkerPool) {}
@@ -392,14 +392,14 @@ export class Pob2Runtime {
     this.version = installation.version;
     this.pool = new Pob2WorkerPool({
       pythonPath: process.env.PYTHON_PATH ?? 'python',
-      driverPath: path.resolve(process.cwd(), 'packages/pob2-worker/python/driver.py'),
+      driverPath: resolveRepoPath('packages/pob2-worker/python/driver.py'),
       pobRoot: installation.root,
       maxWorkers: Number(process.env.POB2_WORKERS ?? 2),
       requestTimeoutMs: Number(process.env.POB2_TIMEOUT_MS ?? 60_000),
     });
     this.catalogProvider = new MappingCatalogProvider({
       pobRoot: installation.root,
-      cacheDir: path.resolve(process.cwd(), '.cache', 'wegame-mapping'),
+      cacheDir: resolveRepoPath('.cache', 'wegame-mapping'),
     });
     this.manager = new BaselineManager(new PoolBaselineClient(this.pool), {
       enableFileCache: true,

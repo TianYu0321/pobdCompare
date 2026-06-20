@@ -73,11 +73,35 @@ export class Pob2Bridge extends EventEmitter {
       this.requestQueue = [];
       this.process = null;
     });
-    
+
+    this.process.on('error', (err) => {
+      this.handleProcessFailure('Python process failed', err);
+    });
+
     this.process.stdin?.on('error', (err) => {
       console.error('stdin error:', err);
-      this.emit('error', err);
+      this.handleProcessFailure('Python stdin failed', err);
     });
+  }
+
+  private handleProcessFailure(context: string, error: Error): void {
+    const failure = new Error(`${context}: ${error.message}`);
+    if (this.currentRequest) {
+      clearTimeout(this.currentRequest.timer);
+      this.currentRequest.reject(failure);
+      this.currentRequest = null;
+    }
+    for (const queued of this.requestQueue) {
+      clearTimeout(queued.timer);
+      queued.reject(failure);
+    }
+    this.requestQueue = [];
+    const process = this.process;
+    this.process = null;
+    if (process && process.exitCode === null) {
+      process.kill('SIGTERM');
+    }
+    this.emit('bridgeError', failure);
   }
 
   private handleLine(line: string): void {

@@ -621,8 +621,8 @@ function DiffRail({
     const v = baseline?.calcsOutput?.[key];
     return typeof v === 'number' ? v : undefined;
   };
-  const dpsA = diff?.dpsDiff?.myDps ?? coVal(baselineA, 'CombinedDPS');
-  const dpsB = diff?.dpsDiff?.targetDps ?? coVal(baselineB, 'CombinedDPS');
+  const dpsA = coVal(baselineA, 'CombinedDPS') ?? diff?.dpsDiff?.myDps;
+  const dpsB = coVal(baselineB, 'CombinedDPS') ?? diff?.dpsDiff?.targetDps;
   const hitDelta = baselineA && baselineB ? computeBaselineDelta(baselineA, baselineB) : undefined;
   const avgA = coVal(baselineA, 'AverageDamage') ?? coVal(baselineA, 'MainHand_AverageHit');
   const avgB = coVal(baselineB, 'AverageDamage') ?? coVal(baselineB, 'MainHand_AverageHit');
@@ -643,7 +643,7 @@ function DiffRail({
           <div className="rail-skill">当前对比技能<strong>{diff.mainSkill}</strong></div>
           {view === 'offence' ? (
             <>
-              <CompareMetric label="DPS" a={dpsA} b={dpsB} delta={diff.dpsDiff?.diffPercent} />
+              <CompareMetric label="DPS" a={dpsA} b={dpsB} delta={safePercentDelta(dpsA, dpsB)} />
               <CompareMetric label="平均击中" a={avgA} b={avgB} delta={safePercentDelta(avgA, avgB)} />
               <CompareMetric label="暴击率" a={critA} b={critB} delta={safePercentDelta(critA, critB)} />
             </>

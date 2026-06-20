@@ -51,6 +51,7 @@ button { color: inherit; }
 .summary-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; margin: 12px 0; background: #30283a; border: 1px solid #30283a; }
 .summary-grid > div { min-width: 0; background: #17131d; padding: 9px; display: flex; flex-direction: column; gap: 5px; }
 .summary-grid .wide { grid-column: span 2; }
+.summary-grid > div:last-child { grid-column: span 3; }
 .summary-grid span { color: #746b7d; font-size: 9px; }
 .summary-grid b { overflow: hidden; text-overflow: ellipsis; color: #d8d0c5; white-space: nowrap; font-size: 12px; }
 .summary-grid .accent b { color: #d48a35; font-size: 15px; }

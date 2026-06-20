@@ -103,4 +103,25 @@ describe('Pob2Bridge', () => {
 
     await expect(promise).rejects.toThrow('Python process exited');
   });
+
+  it('rejects the active request without crashing when stdin emits EPIPE', async () => {
+    const bridge = new Pob2Bridge({
+      pythonPath: 'python',
+      driverPath: 'driver.py',
+      requestTimeoutMs: 10000,
+      pobSrcDir: 'D:/PathOfBuilding-PoE2-dev/src',
+    });
+    const promise = bridge.execute({
+      buildXml: '<Build/>',
+      skillNumber: 1,
+      weaponSet: 1,
+      config: {},
+    });
+    const stdinErrorHandler = mockStdin.on.mock.calls.find(
+      (call: any) => call[0] === 'error',
+    )[1];
+
+    expect(() => stdinErrorHandler(new Error('write EPIPE'))).not.toThrow();
+    await expect(promise).rejects.toThrow('Python stdin failed');
+  });
 });

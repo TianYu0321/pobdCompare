@@ -54,6 +54,37 @@ describe('ImportService', () => {
     expect(service.get(result.id)?.buildXml).toContain('PathOfBuilding');
   });
 
+  it('uses the selected PoB2 skill name and CombinedDPS when group labels and list DPS are empty', async () => {
+    const computed = baseline();
+    computed.calcsOutput.CombinedDPS = 38.4;
+    computed.skillDpsList = [
+      { skillNumber: 1, name: 'Hollow Focus', dps: 0, enabled: true },
+    ];
+    computed.skillGroups = [
+      { groupId: 1, label: '', skills: ['HollowFocusPlayer', 'SupportMaimPlayer'] },
+    ];
+    computed.mainSkillSelection = {
+      selectedSkillNumber: 1,
+      selectedSkillName: 'Hollow Focus',
+      selectionMode: 'auto_highest_dps',
+      candidates: [],
+      warnings: [],
+    };
+    const service = new ImportService({
+      computeBaseline: async () => computed,
+    });
+
+    const result = await service.importBuildXml(
+      '<PathOfBuilding><Build characterName="Tester"/></PathOfBuilding>',
+    );
+
+    expect(result.normalizedBuild?.skills[0]?.name).toBe('Hollow Focus');
+    expect(result.normalizedBuild?.skillDps[0]).toMatchObject({
+      skillName: 'Hollow Focus',
+      dps: 38.4,
+    });
+  });
+
   it('keeps a WeGame import normalized and exposes exact blockers', async () => {
     const service = new ImportService({
       computeBaseline: async () => baseline(),

@@ -50,6 +50,26 @@ describe("BuildXmlAdapter", () => {
   });
 
   describe("parseBuildXml", () => {
+    it("decodes XML entities in real item names and raw text", async () => {
+      const xml = `
+        <PathOfBuilding>
+          <Items activeItemSet="1">
+            <Item id="1">
+Rarity: UNIQUE
+Shavronne&apos;s Satchel &amp; Strap
+Fine Belt
+            </Item>
+            <ItemSet id="1"><Slot name="Belt" itemId="1"/></ItemSet>
+          </Items>
+        </PathOfBuilding>
+      `;
+
+      const result = await adapter.parseBuildXml(xml);
+
+      expect(result.items?.[0]?.name).toBe("Shavronne's Satchel & Strap");
+      expect(result.items?.[0]?.rawText).toContain("Shavronne's Satchel & Strap");
+    });
+
     it("extracts character metadata", async () => {
       const result = await adapter.parseBuildXml(sampleBuildXml);
       expect(result.character).toEqual({
