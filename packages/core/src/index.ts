@@ -8,3 +8,4 @@ export * from './analyzer';
 export * from './jobqueue';
 export * from './diff';
 export * from './workspace';
+export * from './passive';

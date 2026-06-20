@@ -202,6 +202,14 @@ export async function createApp(dependencies: AppDependencies): Promise<FastifyI
           body.candidateId!,
           body.targetSlotName!,
         );
+        if (outcome.passives) {
+          jobs.emit(job.id, {
+            type: 'result',
+            module: 'passives',
+            data: outcome.passives,
+            timestamp: Date.now(),
+          });
+        }
         jobs.complete(job.id, outcome);
       } catch (error) {
         jobs.fail(job.id, error instanceof Error ? error : new Error(String(error)));
@@ -215,7 +223,8 @@ export async function createApp(dependencies: AppDependencies): Promise<FastifyI
     app.post(`/api/workspaces/:id/${action}`, async (request) => {
       const { id } = request.params as { id: string };
       const side = sideFrom((request.body as { side?: string })?.side);
-      return dependencies.workspaces[withPayload](id, side);
+      const result = await (dependencies.workspaces[withPayload] as (id: string, side: WorkspaceSide) => Promise<unknown>)(id, side);
+      return result;
     });
   }
 

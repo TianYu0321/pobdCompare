@@ -71,21 +71,26 @@ export interface WorkspaceResult {
 
 export interface PassiveResult {
   target: { id?: string | number; name?: string };
+  resultKind: string;
   dpsDeltaPercent: number;
   gainPerPoint?: number;
   pointCost?: number;
   passiveAddMeta?: {
     pathAutoFilled: boolean;
     actualPointCost: number;
+    gainPerPoint?: number;
   };
   passiveRemoveMeta?: {
     cascadeRemoved: boolean;
     cascadeNodeCount: number;
+    actuallyRemovedNodeIds?: number[];
   };
   hitLineDelta?: {
     physicalHitLineDelta?: { deltaPercent?: number };
     elementalHitLineDelta?: { deltaPercent?: number };
   };
+  errorMessage?: string;
+  warnings?: string[];
 }
 
 export interface PassiveRankings {
@@ -146,6 +151,10 @@ export interface GearSwapOutcome {
     variantHash: string;
   };
   workspace: WorkspaceView;
+  passives?: {
+    a?: PassiveRankings;
+    b?: PassiveRankings;
+  };
 }
 
 async function json<T>(response: Response): Promise<T> {
@@ -270,13 +279,13 @@ export async function revisionAction(
   workspaceId: string,
   side: 'a' | 'b',
   action: 'undo' | 'redo' | 'reset',
-): Promise<WorkspaceView> {
-  const result = await json<{ applied: boolean; workspace: WorkspaceView }>(
+): Promise<GearSwapOutcome> {
+  const result = await json<GearSwapOutcome>(
     await fetch(`${API_BASE}/workspaces/${workspaceId}/${action}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ side }),
     }),
   );
-  return result.workspace;
+  return result;
 }
