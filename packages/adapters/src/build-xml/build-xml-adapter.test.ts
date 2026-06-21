@@ -128,6 +128,35 @@ Fine Belt
       ]);
     });
 
+    it("uses single identity line for name and baseType on NORMAL rarity items", async () => {
+      const xml = `
+        <PathOfBuilding2>
+          <Items activeItemSet="1">
+            <Item id="3">
+Rarity: NORMAL
+Deflective Arm
+Unique ID: 0xcf0c32997bbe9714a25e50f0b4cdb11036243d0031d6e5d716c0e23a7a188fd7
+Item Level: 85
+            </Item>
+            <ItemSet id="1">
+              <Slot name="Body Armour" itemId="3"/>
+            </ItemSet>
+          </Items>
+        </PathOfBuilding2>`;
+
+      const parsed = await adapter.parseBuildXml(xml);
+
+      expect(parsed.items).toEqual([
+        expect.objectContaining({
+          slotName: "Body Armour",
+          itemId: 3,
+          name: "Deflective Arm",
+          baseType: "Deflective Arm",
+          rawText: expect.stringContaining("Unique ID:"),
+        }),
+      ]);
+    });
+
     it("extracts skill groups", async () => {
       const result = await adapter.parseBuildXml(sampleBuildXml);
       expect(result.skillGroups).toHaveLength(2);

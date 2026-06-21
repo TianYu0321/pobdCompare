@@ -255,10 +255,14 @@ end
 
 if build.skillsTab and build.skillsTab.socketGroupList then
     for i, group in ipairs(build.skillsTab.socketGroupList) do
+        local groupDps = 0
+        if i == selectedSkillNumber then
+            groupDps = (co and co.CombinedDPS) or 0
+        end
         table.insert(result.skillDpsList, {
             skillNumber = i,
             name = group.displayLabel or group.label or ("Skill " .. i),
-            dps = 0,
+            dps = groupDps,
             enabled = group.enabled or false,
         })
     end

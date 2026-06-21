@@ -35,6 +35,9 @@ const chinese: TradeCatalog = {
   ],
 };
 
+const EVASIVE_LEG_RAW = '[Evasion|闪避值]提高 20%';
+const DEFLECTIVE_ARM_RAW = '[Deflect|偏转值]提高 10%';
+
 describe('MappingCatalog', () => {
   it('extracts stable PoE asset paths from CDN image URLs', () => {
     const encoded = Buffer.from(
@@ -173,6 +176,59 @@ describe('MappingCatalog', () => {
       });
   });
 
+  it('maps Transcendent Limb implicit mods via exact numeric templates', () => {
+    // RED: without production overrides, both fail closed
+    const emptyCatalog = new MappingCatalog({
+      hash: 'hash',
+      baseNames: new Map(),
+      uniqueNames: new Map(),
+      assetNames: new Map(),
+      skillAssets: new Map(),
+      modTemplates: new Map(),
+      modOverrides: new Map(),
+      passiveNodeIds: new Set(),
+    });
+
+    expect(emptyCatalog.mapMod(EVASIVE_LEG_RAW, 'implicitMods')).toBeUndefined();
+    expect(emptyCatalog.mapMod(DEFLECTIVE_ARM_RAW, 'implicitMods')).toBeUndefined();
+
+    // GREEN: with production overrides, both map correctly
+    const fullCatalog = new MappingCatalog({
+      hash: 'hash',
+      baseNames: new Map(),
+      uniqueNames: new Map(),
+      assetNames: new Map(),
+      skillAssets: new Map(),
+      modTemplates: new Map(),
+      modOverrides: new Map([
+        ['implicit:闪避值提高 #%', {
+          id: 'override.evasive_leg',
+          englishTemplate: '#% increased Evasion Rating',
+          chineseTemplate: '闪避值提高 #%',
+        }],
+        ['implicit:偏转值提高 #%', {
+          id: 'override.deflective_arm',
+          englishTemplate: '#% increased Deflection Rating',
+          chineseTemplate: '偏转值提高 #%',
+        }],
+      ]),
+      passiveNodeIds: new Set(),
+    });
+
+    expect(fullCatalog.mapMod(EVASIVE_LEG_RAW, 'implicitMods'))
+      .toEqual({
+        id: 'override.evasive_leg',
+        line: '20% increased Evasion Rating',
+        strategy: 'versioned_override',
+      });
+    expect(fullCatalog.mapMod(DEFLECTIVE_ARM_RAW, 'implicitMods'))
+      .toEqual({
+        id: 'override.deflective_arm',
+        line: '10% increased Deflection Rating',
+        strategy: 'versioned_override',
+      });
+  });
+
   it('applies only an exact, versioned localized template override', () => {
     const catalog = new MappingCatalog({
       hash: 'hash',
@@ -199,6 +255,43 @@ describe('MappingCatalog', () => {
       });
     expect(catalog.mapMod('每两级玩家等级，+2 [Evasion|闪避]值', 'implicitMods'))
       .toBeUndefined();
+  });
+
+  it('does not match implicit limb overrides when the raw mod section is explicit', () => {
+    // Near-miss regression: an explicit evasion/deflection mod with
+    // identical Chinese template text must NOT match the implicit limb
+    // override, because the override is keyed by section prefix.
+    const catalog = new MappingCatalog({
+      hash: 'hash',
+      baseNames: new Map(),
+      uniqueNames: new Map(),
+      assetNames: new Map(),
+      skillAssets: new Map(),
+      modTemplates: new Map(),
+      modOverrides: new Map([
+        ['implicit:闪避值提高 #%', {
+          id: 'override.evasive_leg',
+          englishTemplate: '#% increased Evasion Rating',
+          chineseTemplate: '闪避值提高 #%',
+        }],
+        ['implicit:偏转值提高 #%', {
+          id: 'override.deflective_arm',
+          englishTemplate: '#% increased Deflection Rating',
+          chineseTemplate: '偏转值提高 #%',
+        }],
+      ]),
+      passiveNodeIds: new Set(),
+    });
+
+    // Explicit evasion — must NOT match the implicit override
+    expect(catalog.mapMod('[Evasion|闪避值]提高 15%', 'explicitMods')).toBeUndefined();
+    // Explicit deflection — must NOT match the implicit override
+    expect(catalog.mapMod('[Deflect|偏转值]提高 8%', 'explicitMods')).toBeUndefined();
+    // Implicit forms still match
+    expect(catalog.mapMod('[Evasion|闪避值]提高 15%', 'implicitMods'))
+      .toMatchObject({ id: 'override.evasive_leg', strategy: 'versioned_override' });
+    expect(catalog.mapMod('[Deflect|偏转值]提高 8%', 'implicitMods'))
+      .toMatchObject({ id: 'override.deflective_arm', strategy: 'versioned_override' });
   });
 });
 

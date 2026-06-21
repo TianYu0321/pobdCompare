@@ -28,9 +28,10 @@ interface TradeStatCatalog {
 }
 
 interface CatalogCache {
-  version: 8;
+  version: 10;
   pobVersion: string;
   sourceHash: string;
+  overrideIdentity: string;
   catalogHash: string;
   baseNames: Array<[string, string]>;
   uniqueNames: Array<[string, string]>;
@@ -58,7 +59,7 @@ const URLS = {
   chineseStats: 'https://poe.game.qq.com/api/trade2/data/stats',
 };
 
-const CONVERTER_VERSION = 'wegame-native-v8';
+const CONVERTER_VERSION = 'wegame-native-v10';
 
 const SUPPORT_ASSET_OVERRIDES: Record<string, string> = {
   '2DItems/Gems/New/NewSupport/CooldownReductionSupportGem': 'Cooldown Recovery II',
@@ -102,6 +103,8 @@ const SUPPORT_ASSET_OVERRIDES: Record<string, string> = {
 const MOD_TEMPLATE_OVERRIDES: Record<string, string> = {
   'explicit:可被元素地面效果加持的风系技能视作 被点燃地面，感电地面和冰缓地面加持':
     'Wind Skills which can be boosted by Elemental Ground Surfaces count as being boosted by Ignited, Shocked, and Chilled Ground',
+  'implicit:闪避值提高 #%': '#% increased Evasion Rating',
+  'implicit:偏转值提高 #%': '#% increased Deflection Rating',
   'implicit:每有一级玩家等级，# 闪避值': 'Has # to Evasion Rating per player level',
   'implicit:每有一级玩家等级，# 能量护盾上限': 'Has # to maximum Energy Shield per player level',
   'implicit:每有一级玩家等级，# 符文结界上限': 'Has # to maximum Runic Ward per player level',
@@ -197,12 +200,13 @@ export class MappingCatalogProvider {
   async getCatalog(): Promise<MappingCatalog> {
     if (this.catalog) return this.catalog;
     const sources = await readPoBSources(this.options.pobRoot);
+    const overrideIdentity = computeOverrideIdentity();
     const cachePath = path.join(
       this.options.cacheDir,
       `wegame-mapping-${safeFileName(sources.pobVersion)}.json`,
     );
     const cached = await readCache(cachePath);
-    if (cached?.sourceHash === sources.sourceHash) {
+    if (cached?.sourceHash === sources.sourceHash && cached?.overrideIdentity === overrideIdentity) {
       this.catalog = new MappingCatalog(deserializeCache(cached));
       return this.catalog;
     }
@@ -223,7 +227,7 @@ export class MappingCatalogProvider {
     await mkdir(this.options.cacheDir, { recursive: true });
     await writeFile(
       cachePath,
-      JSON.stringify(serializeCache(sources.pobVersion, sources.sourceHash, data)),
+      JSON.stringify(serializeCache(sources.pobVersion, sources.sourceHash, overrideIdentity, data)),
       'utf8',
     );
     this.catalog = new MappingCatalog(data);
@@ -279,6 +283,33 @@ async function readPoBSources(pobRoot: string): Promise<PoBSources> {
   return { pobVersion, sourceHash, gems, skillFiles, baseFiles, modFiles, treeJson };
 }
 
+const BASE_NAME_OVERRIDES: Record<string, string> = {
+  '闪避之腿': 'Evasive Leg',
+  '偏转之臂': 'Deflective Arm',
+};
+
+let _overrideIdentityCache: string | undefined;
+
+function computeOverrideIdentity(): string {
+  if (_overrideIdentityCache) return _overrideIdentityCache;
+  const payload = JSON.stringify({
+    converterVersion: CONVERTER_VERSION,
+    baseNameOverrides: sortEntries(BASE_NAME_OVERRIDES),
+    modTemplateOverrides: sortEntries(MOD_TEMPLATE_OVERRIDES),
+    jewelBaseOverrides: sortEntries(JEWEL_BASE_OVERRIDES),
+    assetNameOverrides: sortEntries(ASSET_NAME_OVERRIDES),
+    assetItemOverrides: sortEntries(ASSET_ITEM_OVERRIDES),
+    supportAssetOverrides: sortEntries(SUPPORT_ASSET_OVERRIDES),
+    jewelSocketEffectOverrides: sortEntries(JEWEL_SOCKET_EFFECT_OVERRIDES),
+  });
+  _overrideIdentityCache = createHash('sha256').update(payload).digest('hex');
+  return _overrideIdentityCache;
+}
+
+function sortEntries(record: Record<string, unknown>): Array<[string, unknown]> {
+  return Object.entries(record).sort(([a], [b]) => a.localeCompare(b));
+}
+
 function compileCatalog(
   sources: PoBSources,
   englishItems: TradeCatalog,
@@ -290,6 +321,9 @@ function compileCatalog(
   const knownBases = parseBaseNames(sources.baseFiles);
   for (const [cn, en] of [...names.baseNames]) {
     if (!knownBases.has(en) && !isSpecialItem(en)) names.baseNames.delete(cn);
+  }
+  for (const [cn, en] of Object.entries(BASE_NAME_OVERRIDES)) {
+    if (knownBases.has(en)) names.baseNames.set(cn, en);
   }
 
   const gems = parseGems(sources.gems);
@@ -437,12 +471,14 @@ function pairStatCatalogs(
 function serializeCache(
   pobVersion: string,
   sourceHash: string,
+  overrideIdentity: string,
   data: MappingCatalogData,
 ): CatalogCache {
   return {
-    version: 8,
+    version: 10,
     pobVersion,
     sourceHash,
+    overrideIdentity,
     catalogHash: data.hash,
     baseNames: [...data.baseNames],
     uniqueNames: [...data.uniqueNames],
@@ -478,7 +514,7 @@ function deserializeCache(cache: CatalogCache): MappingCatalogData {
 async function readCache(cachePath: string): Promise<CatalogCache | undefined> {
   try {
     const parsed = JSON.parse(await readFile(cachePath, 'utf8')) as CatalogCache;
-    return parsed.version === 8 ? parsed : undefined;
+    return parsed.version === 10 ? parsed : undefined;
   } catch {
     return undefined;
   }

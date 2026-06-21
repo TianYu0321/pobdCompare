@@ -62,6 +62,10 @@ const WEGAME_TO_POB2_SLOT: Record<string, string> = {
   Ring2: 'Ring 2',
   Ring3: 'Ring 3',
   Belt: 'Belt',
+  IncursionArmLeft: 'Arm 2',
+  IncursionArmRight: 'Arm 1',
+  IncursionLegLeft: 'Leg 2',
+  IncursionLegRight: 'Leg 1',
 };
 
 /** Reverse: PoB2 slot name → WeGame inventoryId, built from the authoritative map */

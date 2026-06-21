@@ -227,6 +227,24 @@ if build.spec and build.spec.allocNodes then
     table.sort(result.passiveNodes)
 end
 
+if build.skillsTab and build.skillsTab.socketGroupList then
+    local selectedGroupNumber = _skill_number or build.mainSocketGroup or 1
+    for i, group in ipairs(build.skillsTab.socketGroupList) do
+        if group and group.displayLabel then
+            local groupDps = 0
+            if i == selectedGroupNumber then
+                groupDps = result.calcsOutput.CombinedDPS or 0
+            end
+            table.insert(result.skillDpsList, {
+                skillNumber = i,
+                name = group.displayLabel,
+                dps = groupDps,
+                enabled = group.enabled or false,
+            })
+        end
+    end
+end
+
 -- Save variant XML for downstream use
 local variantOk, variantXml = pcall(function() return build:SaveDB("variant") end)
 if variantOk then result.variantXml = variantXml end

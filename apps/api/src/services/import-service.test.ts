@@ -368,6 +368,71 @@ Two Hand Mace</Item>
     expect(result.baseline).toBe(beforeBaseline);
   });
 
+  it('maps Transcendent Limb display names into Arm 1/Leg 1 slots from IncursionArmRight/IncursionLegRight', async () => {
+    const catalog = new MappingCatalog({
+      hash: 'catalog',
+      baseNames: new Map([
+        ['闪避之腿', 'Evasive Leg'],
+        ['偏转之臂', 'Deflective Arm'],
+      ]),
+      uniqueNames: new Map(),
+      assetNames: new Map(),
+      skillAssets: new Map(),
+      modTemplates: new Map(),
+      passiveNodeIds: new Set([722]),
+    });
+
+    const beforeBaseline: BaselineSnapshot = {
+      ...baseline(),
+      source: 'wegame',
+      items: [
+        { slotName: 'Arm 1', itemId: 1, name: 'Deflective Arm', baseType: 'Deflective Arm' },
+        { slotName: 'Leg 1', itemId: 2, name: 'Evasive Leg', baseType: 'Evasive Leg' },
+      ],
+    };
+
+    const service = new ImportService({
+      computeBaseline: async () => beforeBaseline,
+      getWeGameCatalog: async () => catalog,
+      convertWeGame: async () => ({
+        buildXml: '<PathOfBuilding2/>',
+        baseline: beforeBaseline,
+        validation: { roundTripValid: true, baselineValid: true, mainSkillValid: true },
+      }),
+    }, {
+      wegameAdapter: fakeWeGameAdapter({
+        equipments: [
+          {
+            inventoryId: 'IncursionArmRight',
+            name: '偏转之臂',
+            baseType: '偏转之臂',
+            typeLine: '偏转之臂',
+            rarity: '传奇',
+            ilvl: 86,
+          },
+          {
+            inventoryId: 'IncursionLegRight',
+            name: '闪避之腿',
+            baseType: '闪避之腿',
+            typeLine: '闪避之腿',
+            rarity: '传奇',
+            ilvl: 86,
+          },
+        ],
+      }),
+    });
+
+    const result = await service.importUrl('https://www.wegame.com.cn/share/test');
+
+    const arm = result.normalizedBuild!.equipments.find(e => e.slotName === 'Arm 1')!;
+    expect(arm.item!.name).toBe('偏转之臂');
+    expect(arm.item!.baseType).toBe('偏转之臂');
+
+    const leg = result.normalizedBuild!.equipments.find(e => e.slotName === 'Leg 1')!;
+    expect(leg.item!.name).toBe('闪避之腿');
+    expect(leg.item!.baseType).toBe('闪避之腿');
+  });
+
   it('returns catalog_refresh_failed instead of using a stale catalog', async () => {
     const service = new ImportService({
       computeBaseline: async () => baseline(),

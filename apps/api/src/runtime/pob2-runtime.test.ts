@@ -204,6 +204,60 @@ describe('Pob2Runtime.applyGearSwap', () => {
     expect(result.snapshot.baselineHash).toBe('base-hash');
   });
 
+  it('gear swap with populated skillDpsList and positive selected-group DPS is NOT incompatible', async () => {
+    // Regression: mutation_gear_swap.lua used to return skillDpsList={}
+    // always, causing applyGearSwap to classify every positive-DPS swap
+    // as incompatible. This test verifies that when the Lua script populates
+    // skillDpsList with the selected group having positive dps, the swap
+    // is evaluated normally (not flagged as incompatible).
+    const runtime = new Pob2Runtime();
+    const internals = runtime as unknown as {
+      manager: { computeBaseline: () => Promise<BaselineSnapshot> };
+      pool: {
+        submit: () => Promise<{
+          success: true;
+          variantXml: string;
+          calcsOutput: Record<string, unknown>;
+          breakdown: Record<string, unknown>;
+          skillDpsList: Array<{ skillNumber: number; name: string; dps: number; enabled: boolean }>;
+        }>;
+      };
+      computeBaseline: () => Promise<BaselineSnapshot>;
+    };
+    const base = baseline();
+    base.mainSkillSelection = {
+      selectedSkillNumber: 1,
+      selectedSkillName: 'Selected Skill',
+      selectionMode: 'auto_single',
+      candidates: [],
+      warnings: [],
+    };
+    base.skillDpsList = [{ skillNumber: 1, name: 'Selected Skill', dps: 100, enabled: true }];
+
+    internals.manager = { computeBaseline: async () => base };
+    // computeBaseline on variant XML also returns the base (simplified fixture)
+    internals.computeBaseline = async () => base;
+    internals.pool = {
+      submit: async () => ({
+        success: true,
+        variantXml: '<PathOfBuilding variant="valid_swap"/>',
+        calcsOutput: { CombinedDPS: 200, Life: 2000 },
+        breakdown: {},
+        skillDpsList: [{ skillNumber: 1, name: 'Selected Skill', dps: 200, enabled: true }],
+      }),
+    };
+
+    const result = await runtime.applyGearSwap({
+      baseline: base,
+      currentBuildXml: '<PathOfBuilding/>',
+      mutation,
+    });
+
+    // Must NOT be incompatible — the swap produced valid DPS
+    expect(result.result.isMainSkillStillValid).toBe(true);
+    expect(result.result.resultKind).not.toBe('incompatible');
+  });
+
   it('handles skillDpsList: {} from worker (empty Lua table shape) without crashing', async () => {
     const runtime = new Pob2Runtime();
     const internals = runtime as unknown as {
@@ -251,6 +305,118 @@ describe('Pob2Runtime.applyGearSwap', () => {
     // Must not throw. mainSkillStillValid=false because skillDpsList had no entries.
     expect(result.result.isMainSkillStillValid).toBe(false);
     expect(result.result.resultKind).toBe('incompatible');
+  });
+
+  it('preferred skill stays selected when its selected-group DPS/CombinedDPS is positive', async () => {
+    // Regression: baseline.lua used to emit dps=0 for every skill, causing
+    // computeBaseline to always reject the preferred skill and auto-select
+    // the first enabled entry. This test verifies that when the Lua script
+    // emits positive dps for the selected socket group (via CombinedDPS),
+    // the preferred skill is kept as-is.
+    const provisional = baseline();
+    provisional.skillDpsList = [
+      { skillNumber: 1, name: 'Preferred Skill', dps: 1500, enabled: true },
+      { skillNumber: 2, name: 'Alternative Skill', dps: 800, enabled: true },
+    ];
+    const runtime = new Pob2Runtime();
+    const createBaselineCalls: Array<{ skillNumber?: number; mainSkillSelection?: { selectedSkillNumber?: number } }> = [];
+    const internals = runtime as unknown as {
+      ensureStarted: () => Promise<void>;
+      manager: { createBaseline: (xml: string, opts: Record<string, unknown>) => Promise<BaselineSnapshot> };
+    };
+    internals.ensureStarted = async () => {};
+    internals.manager = {
+      createBaseline: async (_xml: string, opts: Record<string, unknown>) => {
+        const skillNumber = opts.skillNumber as number;
+        const selection = opts.mainSkillSelection as { selectedSkillNumber?: number; selectedSkillName?: string; selectionMode?: string; candidates?: unknown[]; warnings?: string[] } | undefined;
+        createBaselineCalls.push({ skillNumber, mainSkillSelection: selection ? { selectedSkillNumber: selection.selectedSkillNumber } : undefined });
+        const result = { ...provisional };
+        if (selection) {
+          result.mainSkillSelection = {
+            ...provisional.mainSkillSelection,
+            selectedSkillNumber: selection.selectedSkillNumber ?? skillNumber,
+            selectedSkillName: selection.selectedSkillName ?? `Skill ${skillNumber}`,
+            selectionMode: (selection.selectionMode ?? 'auto_single') as 'auto_single' | 'auto_highest_dps' | 'user_confirmed',
+            candidates: selection.candidates ?? [],
+            warnings: selection.warnings ?? [],
+          };
+        } else {
+          result.mainSkillSelection = {
+            ...provisional.mainSkillSelection,
+            selectedSkillNumber: skillNumber,
+            selectedSkillName: `Skill ${skillNumber}`,
+          };
+        }
+        return result;
+      },
+    };
+
+    const result = await runtime.computeBaseline({
+      buildXml: '<PathOfBuilding/>',
+      source: 'build_file',
+      preferredSkillNumber: 1,
+      preferredSkillName: 'Preferred Skill',
+    });
+
+    // Must NOT fall back — preferred skill has valid DPS
+    expect(result.mainSkillSelection.selectedSkillNumber).toBe(1);
+    expect(result.mainSkillSelection.selectedSkillName).toBe('Preferred Skill');
+    expect(result.mainSkillSelection.selectionMode).not.toBe('user_confirmed');
+    // Only one createBaseline call (no re-computation with different skillNumber)
+    expect(createBaselineCalls[0]?.skillNumber).toBe(1);
+  });
+
+  it('computeBaseline still falls back when the preferred selected-group DPS is zero', async () => {
+    // Companion to the above: verify that zero DPS (default for
+    // non-selected groups or a genuinely broken skill) still triggers
+    // fallback, preserving fail-closed semantics.
+    const provisional = baseline();
+    provisional.skillDpsList = [
+      { skillNumber: 1, name: 'Broken Skill', dps: 0, enabled: true },
+      { skillNumber: 2, name: 'Valid Skill', dps: 500, enabled: true },
+    ];
+    const runtime = new Pob2Runtime();
+    const internals = runtime as unknown as {
+      ensureStarted: () => Promise<void>;
+      manager: { createBaseline: (xml: string, opts: Record<string, unknown>) => Promise<BaselineSnapshot> };
+    };
+    internals.ensureStarted = async () => {};
+    internals.manager = {
+      createBaseline: async (_xml: string, opts: Record<string, unknown>) => {
+        const skillNumber = opts.skillNumber as number;
+        const selection = opts.mainSkillSelection as { selectedSkillNumber?: number; selectedSkillName?: string; selectionMode?: string; candidates?: unknown[]; warnings?: string[] } | undefined;
+        const result = { ...provisional };
+        if (selection) {
+          result.mainSkillSelection = {
+            ...provisional.mainSkillSelection,
+            selectedSkillNumber: selection.selectedSkillNumber ?? skillNumber,
+            selectedSkillName: selection.selectedSkillName ?? `Skill ${skillNumber}`,
+            selectionMode: (selection.selectionMode ?? 'auto_single') as 'auto_single' | 'auto_highest_dps' | 'user_confirmed',
+            candidates: selection.candidates ?? [],
+            warnings: selection.warnings ?? [],
+          };
+        } else {
+          result.mainSkillSelection = {
+            ...provisional.mainSkillSelection,
+            selectedSkillNumber: skillNumber,
+            selectedSkillName: `Skill ${skillNumber}`,
+          };
+        }
+        return result;
+      },
+    };
+
+    const result = await runtime.computeBaseline({
+      buildXml: '<PathOfBuilding/>',
+      source: 'build_file',
+      preferredSkillNumber: 1,
+      preferredSkillName: 'Broken Skill',
+    });
+
+    // Must NOT be user_confirmed
+    expect(result.mainSkillSelection.selectionMode).not.toBe('user_confirmed');
+    // Must fall back to the skill with positive DPS
+    expect(result.mainSkillSelection.selectedSkillNumber).toBe(2);
   });
 
   it('invalid preferred skill (0 DPS) falls back to highest valid PoB2 DPS and never returns user_confirmed', async () => {

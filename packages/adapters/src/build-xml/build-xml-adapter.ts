@@ -183,10 +183,14 @@ function parseItems(xml: string): BuildXmlParseResult["items"] {
       .join("\n");
     const lines = rawText.split(/\r?\n/);
     const rarityIndex = lines.findIndex((line) => /^Rarity:/i.test(line));
+    const rarityLine = rarityIndex >= 0 ? lines[rarityIndex] : "";
+    const isNormal = /^Rarity:\s*NORMAL$/i.test(rarityLine);
     itemById.set(itemId, {
       itemId,
       name: lines[rarityIndex + 1] ?? "Unknown Item",
-      baseType: lines[rarityIndex + 2] ?? "",
+      baseType: isNormal
+        ? (lines[rarityIndex + 1] ?? "")
+        : (lines[rarityIndex + 2] ?? ""),
       rawText,
     });
   }

@@ -166,12 +166,17 @@ if env and env.player and env.player.breakdown then
 end
 
 if build.skillsTab and build.skillsTab.socketGroupList then
+    local selectedGroupNumber = _skill_number or build.mainSocketGroup or 1
     for i, group in ipairs(build.skillsTab.socketGroupList) do
         if group and group.displayLabel then
+            local groupDps = 0
+            if i == selectedGroupNumber then
+                groupDps = result.calcsOutput.CombinedDPS or 0
+            end
             table.insert(result.skillDpsList, {
                 skillNumber = i,
                 name = group.displayLabel,
-                dps = 0,
+                dps = groupDps,
                 enabled = group.enabled or false,
             })
         end
