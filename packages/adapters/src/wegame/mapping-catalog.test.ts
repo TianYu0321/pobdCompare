@@ -220,12 +220,14 @@ describe('MappingCatalog', () => {
         id: 'override.evasive_leg',
         line: '20% increased Evasion Rating',
         strategy: 'versioned_override',
+        verified: false,
       });
     expect(fullCatalog.mapMod(DEFLECTIVE_ARM_RAW, 'implicitMods'))
       .toEqual({
         id: 'override.deflective_arm',
         line: '10% increased Deflection Rating',
         strategy: 'versioned_override',
+        verified: false,
       });
   });
 
@@ -252,6 +254,7 @@ describe('MappingCatalog', () => {
         id: 'override.evasion_per_level',
         line: 'Has +2 to Evasion Rating per player level',
         strategy: 'versioned_override',
+        verified: false,
       });
     expect(catalog.mapMod('每两级玩家等级，+2 [Evasion|闪避]值', 'implicitMods'))
       .toBeUndefined();

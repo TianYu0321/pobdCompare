@@ -11,7 +11,7 @@ param(
 $Script:RepoRoot = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $Script:ApiPort = 8787
 $Script:WebPort = 4173
-$Script:LaunchUrl = "http://localhost:$Script:WebPort"
+$Script:LaunchUrl = "http://127.0.0.1:$Script:WebPort"
 $Script:MaxWaitSeconds = 60
 $Script:PollIntervalMs = 500
 

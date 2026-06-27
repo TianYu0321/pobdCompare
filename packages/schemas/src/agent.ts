@@ -93,6 +93,31 @@ export const MappingBlockerSchema = z.object({
 });
 export type MappingBlocker = z.infer<typeof MappingBlockerSchema>;
 
+export const MappingCatalogMetaSchema = z.object({
+  catalogVersion: z.string(),
+  gameVersion: z.string(),
+  league: z.string().optional(),
+  source: z.enum(['trade_api', 'local_cache', 'manual']),
+  generatedAt: z.string(),
+  expiresAt: z.string().optional(),
+});
+export type MappingCatalogMeta = z.infer<typeof MappingCatalogMetaSchema>;
+
+export const ModStatsSchema = z.object({
+  total: z.number(),
+  mapped: z.number(),
+  verified: z.number(),
+  unverified: z.number(),
+  unknown: z.number(),
+  unsupported: z.number(),
+  topFailureReasons: z.array(z.object({
+    reason: z.string(),
+    count: z.number(),
+    examples: z.array(z.string()),
+  })).default([]),
+});
+export type ModStats = z.infer<typeof ModStatsSchema>;
+
 export const ConversionReportSchema = z.object({
   status: z.enum([
     'complete',
@@ -103,6 +128,8 @@ export const ConversionReportSchema = z.object({
     'failed',
   ]),
   catalogHash: z.string().optional(),
+  mappingCatalogMeta: MappingCatalogMetaSchema.optional(),
+  stale: z.boolean().optional(),
   mapped: z.array(MappingEvidenceSchema).default([]),
   blockers: z.array(MappingBlockerSchema).default([]),
   pobValidation: z.object({
@@ -122,6 +149,9 @@ export const ConversionReportSchema = z.object({
   ascendancyTotal: z.number(),
   configKnown: z.number(),
   configTotal: z.number(),
+  modStats: ModStatsSchema.default({
+    total: 0, mapped: 0, verified: 0, unverified: 0, unknown: 0, unsupported: 0, topFailureReasons: [],
+  }),
   unknownMods: z.array(UnknownModSchema),
   unmappedNodes: z.array(UnmappedNodeSchema),
   unmappedSkills: z.array(UnmappedSkillSchema),

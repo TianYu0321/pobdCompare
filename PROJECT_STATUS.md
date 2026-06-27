@@ -122,7 +122,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\start-workbench.ps1
 ```
 
 行为：
-- API (8787) 与 Web (4173) 都已监听 → 直接打开 http://localhost:4173
+- API (8787) 与 Web (4173) 都已监听 → 直接打开 http://127.0.0.1:4173
 - 两端口都空闲 → 自动执行 `npm run dev`（新窗口），等待就绪后打开浏览器
 - 仅一个端口在线 → 报错（退出码 1），需手动关闭已有终端窗口后重试
 - Node.js/npm 缺失 → 报错（退出码 2）

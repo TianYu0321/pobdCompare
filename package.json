@@ -13,7 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "mapping:failures": "tsx packages/adapters/src/cache/failure-cli.ts"
   },
   "devDependencies": {
     "@types/node": "^20.12.0",

@@ -94,6 +94,55 @@ export class Pob2Runtime {
     return this.catalogProvider!.getCatalog();
   }
 
+  getConversionCache() {
+    return this.catalogProvider?.getConversionCache();
+  }
+
+  getCurrentVersions() {
+    return this.catalogProvider?.getCurrentVersions();
+  }
+
+  async saveConversionCache(): Promise<void> {
+    await this.catalogProvider?.saveConversionCache();
+  }
+
+  getWorkerPool(): Pob2WorkerPool | undefined {
+    return this.pool;
+  }
+
+  getPob2Version(): string {
+    return this.version;
+  }
+
+  async createModVerificationService(): Promise<{
+    service: import('@pobd/adapters').ModVerificationService;
+    failureCorpus: import('@pobd/adapters').FailureCorpus;
+  }> {
+    await this.ensureStarted();
+    const pool = this.pool!;
+    const { ModVerificationService, FailureCorpus } = await import('@pobd/adapters');
+    const failureCorpus = new FailureCorpus();
+    const service = new ModVerificationService({
+      workerClient: {
+        submit: async (request) => {
+          const response = await pool.submit(request);
+          return {
+            success: response.success,
+            calcsOutput: response.calcsOutput,
+            breakdown: response.breakdown,
+            pobValidation: response.pobValidation,
+            roundTrip: response.roundTrip,
+            error: response.error,
+          };
+        },
+      },
+      conversionCache: this.catalogProvider?.getConversionCache(),
+      currentVersions: this.catalogProvider?.getCurrentVersions(),
+      failureCorpus,
+    });
+    return { service, failureCorpus };
+  }
+
   async convertWeGame(input: {
     character: CanonicalWeGameCharacter;
     catalogHash: string;
@@ -239,6 +288,36 @@ export class Pob2Runtime {
   }): Promise<ApplyGearSwapOutput> {
     await this.ensureStarted();
     const startedAt = Date.now();
+
+    // RawText degradation: if itemRaw is missing, try to generate from baseType using baseline template
+    const payload = input.mutation.payload as {
+      slotName: string;
+      itemRaw?: string;
+      baseType?: string;
+      rawTextSource?: string;
+    };
+    if (!payload.itemRaw || payload.itemRaw.trim().length === 0) {
+      if (payload.baseType) {
+        const templateItem = input.baseline.items.find((item) => item.baseType === payload.baseType);
+        if (templateItem?.rawText) {
+          payload.itemRaw = templateItem.rawText;
+          payload.rawTextSource = 'generated';
+        } else {
+          return {
+            buildXml: input.currentBuildXml,
+            result: this.incompatibleResult(input.baseline, input.mutation, 'missing_raw_text', `Missing rawText for ${payload.baseType}; no template found in baseline`),
+            snapshot: input.baseline,
+          };
+        }
+      } else {
+        return {
+          buildXml: input.currentBuildXml,
+          result: this.incompatibleResult(input.baseline, input.mutation, 'missing_raw_text', 'Missing rawText and no baseType available for gear swap'),
+          snapshot: input.baseline,
+        };
+      }
+    }
+
     const response = await this.pool!.submit({
       buildXml: input.currentBuildXml,
       skillNumber: input.baseline.skillNumber,
@@ -418,7 +497,8 @@ export class Pob2Runtime {
     return new ResultComparator().compare(input.baseline, variant);
   }
 
-  shutdown(): void {
+  async shutdown(): Promise<void> {
+    await this.catalogProvider?.saveConversionCache?.();
     this.pool?.shutdown();
     this.pool = undefined;
     this.manager = undefined;
@@ -439,6 +519,7 @@ export class Pob2Runtime {
     this.catalogProvider = new MappingCatalogProvider({
       pobRoot: installation.root,
       cacheDir: resolveRepoPath('.cache', 'wegame-mapping'),
+      conversionCachePath: resolveRepoPath('.cache', 'wegame-mapping', 'conversion-cache.json'),
     });
     this.manager = new BaselineManager(new PoolBaselineClient(this.pool), {
       enableFileCache: true,
@@ -451,6 +532,7 @@ export class Pob2Runtime {
     | 'attribute_requirement_not_met'
     | 'main_skill_invalid'
     | 'gem_disabled'
+    | 'missing_raw_text'
     | undefined {
     const normalized = error?.toLowerCase() ?? '';
     if (normalized.includes('weapon') || normalized.includes('main skill')) {
@@ -563,7 +645,8 @@ export class Pob2Runtime {
       | 'skill_requirement_not_met'
       | 'attribute_requirement_not_met'
       | 'main_skill_invalid'
-      | 'gem_disabled',
+      | 'gem_disabled'
+      | 'missing_raw_text',
     error?: string,
   ): SimulationResult {
     const baselineDps =

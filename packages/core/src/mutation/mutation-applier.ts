@@ -79,12 +79,13 @@ export class MutationFactory {
     };
   }
 
-  createGearSwapMutation(slotName: string, itemRaw: string, baselineHash: string, sourceSlotName?: string): BuildMutation {
+  createGearSwapMutation(slotName: string, itemRaw: string, baselineHash: string, sourceSlotName?: string, baseType?: string): BuildMutation {
     const payload: ItemSwapPayload = {
       slotName,
       itemRaw,
       sourceSlotName,
       preserveLinks: true,
+      baseType,
     };
 
     return {

@@ -44,6 +44,8 @@ export const ItemSwapPayloadSchema = z.object({
   sourceBuildHash: z.string().optional(),
   sourceSlotName: z.string().optional(),
   preserveLinks: z.boolean().optional(),
+  baseType: z.string().optional(),
+  rawTextSource: z.enum(['original', 'generated', 'pob2_template']).optional(),
 });
 export type ItemSwapPayload = z.infer<typeof ItemSwapPayloadSchema>;
 

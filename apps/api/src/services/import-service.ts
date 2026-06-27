@@ -3,12 +3,15 @@ import { randomUUID } from 'node:crypto';
 import {
   BuildXmlAdapter,
   MappingCatalog,
+  ModVerificationService,
   PoeNinjaAdapter,
   WeGameAdapter,
   convertWeGameToCanonical,
   type CanonicalWeGameCharacter,
   createConversionReport,
   normalizeWeGame,
+  FailureCorpus,
+  buildTopFailureReasons,
 } from '@pobd/adapters';
 import type {
   BaselineSnapshot,
@@ -82,6 +85,7 @@ export class ImportService {
 
   constructor(
     private readonly baselineComputer: BaselineComputer,
+    private readonly modVerificationService?: ModVerificationService,
     options?: { wegameAdapter?: WeGameAdapter; poeNinjaAdapter?: PoeNinjaAdapter },
   ) {
     this.wegameAdapter = options?.wegameAdapter ?? new WeGameAdapter();
@@ -207,6 +211,7 @@ export class ImportService {
       });
     }
     onProgress?.('map_wegame_metadata', '精确映射 WeGame 装备、技能、词条与天赋');
+    const failureCorpus = new FailureCorpus();
     const conversion = convertWeGameToCanonical({
       roleInfo: fetched.roleInfo,
       equipments: fetched.equipments as Record<string, unknown>[],
@@ -214,7 +219,7 @@ export class ImportService {
       talentTree: fetched.talentTree as Record<string, unknown> & { hashes: number[] },
       jewels: fetched.jewels,
       roleKeyData: fetched.roleKeyData,
-    }, catalog);
+    }, catalog, failureCorpus);
     if (conversion.report.status !== 'complete') {
       return this.storeWeGameResult({
         id,
@@ -235,6 +240,11 @@ export class ImportService {
         catalogHash: catalog.hash,
       });
       conversion.report.pobValidation = native.validation;
+      if (catalog.meta) {
+        conversion.report.mappingCatalogMeta = catalog.meta;
+        conversion.report.stale = catalog.meta.gameVersion !== native.baseline.pob2Version ||
+          !!(native.baseline.league && catalog.meta.league !== native.baseline.league);
+      }
       onProgress?.('compute_baselines', '读取 PoB2 重算 baseline');
       // Backfill rawText for all baseline items from the PoB2 SaveDB XML
       const parsedFromXml = await this.buildAdapter.parseBuildXml(native.buildXml);
@@ -257,6 +267,47 @@ export class ImportService {
         normalizedBuild.skills = this.skillsFromPoB2Dps(native.baseline, displayBuild.skills);
       }
       this.mergeDisplayEquipments(normalizedBuild, displayEquipments);
+
+      // 触发后台异步 mod PoB2 验证（不阻塞主流程）
+      if (conversion.pendingModVerifications && conversion.pendingModVerifications.length > 0 && this.modVerificationService) {
+        const verifications = conversion.pendingModVerifications;
+        void this.modVerificationService.verifyBatch(verifications).then((results) => {
+          const stored = this.imports.get(id);
+          if (!stored) return;
+          let verifiedCount = 0;
+          let unsupportedCount = 0;
+          for (const result of results) {
+            if (result.status === 'verified_by_pob2') {
+              verifiedCount += 1;
+            } else if (result.status === 'pob2_rejected') {
+              unsupportedCount += 1;
+            }
+            // mapped_but_unverified 和 worker_failed 不统计到 verified/unsupported
+          }
+          stored.conversionReport.modStats.verified += verifiedCount;
+          stored.conversionReport.modStats.unverified -= Math.min(verifiedCount + unsupportedCount, stored.conversionReport.modStats.unverified);
+          stored.conversionReport.modStats.unsupported += unsupportedCount;
+          // 更新 topFailureReasons（从后台验证失败原因聚合）
+          const failures = results
+            .filter((r) => r.status === 'worker_failed' && r.errorMessage)
+            .map((r) => ({ reason: r.errorMessage!, example: r.enLine }));
+          if (failures.length > 0) {
+            stored.conversionReport.modStats.topFailureReasons = buildTopFailureReasons(failures);
+          }
+          // 如果 verified 比例导致状态降级，同步更新
+          const ratio = stored.conversionReport.modStats.total > 0
+            ? stored.conversionReport.modStats.verified / stored.conversionReport.modStats.total
+            : 1;
+          if (ratio < 0.5 && stored.conversionReport.modStats.total > 0) {
+            if (stored.conversionReport.status === 'complete') {
+              stored.conversionReport.status = 'partial';
+            }
+          }
+        }).catch((err) => {
+          console.error('Background mod verification failed:', err);
+        });
+      }
+
       return this.storeWeGameResult({
         id,
         status: conversion.report.status === 'complete' ? 'calculable' : 'normalized',
@@ -375,7 +426,7 @@ export class ImportService {
           id: String(item.itemId),
           name: item.name,
           baseType: item.baseType,
-          rawText: item.rawText,
+          rawText: item.rawText ?? ImportService.inferRawText(item),
         },
       })),
       weaponSets: [
@@ -391,6 +442,12 @@ export class ImportService {
       panel: this.panelFromCalcs(baseline.calcsOutput),
       warnings: dpsByNumber.size === 0 ? ['PoB2 未返回技能 DPS。'] : [],
     };
+  }
+
+  private static inferRawText(item: { baseType?: string; name?: string; rawText?: string }): string | undefined {
+    if (item.rawText) return item.rawText;
+    if (!item.baseType) return undefined;
+    return `Rarity: normal\n${item.baseType}\n`;
   }
 
   private static nonEmpty(value: string | undefined | null): value is string {

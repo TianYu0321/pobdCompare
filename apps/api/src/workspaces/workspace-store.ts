@@ -27,6 +27,11 @@ export interface GearCandidate {
   baseType: string;
   rawText?: string;
   applicable: boolean;
+  itemSwapAvailability?: {
+    applicable: boolean;
+    reason?: 'missing_raw_text' | 'unmapped_item' | 'unsupported_mods' | 'slot_empty' | 'compatible';
+    rawTextSource?: 'original' | 'generated' | 'pob2_template';
+  };
 }
 
 export interface WorkspaceView {
@@ -117,16 +122,26 @@ export class WorkspaceStore {
     const workspace = this.requireWorkspace(id);
     const sources = [workspace.a, workspace.b].filter((side): side is SideState => Boolean(side));
     return sources.flatMap((source) =>
-      source.imported.baseline!.items.map((item: ItemInfo) => ({
-        id: `${source === workspace.a ? 'a' : 'b'}:${item.slotName}:${item.itemId}`,
-        sourceSide: source === workspace.a ? 'a' : 'b',
-        slotName: item.slotName,
-        itemId: item.itemId,
-        name: item.name,
-        baseType: item.baseType,
-        rawText: item.rawText,
-        applicable: Boolean(item.rawText) && source !== workspace[targetSide],
-      })),
+      source.imported.baseline!.items.map((item: ItemInfo) => {
+        const isTargetSide = source === workspace[targetSide];
+        const hasRawText = Boolean(item.rawText);
+        const applicable = hasRawText && !isTargetSide;
+        return {
+          id: `${source === workspace.a ? 'a' : 'b'}:${item.slotName}:${item.itemId}`,
+          sourceSide: source === workspace.a ? 'a' : 'b',
+          slotName: item.slotName,
+          itemId: item.itemId,
+          name: item.name,
+          baseType: item.baseType,
+          rawText: item.rawText,
+          applicable,
+          itemSwapAvailability: isTargetSide
+            ? { applicable: false, reason: 'slot_empty' }
+            : hasRawText
+              ? { applicable: true, reason: 'compatible', rawTextSource: 'original' }
+              : { applicable: false, reason: 'missing_raw_text' },
+        };
+      }),
     );
   }
 
@@ -145,8 +160,8 @@ export class WorkspaceStore {
 
     const candidate = this.gearCandidates(id, targetSide).find((item) => item.id === candidateId);
     if (!candidate) throw new Error('装备候选不存在');
-    if (!candidate.applicable || !candidate.rawText) {
-      throw new Error('该装备缺少 PoB2 原始数据或来自当前侧，不能应用');
+    if (candidate.sourceSide === targetSide) {
+      throw new Error('不能应用来自当前侧的装备');
     }
     if (!isCanonicalSlotFamily(candidate.slotName, targetSlotName)) {
       throw new Error(`装备槽位不匹配：候选 ${candidate.slotName} → 目标 ${targetSlotName}`);
@@ -161,9 +176,10 @@ export class WorkspaceStore {
     );
     const mutation = this.mutationFactory.createGearSwapMutation(
       targetSlotName,
-      candidate.rawText,
+      candidate.rawText ?? '',
       baseline.baselineHash,
       candidate.slotName,
+      candidate.baseType,
     );
 
     const applied = await this.executor.applyGearSwap({ baseline, currentBuildXml, mutation });

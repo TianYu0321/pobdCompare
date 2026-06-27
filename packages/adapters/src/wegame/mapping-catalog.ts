@@ -1,4 +1,4 @@
-import type { MappingEvidence, MappingStrategy } from '@pobd/schemas';
+import type { MappingEvidence, MappingStrategy, MappingCatalogMeta } from '@pobd/schemas';
 
 export interface TradeCatalogEntry {
   type: string;
@@ -43,6 +43,7 @@ export interface JewelSocketEffect {
 
 export interface MappingCatalogData {
   hash: string;
+  meta?: MappingCatalogMeta;
   baseNames: Map<string, string>;
   uniqueNames: Map<string, string>;
   assetNames: Map<string, string>;
@@ -81,9 +82,11 @@ export interface ExactMapping<T> {
 
 export class MappingCatalog {
   readonly hash: string;
+  readonly meta?: MappingCatalogMeta;
 
   constructor(private readonly data: MappingCatalogData) {
     this.hash = data.hash;
+    this.meta = data.meta;
   }
 
   mapItem(item: RawItemIdentity):
@@ -177,7 +180,7 @@ export class MappingCatalog {
   }
 
   mapMod(rawLine: string, section?: string):
-    | { id: string; line: string; strategy: 'exact_template_hash' | 'versioned_override' }
+    | { id: string; line: string; strategy: 'exact_template_hash' | 'versioned_override'; status: 'mapped_unverified' | 'verified_by_pob2' | 'pob2_rejected'; source: string }
     | undefined {
     const source = normalizeLocalizedText(rawLine);
     const prefix = section && MOD_SECTION_PREFIXES[section];
@@ -188,6 +191,8 @@ export class MappingCatalog {
         id: override.id,
         line: renderTemplate(override.englishTemplate, sourceTemplate.values),
         strategy: 'versioned_override',
+        status: 'mapped_unverified',
+        source: 'manual_override',
       };
     }
     const matches: Array<{ id: string; line: string }> = [];
@@ -201,7 +206,7 @@ export class MappingCatalog {
       });
     }
     if (matches.length !== 1) return undefined;
-    return { ...matches[0], strategy: 'exact_template_hash' };
+    return { ...matches[0], strategy: 'exact_template_hash', status: 'mapped_unverified', source: 'poe2db_exact' };
   }
 }
 

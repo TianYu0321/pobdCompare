@@ -469,6 +469,12 @@ function BuildPanel({
       {result.conversionReport.blockers.length === 0 && result.warnings.length > 0 && (
         <div className="warning-line">{result.warnings[0]}</div>
       )}
+      {result.conversionReport.mappingCatalogMeta && (
+        <div className="warning-line">
+          映射目录版本：{result.conversionReport.mappingCatalogMeta.catalogVersion} · 生成于 {result.conversionReport.mappingCatalogMeta.generatedAt}
+          {result.conversionReport.stale && ' · 已过期，请运行 pnpm mapping:refresh'}
+        </div>
+      )}
     </section>
   );
 }
@@ -710,7 +716,7 @@ function ItemDrawer({
           {candidates.map((candidate) => (
             <article key={candidate.id}>
               <div><b>{candidate.name}</b><small>{candidate.baseType}</small></div>
-              <button disabled={!candidate.applicable} onClick={() => onApply(candidate)}>{candidate.applicable ? '应用装备' : '不可应用'}</button>
+              <button disabled={!candidate.applicable} onClick={() => onApply(candidate)}>{candidate.applicable ? '应用装备' : candidate.itemSwapAvailability?.reason === 'missing_raw_text' ? '缺少 rawText' : '不可应用'}</button>
             </article>
           ))}
           {candidates.length === 0 && <EmptyState text="该槽位没有来自对方构筑的候选" />}

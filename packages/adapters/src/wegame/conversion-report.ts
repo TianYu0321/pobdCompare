@@ -1,4 +1,6 @@
 import type { ConversionReport, UnknownMod, UnmappedItem, UnmappedNode, UnmappedSkill } from "@pobd/schemas";
+import type { FailureCorpus } from "../mod-verification-service";
+import { buildTopFailureReasons } from "../mod-verification-service";
 
 export function createConversionReport(): ConversionReport {
   return {
@@ -17,6 +19,15 @@ export function createConversionReport(): ConversionReport {
     ascendancyTotal: 0,
     configKnown: 0,
     configTotal: 0,
+    modStats: {
+      total: 0,
+      mapped: 0,
+      verified: 0,
+      unverified: 0,
+      unknown: 0,
+      unsupported: 0,
+      topFailureReasons: [],
+    },
     unknownMods: [],
     unmappedNodes: [],
     unmappedSkills: [],
@@ -130,7 +141,10 @@ export function incrementTotal(
   return report;
 }
 
-export function finalizeReport(report: ConversionReport): ConversionReport {
+export function finalizeReport(
+  report: ConversionReport,
+  failureCorpus?: FailureCorpus,
+): ConversionReport {
   // If the caller already set an explicit non-complete status, honor it
   if (report.status !== "complete") {
     return report;
@@ -143,7 +157,7 @@ export function finalizeReport(report: ConversionReport): ConversionReport {
   }> = [
     { mapped: report.skillMapped, total: report.skillTotal, name: "skill" },
     { mapped: report.itemMapped, total: report.itemTotal, name: "item" },
-    { mapped: report.modMapped, total: report.modTotal, name: "mod" },
+    { mapped: report.modStats.mapped, total: report.modStats.total, name: "mod" },
     { mapped: report.passiveMapped, total: report.passiveTotal, name: "passive" },
     { mapped: report.ascendancyMapped, total: report.ascendancyTotal, name: "ascendancy" },
     { mapped: report.configKnown, total: report.configTotal, name: "config" },
@@ -164,14 +178,25 @@ export function finalizeReport(report: ConversionReport): ConversionReport {
     report.unmappedSkills.length > 0 ||
     report.unknownMods.length > 0;
 
-  if (allComplete && !hasWarnings) {
+  // mod verification ratio downgrade
+  const modVerificationRatio = report.modStats.total > 0
+    ? report.modStats.verified / report.modStats.total
+    : 1;
+  const shouldDowngrade = modVerificationRatio < 0.5 && report.modStats.total > 0;
+
+  if (allComplete && !hasWarnings && !shouldDowngrade) {
     report.status = "complete";
   } else if (anyFailed) {
     report.status = "failed";
-  } else if (hasUnmapped || hasWarnings) {
+  } else if (hasUnmapped || hasWarnings || shouldDowngrade) {
     report.status = "partial";
   } else {
     report.status = "degraded";
+  }
+
+  // Populate topFailureReasons from FailureCorpus if provided
+  if (failureCorpus && !failureCorpus.isEmpty()) {
+    report.modStats.topFailureReasons = buildTopFailureReasons(failureCorpus.getFailures());
   }
 
   return report;

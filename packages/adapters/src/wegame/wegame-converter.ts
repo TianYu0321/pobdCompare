@@ -5,6 +5,7 @@ import type {
 } from '@pobd/schemas';
 
 import { createConversionReport } from './conversion-report';
+import type { FailureCorpus } from '../mod-verification-service';
 import { MappingCatalog } from './mapping-catalog';
 
 type AnyRecord = Record<string, unknown>;
@@ -46,6 +47,13 @@ export interface CanonicalWeGameCharacter {
 export interface WeGameConversionResult {
   character: CanonicalWeGameCharacter;
   report: ConversionReport;
+  pendingModVerifications?: Array<{
+    modId: string;
+    zhTemplate: string;
+    enLine: string;
+    itemBaseType: string;
+    generationType: string;
+  }>;
 }
 
 const CLASS_OVERRIDES: Record<number, string> = {
@@ -61,11 +69,19 @@ const ASCENDANCY_OVERRIDES: Record<string, number> = {
 export function convertWeGameToCanonical(
   input: WeGameConversionInput,
   catalog: MappingCatalog,
+  failureCorpus?: FailureCorpus,
 ): WeGameConversionResult {
   const report = createConversionReport();
   report.catalogHash = catalog.hash;
   const equipment: AnyRecord[] = [];
   const skills: AnyRecord[] = [];
+  const pendingModVerifications: Array<{
+    modId: string;
+    zhTemplate: string;
+    enLine: string;
+    itemBaseType: string;
+    generationType: string;
+  }> = [];
 
   for (const raw of input.equipments) {
     if (stringValue(raw.inventoryId) === 'Chakra') continue;
@@ -87,7 +103,7 @@ export function convertWeGameToCanonical(
       });
       continue;
     }
-    const converted = convertItem(raw, mapped.baseType, mapped.name, catalog, report);
+    const converted = convertItem(raw, mapped.baseType, mapped.name, catalog, report, failureCorpus, pendingModVerifications);
     if (!converted) continue;
     equipment.push(converted);
     report.itemMapped += 1;
@@ -205,6 +221,7 @@ export function convertWeGameToCanonical(
       recordValue(input.talentTree.jewel_data),
       catalog,
       report,
+      failureCorpus,
     ),
     passives: {
       hashes: passiveHashes,
@@ -217,7 +234,7 @@ export function convertWeGameToCanonical(
     mainSkillHint: extractMainSkillHint(input.roleKeyData),
   };
   report.status = report.blockers.length > 0 ? 'blocked' : 'complete';
-  return { character, report };
+  return { character, report, pendingModVerifications };
 }
 
 function convertItem(
@@ -226,6 +243,14 @@ function convertItem(
   mappedName: string | undefined,
   catalog: MappingCatalog,
   report: ConversionReport,
+  failureCorpus?: FailureCorpus,
+  pendingModVerifications?: Array<{
+    modId: string;
+    zhTemplate: string;
+    enLine: string;
+    itemBaseType: string;
+    generationType: string;
+  }>,
 ): AnyRecord | undefined {
   const converted: AnyRecord = {
     ...raw,
@@ -249,8 +274,11 @@ function convertItem(
     const mappedLines: string[] = [];
     for (const line of lines) {
       report.modTotal += 1;
+      report.modStats.total += 1;
       const mapped = catalog.mapMod(line, key);
       if (!mapped) {
+        report.modStats.unknown += 1;
+        failureCorpus?.record('No unique exact trade template hash', line);
         addBlocker(report, {
           code: 'unknown_mod',
           category: 'mod',
@@ -262,6 +290,19 @@ function convertItem(
       }
       mappedLines.push(mapped.line);
       report.modMapped += 1;
+      report.modStats.mapped += 1;
+      if (mapped.status === 'verified_by_pob2') {
+        report.modStats.verified += 1;
+      } else {
+        report.modStats.unverified += 1;
+        pendingModVerifications?.push({
+          modId: mapped.id,
+          zhTemplate: line,
+          enLine: mapped.line,
+          itemBaseType: baseType,
+          generationType: key,
+        });
+      }
       addEvidence(report, {
         category: 'mod',
         source: line,
@@ -336,6 +377,7 @@ function convertJewels(
   jewelData: Record<string, AnyRecord>,
   catalog: MappingCatalog,
   report: ConversionReport,
+  failureCorpus?: FailureCorpus,
 ): AnyRecord[] {
   const wrappers = parseJewelWrappers(value);
   const socketIndexes = Object.keys(jewelData)
@@ -377,6 +419,7 @@ function convertJewels(
       const mapped = modId && catalog.mapJewelMod(modId, values);
       if (!modId || !mapped) {
         blocked = true;
+        failureCorpus?.record('No exact ModJewel ID/value mapping', modId ?? 'unknown jewel mod');
         addBlocker(report, {
           code: 'unknown_mod',
           category: 'jewel',

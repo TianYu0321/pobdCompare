@@ -12,6 +12,7 @@ import {
   type SkillCatalogEntry,
   type TradeCatalog,
 } from './mapping-catalog';
+import { ConversionCache, type CurrentVersions } from '../cache/mod-cache';
 
 interface TradeStatEntry {
   id: string;
@@ -33,6 +34,14 @@ interface CatalogCache {
   sourceHash: string;
   overrideIdentity: string;
   catalogHash: string;
+  meta?: {
+    catalogVersion: string;
+    gameVersion: string;
+    league?: string;
+    source: 'trade_api' | 'local_cache' | 'manual';
+    generatedAt: string;
+    expiresAt?: string;
+  };
   baseNames: Array<[string, string]>;
   uniqueNames: Array<[string, string]>;
   assetNames: Array<[string, string]>;
@@ -49,6 +58,7 @@ interface CatalogCache {
 export interface MappingCatalogProviderOptions {
   pobRoot: string;
   cacheDir: string;
+  conversionCachePath?: string;
   fetchJson?: (url: string) => Promise<unknown>;
 }
 
@@ -191,6 +201,8 @@ const JEWEL_SOCKET_EFFECT_OVERRIDES: Record<string, JewelSocketEffect> = {
 
 export class MappingCatalogProvider {
   private catalog?: MappingCatalog;
+  private conversionCache?: ConversionCache;
+  private currentVersions?: CurrentVersions;
   private readonly fetchJson: (url: string) => Promise<unknown>;
 
   constructor(private readonly options: MappingCatalogProviderOptions) {
@@ -206,8 +218,13 @@ export class MappingCatalogProvider {
       `wegame-mapping-${safeFileName(sources.pobVersion)}.json`,
     );
     const cached = await readCache(cachePath);
+
+    // 加载版本化 ConversionCache
+    await this.ensureConversionCacheLoaded(sources.pobVersion);
+
     if (cached?.sourceHash === sources.sourceHash && cached?.overrideIdentity === overrideIdentity) {
       this.catalog = new MappingCatalog(deserializeCache(cached));
+      this.updateCurrentVersions(sources.pobVersion);
       return this.catalog;
     }
 
@@ -231,7 +248,41 @@ export class MappingCatalogProvider {
       'utf8',
     );
     this.catalog = new MappingCatalog(data);
+    this.updateCurrentVersions(sources.pobVersion);
     return this.catalog;
+  }
+
+  getConversionCache(): ConversionCache | undefined {
+    return this.conversionCache;
+  }
+
+  getCurrentVersions(): CurrentVersions | undefined {
+    return this.currentVersions;
+  }
+
+  async saveConversionCache(): Promise<void> {
+    if (this.conversionCache) {
+      await this.conversionCache.save();
+    }
+  }
+
+  private async ensureConversionCacheLoaded(pobVersion: string): Promise<void> {
+    if (this.conversionCache) return;
+    const conversionCachePath = this.options.conversionCachePath ?? path.join(
+      this.options.cacheDir,
+      `conversion-cache-${safeFileName(pobVersion)}.json`,
+    );
+    this.conversionCache = new ConversionCache(conversionCachePath);
+    await this.conversionCache.load();
+  }
+
+  private updateCurrentVersions(pobVersion: string): void {
+    this.currentVersions = {
+      catalogVersion: this.catalog?.hash ?? '',
+      adapterVersion: CONVERTER_VERSION,
+      pob2Version: pobVersion,
+      gameVersion: pobVersion,
+    };
   }
 }
 
@@ -367,6 +418,12 @@ function compileCatalog(
     .digest('hex');
   return {
     hash: catalogHash,
+    meta: {
+      catalogVersion: sources.pobVersion,
+      gameVersion: sources.pobVersion,
+      source: 'trade_api' as const,
+      generatedAt: new Date().toISOString(),
+    },
     baseNames: names.baseNames,
     uniqueNames: names.uniqueNames,
     assetNames,
@@ -480,6 +537,7 @@ function serializeCache(
     sourceHash,
     overrideIdentity,
     catalogHash: data.hash,
+    meta: data.meta,
     baseNames: [...data.baseNames],
     uniqueNames: [...data.uniqueNames],
     assetNames: [...data.assetNames],
@@ -497,6 +555,7 @@ function serializeCache(
 function deserializeCache(cache: CatalogCache): MappingCatalogData {
   return {
     hash: cache.catalogHash,
+    meta: cache.meta,
     baseNames: new Map(cache.baseNames),
     uniqueNames: new Map(cache.uniqueNames),
     assetNames: new Map(cache.assetNames),

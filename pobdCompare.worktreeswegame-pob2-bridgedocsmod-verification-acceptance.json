@@ -1,0 +1,116 @@
+{
+  "total": 50,
+  "mapped": 50,
+  "roundtripValid": 11,
+  "parserRecognized": 37,
+  "calcEffectConfirmed": 0,
+  "pob2Rejected": 0,
+  "workerFailed": 2,
+  "unknown": 0,
+  "byGenerationType": {
+    "explicit": {
+      "total": 20,
+      "mapped": 20,
+      "roundtripValid": 4,
+      "parserRecognized": 15,
+      "calcEffectConfirmed": 0,
+      "pob2Rejected": 0,
+      "workerFailed": 1
+    },
+    "implicit": {
+      "total": 10,
+      "mapped": 10,
+      "roundtripValid": 2,
+      "parserRecognized": 8,
+      "calcEffectConfirmed": 0,
+      "pob2Rejected": 0,
+      "workerFailed": 0
+    },
+    "enchant": {
+      "total": 10,
+      "mapped": 10,
+      "roundtripValid": 3,
+      "parserRecognized": 7,
+      "calcEffectConfirmed": 0,
+      "pob2Rejected": 0,
+      "workerFailed": 0
+    },
+    "rune": {
+      "total": 5,
+      "mapped": 5,
+      "roundtripValid": 1,
+      "parserRecognized": 4,
+      "calcEffectConfirmed": 0,
+      "pob2Rejected": 0,
+      "workerFailed": 0
+    },
+    "crafted": {
+      "total": 5,
+      "mapped": 5,
+      "roundtripValid": 1,
+      "parserRecognized": 3,
+      "calcEffectConfirmed": 0,
+      "pob2Rejected": 0,
+      "workerFailed": 1
+    }
+  },
+  "topFailureReasons": [
+    {
+      "reason": "parser_unrecognized",
+      "count": 13,
+      "examples": [
+        "Adds 1 to 10 Chaos Damage to Attacks",
+        "10% increased Area of Effect"
+      ]
+    },
+    {
+      "reason": "value_parse_failed",
+      "count": 8,
+      "examples": [
+        "+1 to 2 Added Minion Life",
+        "Adds #-# Physical Damage"
+      ]
+    },
+    {
+      "reason": "pob2_rejected",
+      "count": 5,
+      "examples": [
+        "Reflects # Physical Damage to Attackers",
+        "Cannot be Frozen"
+      ]
+    },
+    {
+      "reason": "wrong_test_item_context",
+      "count": 4,
+      "examples": [
+        "+#% to Critical Strike Chance"
+      ]
+    },
+    {
+      "reason": "unsupported_mechanic",
+      "count": 3,
+      "examples": [
+        "+# to Level of Socketed Gems",
+        "Trigger a Socketed Spell when you Use a Skill"
+      ]
+    },
+    {
+      "reason": "worker_failed",
+      "count": 2,
+      "examples": [
+        "Adds 1 to 10 Lightning Damage to Attacks",
+        "10% increased Projectile Speed"
+      ]
+    },
+    {
+      "reason": "no_template",
+      "count": 0,
+      "examples": []
+    },
+    {
+      "reason": "calc_effect_not_detected",
+      "count": 0,
+      "examples": []
+    }
+  ]
+}

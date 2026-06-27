@@ -142,7 +142,7 @@ try {
     Assert-Equal 0 $exitCode "Return code 0"
     Assert-True (Calls-Contain $f "TestPort(8787)") "Checked API port"
     Assert-True (Calls-Contain $f "TestPort(4173)") "Checked Web port"
-    Assert-True (Calls-Contain $f "OpenBrowser(http://localhost:4173)") "Opened browser"
+    Assert-True (Calls-Contain $f "OpenBrowser(http://127.0.0.1:4173)") "Opened browser"
     Assert-False (Calls-Contain $f "StartService") "Did NOT start service"
     Assert-False (Calls-Contain $f "FindCommand") "Did NOT check commands"
 
@@ -170,7 +170,7 @@ try {
     Assert-True (Calls-Contain $f "FindCommand(node)") "Checked for node"
     Assert-True (Calls-Contain $f "FindCommand(npm)") "Checked for npm"
     Assert-True (Calls-Contain $f "StartService") "Started service"
-    Assert-True (Calls-Contain $f "OpenBrowser(http://localhost:4173)") "Opened browser"
+    Assert-True (Calls-Contain $f "OpenBrowser(http://127.0.0.1:4173)") "Opened browser"
 
     # Test 2b: DryRun -> no side effects
     $f = New-FakeDeps
@@ -282,9 +282,26 @@ try {
     Assert-True ($elapsed -lt 2) "Completed in < 2s (actual: $elapsed s)"
 
     # ============================================================
-    # Test 10: Fail-fast sentinel active on all production functions
+    # Test 10: Config contract -- vite.config.ts must bind host
     # ============================================================
-    Write-Host "[Test 10] Fail-fast guards all production functions" -ForegroundColor Cyan
+    Write-Host "[Test 10] Config contract: vite.config.ts server.host" -ForegroundColor Cyan
+
+    $viteConfigPath = Join-Path $RepoRoot "apps\web\vite.config.ts"
+    $viteConfig = Get-Content -Path $viteConfigPath -Raw
+    Assert-True ($viteConfig -match "host:\s*'127\.0\.0\.1'") "vite.config.ts has server.host = '127.0.0.1'"
+
+    # ============================================================
+    # Test 11: Config contract -- LaunchUrl must use 127.0.0.1
+    # ============================================================
+    Write-Host "[Test 11] Config contract: LaunchUrl is 127.0.0.1" -ForegroundColor Cyan
+
+    . $ScriptPath
+    Assert-Equal "http://127.0.0.1:4173" $Script:LaunchUrl "LaunchUrl uses 127.0.0.1"
+
+    # ============================================================
+    # Test 12: Fail-fast sentinel active on all production functions
+    # ============================================================
+    Write-Host "[Test 12] Fail-fast guards all production functions" -ForegroundColor Cyan
 
     $funcs = @(
         { _AssertNoSideEffect },
@@ -302,9 +319,9 @@ try {
     }
 
     # ============================================================
-    # Test 11: Fakes shield; no production code is hit under fail-fast
+    # Test 13: Fakes shield; no production code is hit under fail-fast
     # ============================================================
-    Write-Host "[Test 11] Fakes shield all side effects" -ForegroundColor Cyan
+    Write-Host "[Test 13] Fakes shield all side effects" -ForegroundColor Cyan
     $f = New-FakeDeps
     $f.PortResults = @{8787 = $false; 4173 = $false}
     $f.Commands = @{node = "C:\nodejs\node.exe"; npm = "C:\nodejs\npm.cmd"}
@@ -313,7 +330,7 @@ try {
 
     Assert-Equal 0 $exitCode "Fakes shielding: return code 0"
     Assert-True (Calls-Contain $f "StartService($RepoRoot)") "Fake StartService called with repo root"
-    Assert-True (Calls-Contain $f "OpenBrowser(http://localhost:4173)") "Fake OpenBrowser called"
+    Assert-True (Calls-Contain $f "OpenBrowser(http://127.0.0.1:4173)") "Fake OpenBrowser called"
     Assert-False (Calls-Contain $f "SleepMs") "No sleep when ports come up"
 
     # ============================================================

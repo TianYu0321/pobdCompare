@@ -25,6 +25,15 @@ export interface ImportResult {
   conversionReport: {
     status: 'complete' | 'blocked' | 'validation_failed' | 'partial' | 'degraded' | 'failed';
     catalogHash?: string;
+    mappingCatalogMeta?: {
+      catalogVersion: string;
+      gameVersion: string;
+      league?: string;
+      source: 'trade_api' | 'local_cache' | 'manual';
+      generatedAt: string;
+      expiresAt?: string;
+    };
+    stale?: boolean;
     blockers: Array<{
       code: string;
       category: string;
@@ -58,6 +67,11 @@ export interface GearCandidate {
   baseType: string;
   rawText?: string;
   applicable: boolean;
+  itemSwapAvailability?: {
+    applicable: boolean;
+    reason?: 'missing_raw_text' | 'unmapped_item' | 'unsupported_mods' | 'slot_empty' | 'compatible';
+    rawTextSource?: 'original' | 'generated' | 'pob2_template';
+  };
 }
 
 export interface WorkspaceResult {

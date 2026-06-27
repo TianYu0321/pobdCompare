@@ -7,6 +7,7 @@
   },
   "include": ["src/**/*"],
   "references": [
-    { "path": "../schemas" }
+    { "path": "../schemas" },
+    { "path": "../pob2-worker" }
   ]
 }
